@@ -4,30 +4,30 @@
       <!-- Dropdown -->
       <v-row>
         <v-col>
-          <v-select v-model="selectedOption" :items="options" label="Select an option" outlined ></v-select>
+          <v-select v-model="selectedOption" :items="options" label="Select an option" outlined></v-select>
         </v-col>
       </v-row>
+
       <!-- Tabs and content -->
       <v-row v-if="selectedOption">
         <v-col>
           <v-tabs v-model="activeTab" dir="rtl">
-            <v-tab
-              v-for="(tab, index) in tabs"
-              :key="index"
-              :value="index"
-            >
+            <v-tab v-for="(tab, index) in tabs" :key="index" :value="index">
               {{ tab }}
             </v-tab>
           </v-tabs>
-
           <v-tabs-items v-model="activeTab">
-            <v-tab-item>  
+            <v-tab-item>
               <v-card>
                 <v-card-text>
                   <!-- Chart -->
                   <div class="chart-container">
                     <h4>{{ tabs[activeTab] }} Chart</h4>
-                    <p>Chart for {{ selectedOption }} and {{ tabs[activeTab] }} goes here.  Replace this with your actual chart component.</p>
+                    <p>
+                      Chart for {{ selectedOption }} and
+                      {{ tabs[activeTab] }} goes here. Replace this with
+                      your actual chart component.
+                    </p>
                     <!-- Example using a placeholder div. Replace with your chart library. -->
                     <div :id="'chart-' + activeTab" style="width: 400px; height: 300px;"></div>
                   </div>
@@ -35,11 +35,8 @@
                   <!-- Table -->
                   <div class="table-container">
                     <h4>{{ tabs[activeTab] }} Table</h4>
-                    <v-data-table
-                      :headers="headers[activeTab]"  
-                      :items="tableData[activeTab]"  
-                      class="elevation-1"
-                    ></v-data-table>
+                    <v-data-table :headers="headers[activeTab]" :items="tableData[activeTab]"
+                      class="elevation-1"></v-data-table>
                   </div>
                 </v-card-text>
               </v-card>
@@ -47,11 +44,22 @@
           </v-tabs-items>
         </v-col>
       </v-row>
+
+      <!-- Export to Excel Button -->
+      <v-row v-if="selectedOption">
+        <v-col>
+          <v-btn color="primary" @click="exportToExcel">
+            Export to Excel
+          </v-btn>
+        </v-col>
+      </v-row>
     </v-container>
   </v-app>
 </template>
 
 <script>
+import * as XLSX from "xlsx";
+
 export default {
   data() {
     return {
@@ -60,16 +68,59 @@ export default {
       tabs: ["Tab 1", "Tab 2", "Tab 3"],
       activeTab: 0,
       headers: [
-        [{ text: "Column 1", value: "col1" }, { text: "Column 2", value: "col2" }], // Headers for Tab 1
-        [{ text: "Column A", value: "colA" }, { text: "Column B", value: "colB" }], // Headers for Tab 2
-        [{ text: "Column X", value: "colX" }, { text: "Column Y", value: "colY" }], // Headers for Tab 3
+        [
+          { text: "Column 1", value: "col1" },
+          { text: "Column 2", value: "col2" },
+        ], // Headers for Tab 1
+        [
+          { text: "Column A", value: "colA" },
+          { text: "Column B", value: "colB" },
+        ], // Headers for Tab 2
+        [
+          { text: "Column X", value: "colX" },
+          { text: "Column Y", value: "colY" },
+        ], // Headers for Tab 3
       ],
       tableData: [
-        [{ col1: "Data 1", col2: "Data 2" }, { col1: "Data A", col2: "Data B" }], // Data for Tab 1
-        [{ colA: "Data I", colB: "Data II" }, { colA: "Data Alpha", colB: "Data Beta" }], // Data for Tab 2
-        [{ colX: "Data One", colY: "Data Two" }, { colX: "Data First", colY: "Data Second" }], // Data for Tab 3
+        [
+          { col1: "Data 1", col2: "Data 2" },
+          { col1: "Data A", col2: "Data B" },
+        ], // Data for Tab 1
+        [
+          { colA: "Data I", colB: "Data II" },
+          { colA: "Data Alpha", colB: "Data Beta" },
+        ], // Data for Tab 2
+        [
+          { colX: "Data One", colY: "Data Two" },
+          { colX: "Data First", colY: "Data Second" },
+        ], // Data for Tab 3
       ],
     };
+  },
+  methods: {
+    exportToExcel() {
+      // Get the current table's headers and data
+      const currentHeaders = this.headers[this.activeTab];
+      const currentData = this.tableData[this.activeTab];
+
+      // Prepare data for Excel
+      const worksheetData = [currentHeaders.map(header => header.text)]; // Headers row
+      currentData.forEach(row => {
+        const rowData = currentHeaders.map(header => row[header.value]);
+        worksheetData.push(rowData);
+      });
+
+      // Create a worksheet
+      const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+      // Create a workbook and add the sheet
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, this.tabs[this.activeTab]);
+
+      // Export to Excel file
+      const excelFileName = `${this.tabs[this.activeTab]}-Table.xlsx`;
+      XLSX.writeFile(workbook, excelFileName);
+    },
   },
 };
 </script>
