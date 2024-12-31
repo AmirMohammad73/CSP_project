@@ -13,6 +13,9 @@
     </v-data-table-virtual>
     <v-card-actions>
       <v-spacer></v-spacer>
+      <v-btn color="success" @click="exportToExcel" class="mr-2">
+        Export to Excel
+      </v-btn>
       <v-btn color="primary" @click="saveChanges">Save Changes</v-btn>
     </v-card-actions>
     <v-snackbar v-model="snackbar" :timeout="3000" :top="true">
@@ -25,6 +28,8 @@
 </template>
 
 <script>
+import * as XLSX from 'xlsx';
+
 export default {
   data() {
     return {
@@ -94,7 +99,6 @@ export default {
           favorite: false,
           capacity: 15,
         },
-        // Other boat objects with the capacity property
       ],
       snackbar: false,
       snackbarMessage: '',
@@ -109,52 +113,51 @@ export default {
       })
     },
     filteredBoats() {
-    const query = this.search.toLowerCase();
-    return this.virtualBoats.filter((boat) => {
-      return Object.values(boat).some((value) => {
-        // Convert the value to a string and check if it includes the query
-        return String(value).toLowerCase().includes(query);
+      const query = this.search.toLowerCase();
+      return this.virtualBoats.filter((boat) => {
+        return Object.values(boat).some((value) => {
+          return String(value).toLowerCase().includes(query);
+        });
       });
-    });
-  },
+    },
   },
   methods: {
     saveChanges() {
-      // Implement the logic to save changes here
       this.snackbarMessage = 'Changes saved!';
       this.snackbar = true;
+    },
+    exportToExcel() {
+      try {
+        // Prepare the data for export
+        const exportData = this.filteredBoats.map(boat => ({
+          'Boat Type': boat.name,
+          'Speed (knots)': boat.speed,
+          'Length (m)': boat.length,
+          'Price ($)': boat.price,
+          'Year': boat.year,
+          'Favorite': boat.favorite ? 'Yes' : 'No',
+          'Capacity': boat.capacity
+        }));
+
+        // Create a new workbook and worksheet
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(exportData);
+
+        // Add the worksheet to the workbook
+        XLSX.utils.book_append_sheet(wb, ws, 'Boats');
+
+        // Generate the Excel file
+        XLSX.writeFile(wb, 'boats_data.xlsx');
+
+        // Show success message
+        this.snackbarMessage = 'Excel file exported successfully!';
+        this.snackbar = true;
+      } catch (error) {
+        console.error('Error exporting to Excel:', error);
+        this.snackbarMessage = 'Error exporting to Excel file';
+        this.snackbar = true;
+      }
     }
   }
 }
 </script>
-
-<style scoped>
-.v-data-table-virtual {
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.v-data-table-virtual thead th {
-  font-size: 16px;
-  font-weight: bold;
-  color: #333;
-  position: sticky;
-  top: 0;
-  background-color: #fff;
-  z-index: 1;
-}
-
-.v-data-table-virtual tbody td {
-  font-size: 14px;
-  color: #666;
-}
-
-.v-data-table-virtual tbody tr:hover {
-  background-color: #f7f7f7;
-}
-
-.v-checkbox {
-  margin: 0;
-  padding: 0;
-}
-</style>
