@@ -1,42 +1,65 @@
 <template>
   <v-app dir="rtl">
-    <v-container>
+    <v-container fluid>
       <!-- Dropdown -->
       <v-row>
-        <v-col>
-          <v-select v-model="selectedOption" :items="options" label="Select an option" outlined></v-select>
+        <v-col cols="12" sm="6" md="4" lg="3">
+          <v-select
+            v-model="selectedOption"
+            :items="options"
+            label="Select an option"
+            outlined
+            dense
+          ></v-select>
         </v-col>
       </v-row>
 
       <!-- Tabs and content -->
       <v-row v-if="selectedOption">
-        <v-col>
-          <v-tabs v-model="activeTab" dir="rtl">
+        <v-col cols="12">
+          <v-tabs
+            v-model="activeTab"
+            dir="rtl"
+            background-color="primary"
+            dark
+            centered
+          >
             <v-tab v-for="(tab, index) in tabs" :key="index" :value="index">
               {{ tab }}
             </v-tab>
           </v-tabs>
           <v-tabs-items v-model="activeTab">
             <v-tab-item>
-              <v-card>
+              <v-card class="mt-4">
                 <v-card-text>
                   <!-- Chart -->
                   <div class="chart-container">
-                    <h4>{{ tabs[activeTab] }} Chart</h4>
-                    <p>
-                      Chart for {{ selectedOption }} and
-                      {{ tabs[activeTab] }} goes here. Replace this with
-                      your actual chart component.
-                    </p>
-                    <!-- Example using a placeholder div. Replace with your chart library. -->
-                    <div :id="'chart-' + activeTab" style="width: 400px; height: 300px;"></div>
+                    <h4 class="text-h6 text-right mb-2">
+                      {{ tabs[activeTab] }} Chart
+                    </h4>
+                    <v-row>
+                      <v-col cols="12">
+                        <apexchart
+                          width="100%"
+                          height="300"
+                          type="bar"
+                          :options="chartOptions"
+                          :series="chartOptions.series"
+                        ></apexchart>
+                      </v-col>
+                    </v-row>
                   </div>
 
                   <!-- Table -->
-                  <div class="table-container">
-                    <h4>{{ tabs[activeTab] }} Table</h4>
-                    <v-data-table :headers="headers[activeTab]" :items="tableData[activeTab]"
-                      class="elevation-1"></v-data-table>
+                  <div class="table-container mt-8">
+                    <h4 class="text-h6 text-right mb-2">
+                      {{ tabs[activeTab] }} Table
+                    </h4>
+                    <v-data-table
+                      :headers="headers[activeTab]"
+                      :items="tableData[activeTab]"
+                      class="elevation-1"
+                    ></v-data-table>
                   </div>
                 </v-card-text>
               </v-card>
@@ -46,8 +69,8 @@
       </v-row>
 
       <!-- Export to Excel Button -->
-      <v-row v-if="selectedOption">
-        <v-col>
+      <v-row v-if="selectedOption" class="mt-4">
+        <v-col cols="12" class="text-right">
           <v-btn color="primary" @click="exportToExcel">
             Export to Excel
           </v-btn>
@@ -58,9 +81,12 @@
 </template>
 
 <script>
+import VueApexCharts from "vue3-apexcharts";
 import * as XLSX from "xlsx";
-
 export default {
+  components: {
+    apexchart: VueApexCharts,
+  },
   data() {
     return {
       selectedOption: null,
@@ -71,56 +97,105 @@ export default {
         [
           { text: "Column 1", value: "col1" },
           { text: "Column 2", value: "col2" },
-        ], // Headers for Tab 1
+        ],
         [
           { text: "Column A", value: "colA" },
           { text: "Column B", value: "colB" },
-        ], // Headers for Tab 2
+        ],
         [
           { text: "Column X", value: "colX" },
           { text: "Column Y", value: "colY" },
-        ], // Headers for Tab 3
+        ],
       ],
       tableData: [
         [
-          { col1: "Data 1", col2: "Data 2" },
-          { col1: "Data A", col2: "Data B" },
-        ], // Data for Tab 1
+          { col1: "10", col2: "20" },
+          { col1: "30", col2: "40" },
+        ],
         [
-          { colA: "Data I", colB: "Data II" },
-          { colA: "Data Alpha", colB: "Data Beta" },
-        ], // Data for Tab 2
+          { colA: "15", colB: "25" },
+          { colA: "35", colB: "45" },
+        ],
         [
-          { colX: "Data One", colY: "Data Two" },
-          { colX: "Data First", colY: "Data Second" },
-        ], // Data for Tab 3
+          { colX: "5", colY: "10" },
+          { colX: "20", colY: "30" },
+        ],
       ],
+      chartOptions: {
+        chart: {
+          type: "bar",
+          toolbar: {
+            show: false,
+          },
+        },
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: "50%", // Adjust the width of the bars
+          },
+        },
+        dataLabels: {
+          enabled: false, // Disable data labels for cleaner visuals
+        },
+        xaxis: {
+          categories: [], // Dynamically updated
+        },
+        yaxis: {
+          labels: {
+            formatter: (value) => value.toFixed(0), // Format y-axis labels
+          },
+        },
+        series: [
+          {
+            name: "Value",
+            data: [], // Dynamically updated
+          },
+        ],
+      },
     };
   },
+  watch: {
+    // Update chart data whenever the activeTab or tableData changes
+    activeTab: "updateChart",
+    tableData: {
+      handler: "updateChart",
+      deep: true,
+    },
+  },
   methods: {
-    exportToExcel() {
-      // Get the current table's headers and data
+    updateChart() {
       const currentHeaders = this.headers[this.activeTab];
       const currentData = this.tableData[this.activeTab];
 
-      // Prepare data for Excel
-      const worksheetData = [currentHeaders.map(header => header.text)]; // Headers row
-      currentData.forEach(row => {
-        const rowData = currentHeaders.map(header => row[header.value]);
+      // Use the first column as categories (x-axis labels) and second column as data
+      const categories = currentData.map((row) => row[currentHeaders[0].value]);
+      const data = currentData.map((row) => Number(row[currentHeaders[1].value]));
+
+      // Update the chart's options
+      this.chartOptions.xaxis.categories = categories;
+      this.chartOptions.series = [{ name: currentHeaders[1].text, data }];
+    },
+    exportToExcel() {
+      const currentHeaders = this.headers[this.activeTab];
+      const currentData = this.tableData[this.activeTab];
+
+      const worksheetData = [currentHeaders.map((header) => header.text)];
+      currentData.forEach((row) => {
+        const rowData = currentHeaders.map((header) => row[header.value]);
         worksheetData.push(rowData);
       });
 
-      // Create a worksheet
       const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-
-      // Create a workbook and add the sheet
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, this.tabs[this.activeTab]);
 
-      // Export to Excel file
       const excelFileName = `${this.tabs[this.activeTab]}-Table.xlsx`;
       XLSX.writeFile(workbook, excelFileName);
     },
+  },
+  mounted() {
+    // Initialize the chart with the data for the first tab
+    this.updateChart();
   },
 };
 </script>
