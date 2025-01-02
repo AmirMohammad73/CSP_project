@@ -20,7 +20,6 @@
           <v-tabs
             v-model="activeTab"
             dir="rtl"
-            background-color="primary"
             dark
             centered
           >
