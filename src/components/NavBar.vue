@@ -23,9 +23,9 @@
     </v-menu>
 
     <v-btn icon @click="toggleTheme">
-      <v-icon>{{ isDarkTheme ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
+      <v-icon>{{ AppStore.isDarkTheme ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
     </v-btn>
-    
+
     <v-btn icon>
       <v-icon icon="mdi-bell"></v-icon>
     </v-btn>
@@ -37,17 +37,26 @@
 </template>
 
 <script>
+import { useAppStore } from '../stores/app';
 export default {
+  setup() {
+    const AppStore = useAppStore();
+
+    const toggleValue = () => {
+      AppStore.toggle(); // Calls the store's toggle action
+    };
+
+    return { AppStore, toggleValue };
+  },
   data() {
     return {
       items: ['تغییر پسورد', 'خروج'],
-      isDarkTheme: false, // Initial theme state
     };
   },
   methods: {
     toggleTheme() {
-      this.isDarkTheme = !this.isDarkTheme;
-      this.$vuetify.theme.global.name = this.isDarkTheme ? 'dark' : 'light';
+      this.AppStore.toggle();
+      this.$vuetify.theme.global.name = this.AppStore.isDarkTheme ? 'dark' : 'light';
     },
     changePassword() {
       // Add your logic to handle password change here
@@ -65,6 +74,7 @@ export default {
 .title {
   font-size: 1.25rem;
 }
+
 .menu {
   font-family: 'B Traffic';
 }

@@ -4,25 +4,14 @@
       <!-- Dropdown -->
       <v-row>
         <v-col cols="12" sm="6" md="4" lg="3">
-          <v-select
-            v-model="selectedOption"
-            :items="options"
-            label="Select an option"
-            outlined
-            dense
-          ></v-select>
+          <v-select v-model="selectedOption" :items="options" label="Select an option" outlined dense></v-select>
         </v-col>
       </v-row>
 
       <!-- Tabs and content -->
       <v-row v-if="selectedOption">
         <v-col cols="12">
-          <v-tabs
-            v-model="activeTab"
-            dir="rtl"
-            dark
-            centered
-          >
+          <v-tabs v-model="activeTab" dir="rtl" dark centered>
             <v-tab v-for="(tab, index) in tabs" :key="index" :value="index">
               {{ tab }}
             </v-tab>
@@ -38,13 +27,8 @@
                     </h4>
                     <v-row>
                       <v-col cols="12">
-                        <apexchart
-                          width="100%"
-                          height="300"
-                          type="bar"
-                          :options="chartOptions"
-                          :series="chartOptions.series"
-                        ></apexchart>
+                        <apexchart width="100%" height="300" type="bar" :options="chartOptions"
+                          :series="chartOptions.series"></apexchart>
                       </v-col>
                     </v-row>
                   </div>
@@ -54,11 +38,8 @@
                     <h4 class="text-h6 text-right mb-2">
                       {{ tabs[activeTab] }} Table
                     </h4>
-                    <v-data-table
-                      :headers="headers[activeTab]"
-                      :items="tableData[activeTab]"
-                      class="elevation-1"
-                    ></v-data-table>
+                    <v-data-table :headers="headers[activeTab]" :items="tableData[activeTab]"
+                      class="elevation-1"></v-data-table>
                   </div>
                 </v-card-text>
               </v-card>
@@ -82,7 +63,12 @@
 <script>
 import VueApexCharts from "vue3-apexcharts";
 import * as XLSX from "xlsx";
+import { useAppStore } from '../stores/app';
 export default {
+  setup() {
+    const AppStore = useAppStore();
+    return { AppStore }
+  },
   components: {
     apexchart: VueApexCharts,
   },
@@ -127,6 +113,9 @@ export default {
             show: false,
           },
         },
+        theme: {
+          mode: this.AppStore.isDarkTheme ? "dark" : "light",
+        },
         plotOptions: {
           bar: {
             horizontal: false,
@@ -154,48 +143,48 @@ export default {
     };
   },
   watch: {
-    // Update chart data whenever the activeTab or tableData changes
-    activeTab: "updateChart",
-    tableData: {
-      handler: "updateChart",
-      deep: true,
-    },
+  // Update chart data whenever the activeTab or tableData changes
+  activeTab: "updateChart",
+  tableData: {
+    handler: "updateChart",
+    deep: true,
   },
-  methods: {
-    updateChart() {
-      const currentHeaders = this.headers[this.activeTab];
-      const currentData = this.tableData[this.activeTab];
+},
+methods: {
+  updateChart() {
+    const currentHeaders = this.headers[this.activeTab];
+    const currentData = this.tableData[this.activeTab];
 
-      // Use the first column as categories (x-axis labels) and second column as data
-      const categories = currentData.map((row) => row[currentHeaders[0].value]);
-      const data = currentData.map((row) => Number(row[currentHeaders[1].value]));
+    // Use the first column as categories (x-axis labels) and second column as data
+    const categories = currentData.map((row) => row[currentHeaders[0].value]);
+    const data = currentData.map((row) => Number(row[currentHeaders[1].value]));
 
-      // Update the chart's options
-      this.chartOptions.xaxis.categories = categories;
-      this.chartOptions.series = [{ name: currentHeaders[1].text, data }];
-    },
-    exportToExcel() {
-      const currentHeaders = this.headers[this.activeTab];
-      const currentData = this.tableData[this.activeTab];
-
-      const worksheetData = [currentHeaders.map((header) => header.text)];
-      currentData.forEach((row) => {
-        const rowData = currentHeaders.map((header) => row[header.value]);
-        worksheetData.push(rowData);
-      });
-
-      const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, this.tabs[this.activeTab]);
-
-      const excelFileName = `${this.tabs[this.activeTab]}-Table.xlsx`;
-      XLSX.writeFile(workbook, excelFileName);
-    },
+    // Update the chart's options
+    this.chartOptions.xaxis.categories = categories;
+    this.chartOptions.series = [{ name: currentHeaders[1].text, data }];
   },
-  mounted() {
-    // Initialize the chart with the data for the first tab
-    this.updateChart();
+  exportToExcel() {
+    const currentHeaders = this.headers[this.activeTab];
+    const currentData = this.tableData[this.activeTab];
+
+    const worksheetData = [currentHeaders.map((header) => header.text)];
+    currentData.forEach((row) => {
+      const rowData = currentHeaders.map((header) => row[header.value]);
+      worksheetData.push(rowData);
+    });
+
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, this.tabs[this.activeTab]);
+
+    const excelFileName = `${this.tabs[this.activeTab]}-Table.xlsx`;
+    XLSX.writeFile(workbook, excelFileName);
   },
+},
+mounted() {
+  // Initialize the chart with the data for the first tab
+  this.updateChart();
+},
 };
 </script>
 

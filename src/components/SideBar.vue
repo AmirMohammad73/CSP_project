@@ -1,6 +1,8 @@
+<!-- sidebar.vue -->
 <template v-slot:prepend>
   <v-navigation-drawer app location="right" permanent @update:expanded="false">
-    <v-list-item lines="two" prepend-avatar="https://randomuser.me/api/portraits/women/81.jpg" subtitle="Logged in" title="Jane Smith"></v-list-item>
+    <v-list-item lines="two" prepend-avatar="https://randomuser.me/api/portraits/women/81.jpg" subtitle="Logged in"
+      title="Jane Smith"></v-list-item>
     <v-divider></v-divider>
     <v-list density="compact" nav>
       <v-list-item prepend-icon="mdi-home-city" title="داشبورد" value="home" class="white--text"
@@ -22,8 +24,14 @@ export default {
 </script>
 
 <style scoped>
+.v-navigation-drawer .v-list-item {
+  color: white !important;
+  /* Force the text color to always be white */
+}
+
 .v-navigation-drawer {
   background-color: #212631;
 }
+
 /* Add any custom styles here */
 </style>
