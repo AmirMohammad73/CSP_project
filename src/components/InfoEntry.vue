@@ -7,87 +7,68 @@
 
     <!-- Search Field -->
     <v-card-text>
-      <v-text-field
-        v-model="search"
-        label="Search for boats"
-        append-inner-icon="mdi-magnify"
-        variant="outlined"
-        hide-details
-        single-line
-        dir="rtl"
-        color="primary"
-        class="mb-4"
-      ></v-text-field>
+      <v-text-field v-model="search" label="Search for boats" append-inner-icon="mdi-magnify" variant="outlined"
+        hide-details single-line dir="rtl" color="primary" class="mb-4"></v-text-field>
     </v-card-text>
 
     <!-- Data Table -->
-    <v-data-table-virtual
-      :headers="headers"
-      :items="filteredBoats"
-      height="35vw"
-      item-value="name"
-      class="elevation-1 rounded"
-      fixed-header
-    >
-      <!-- Favorite Column -->
-      <template v-slot:item.favorite="{ item }">
-        <v-checkbox
-          v-model="item.favorite"
-          @click.stop
-          color="primary"
-        ></v-checkbox>
+    <v-data-table-virtual :headers="headers" :items="filteredBoats" height="35vw" item-value="name"
+      class="elevation-1 rounded" fixed-header>
+      <!-- Custom Header for Favorite Column -->
+      <template v-slot:header.favorite="{ column }">
+        <div class="d-flex justify-center align-center">
+          {{ column.title }}
+          <v-menu location="bottom end" :close-on-content-click="false">
+            <template v-slot:activator="{ props }">
+              <v-btn icon="mdi-filter-variant" size="small" variant="text" v-bind="props" class="ms-2"></v-btn>
+            </template>
+            <v-list density="compact" class="pa-2">
+              <v-list-item>
+                <v-list-item-title>
+                  <v-radio-group v-model="favoriteFilter" hide-details class="ma-0">
+                    <v-radio label="Checked" value="checked" class="ma-0"></v-radio>
+                    <v-radio label="Unchecked" value="unchecked" class="ma-0"></v-radio>
+                    <v-radio label="All" value="all" class="ma-0"></v-radio>
+                  </v-radio-group>
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </div>
       </template>
+
+      <template v-slot:item.favorite="{ item }">
+        <div class="d-flex justify-center">
+          <v-checkbox v-model="item.favorite" @click.stop color="primary"></v-checkbox>
+        </div>
+      </template>
+
 
       <!-- Capacity Column -->
       <template v-slot:item.capacity="{ item }">
-        <v-text-field
-          v-model="item.capacity"
-          type="number"
-          dense
-          hide-details
-          single-line
-          color="primary"
-        ></v-text-field>
+        <v-text-field v-model="item.capacity" type="number" dense hide-details single-line
+          color="primary"></v-text-field>
       </template>
     </v-data-table-virtual>
 
     <!-- Action Buttons -->
     <v-card-actions class="mt-4">
       <v-spacer></v-spacer>
-      <v-btn
-        color="success"
-        class="text-white rounded-pill elevation-2"
-        @click="exportToExcel"
-      >
+      <v-btn color="success" class="text-white rounded-pill elevation-2" @click="exportToExcel">
         <v-icon left>mdi-file-excel</v-icon>
         Export to Excel
       </v-btn>
-      <v-btn
-        color="primary"
-        class="text-white rounded-pill elevation-2"
-        @click="saveChanges"
-      >
+      <v-btn color="primary" class="text-white rounded-pill elevation-2" @click="saveChanges">
         <v-icon left>mdi-content-save</v-icon>
         Save Changes
       </v-btn>
     </v-card-actions>
 
     <!-- Snackbar -->
-    <v-snackbar
-      v-model="snackbar"
-      :timeout="3000"
-      :top="true"
-      color="success"
-      class="rounded elevation-2"
-    >
+    <v-snackbar v-model="snackbar" :timeout="3000" :top="true" color="success" class="rounded elevation-2">
       {{ snackbarMessage }}
       <template v-slot:action="{ attrs }">
-        <v-btn
-          color="pink"
-          text
-          v-bind="attrs"
-          @click="snackbar = false"
-        >
+        <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
           Close
         </v-btn>
       </template>
@@ -99,9 +80,12 @@
 import * as XLSX from 'xlsx';
 
 export default {
+  name: 'BoatsManagement',
+
   data() {
     return {
       search: '',
+      favoriteFilter: 'all',
       headers: [
         {
           title: 'Boat Type',
@@ -137,7 +121,7 @@ export default {
           title: 'Favorite',
           align: 'end',
           key: 'favorite',
-          value: 'favorite',
+          sortable: false,
           class: 'text-subtitle-1 font-weight-bold',
         },
         {
@@ -167,33 +151,67 @@ export default {
           favorite: false,
           capacity: 15,
         },
+        {
+          name: 'CoastalCruiser',
+          speed: 30,
+          length: 28,
+          price: 400000,
+          year: 2022,
+          favorite: true,
+          capacity: 12,
+        },
+        {
+          name: 'WaveRider',
+          speed: 40,
+          length: 20,
+          price: 250000,
+          year: 2021,
+          favorite: false,
+          capacity: 8,
+        },
       ],
       snackbar: false,
       snackbarMessage: '',
     };
   },
+
   computed: {
     virtualBoats() {
       return [...Array(10000).keys()].map((i) => {
         const boat = { ...this.boats[i % this.boats.length] };
-        boat.name = `${boat.name} #${i}`;
+        boat.name = `${boat.name} #${i + 1}`;
         return boat;
       });
     },
+
     filteredBoats() {
       const query = this.search.toLowerCase();
-      return this.virtualBoats.filter((boat) => {
+
+      // First apply search filter
+      let filtered = this.virtualBoats.filter((boat) => {
         return Object.values(boat).some((value) => {
           return String(value).toLowerCase().includes(query);
         });
       });
+
+      // Then apply favorite filter
+      if (this.favoriteFilter !== 'all') {
+        filtered = filtered.filter((boat) => {
+          return this.favoriteFilter === 'checked' ? boat.favorite : !boat.favorite;
+        });
+      }
+
+      return filtered;
     },
   },
+
   methods: {
     saveChanges() {
-      this.snackbarMessage = 'Changes saved!';
+      // Here you would typically make an API call to save the changes
+      this.snackbarMessage = 'Changes saved successfully!';
       this.snackbar = true;
     },
+
     exportToExcel() {
       try {
         const exportData = this.filteredBoats.map((boat) => ({
@@ -208,6 +226,20 @@ export default {
 
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.json_to_sheet(exportData);
+
+        // Add some styling to the headers
+        const headerStyle = {
+          font: { bold: true },
+          alignment: { horizontal: 'center' },
+        };
+
+        // Apply header styling (if supported by your XLSX version)
+        const range = XLSX.utils.decode_range(ws['!ref']);
+        for (let C = range.s.c; C <= range.e.c; ++C) {
+          const address = XLSX.utils.encode_cell({ r: 0, c: C });
+          if (!ws[address]) continue;
+          ws[address].s = headerStyle;
+        }
 
         XLSX.utils.book_append_sheet(wb, ws, 'Boats');
         XLSX.writeFile(wb, 'boats_data.xlsx');
@@ -225,10 +257,6 @@ export default {
 </script>
 
 <style scoped>
-/* .v-card {
-  background-color: #f9f9f9;
-} */
-
 .v-card-title {
   border-bottom: 2px solid #1976d2;
 }
@@ -237,16 +265,49 @@ export default {
   max-width: 400px;
 }
 
-.v-btn {
-  min-width: 150px;
-}
-
 .v-snackbar {
   font-weight: bold;
 }
 
+/* Ensure table layout consistency */
 .v-data-table-virtual {
-  border-radius: 8px;
-  overflow: hidden;
+  table-layout: fixed;
+  text-align: center;
+}
+
+/* Align the Favorite column header and items */
+.v-data-table-virtual th:nth-child(6),
+/* Adjust for the column order */
+.v-data-table-virtual td:nth-child(6) {
+  text-align: center;
+}
+
+/* Style adjustments to align headers and values */
+.v-data-table-virtual th {
+  vertical-align: middle;
+}
+
+.v-data-table-virtual td {
+  vertical-align: middle;
+}
+
+/* Add hover effect to the filter button */
+.v-btn--icon:hover {
+  background-color: rgba(25, 118, 210, 0.04);
+}
+
+/* Style the menu */
+.v-list {
+  min-width: 150px;
+}
+
+/* Add some spacing between radio buttons */
+.v-radio {
+  margin: 4px 0;
+}
+
+/* Ensure the radio group doesn't have unnecessary padding */
+.v-radio-group {
+  padding: 0;
 }
 </style>
