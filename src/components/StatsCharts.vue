@@ -28,7 +28,7 @@
                     <v-row>
                       <v-col cols="12">
                         <!-- Add a key to force re-render -->
-                        <apexchart :key="chartKey" width="100%" height="300" type="bar" :options="chartOptions"
+                        <apexchart :key="chartKey" width="100%" height="600" type="bar" :options="chartOptions"
                           :series="chartOptions.series"></apexchart>
                       </v-col>
                     </v-row>
@@ -64,7 +64,8 @@
 <script>
 import VueApexCharts from "vue3-apexcharts";
 import * as XLSX from "xlsx";
-import { useAppStore } from '../stores/app';
+import { useAppStore } from "../stores/app";
+
 export default {
   setup() {
     const AppStore = useAppStore();
@@ -75,41 +76,30 @@ export default {
   },
   data() {
     return {
-      selectedOption: "Option 1", // Set "Option 1" as the default selected option
-      options: ["Option 1", "Option 2", "Option 3"],
-      tabs: ["Tab 1", "Tab 2", "Tab 3"],
+      selectedOption: "Rural Operations Monitoring", // Updated default option
+      options: ["Rural Operations Monitoring", "Option 2", "Option 3"], // Updated options
+      tabs: [
+        "Map Status",
+        "Update Status",
+        "Geocode Status",
+        "License Plate Status",
+        "National ID",
+      ], // Updated tabs
       activeTab: 0,
       headers: [
         [
-          { text: "Column 1", value: "col1" },
-          { text: "Column 2", value: "col2" },
+          { text: "Ostantitle", value: "ostantitle" },
+          { text: "Bonyad Maskan", value: "bonyad_maskan" },
+          { text: "Sayer Manabe", value: "sayer_manabe" },
+          { text: "Tarsim", value: "tarsim" },
         ],
-        [
-          { text: "Column A", value: "colA" },
-          { text: "Column B", value: "colB" },
-        ],
-        [
-          { text: "Column X", value: "colX" },
-          { text: "Column Y", value: "colY" },
-        ],
+        // Add headers for other tabs if needed
       ],
-      tableData: [
-        [
-          { col1: "10", col2: "20" },
-          { col1: "30", col2: "40" },
-        ],
-        [
-          { colA: "15", colB: "25" },
-          { colA: "35", colB: "45" },
-        ],
-        [
-          { colX: "5", colY: "10" },
-          { colX: "20", colY: "30" },
-        ],
-      ],
+      tableData: [[]], // Will be populated from the server
       chartOptions: {
         chart: {
           type: "bar",
+          stacked: false, // Disable stacking for grouped bars
           toolbar: {
             show: false,
           },
@@ -117,46 +107,46 @@ export default {
         theme: {
           mode: this.AppStore.isDarkTheme ? "dark" : "light",
         },
-        colors: this.AppStore.isDarkTheme ? ["#00E396"] : ["#008FFB"], // Set initial colors based on theme
+        colors: ["#FF4560", "#FEB019", "#FF6699"], // Red, Yellow, Pink
         plotOptions: {
           bar: {
             horizontal: false,
-            columnWidth: "50%", // Adjust the width of the bars
+            columnWidth: "50%", // Adjust column width
+            endingShape: "rounded",
           },
         },
         dataLabels: {
-          enabled: false, // Disable data labels for cleaner visuals
+          enabled: false,
         },
         xaxis: {
-          categories: [], // Dynamically updated
+          categories: [], // Will be populated dynamically
+          labels: {
+            style: {
+              fontFamily: "B Traffic",
+            },
+          },
         },
         yaxis: {
           labels: {
-            formatter: (value) => value.toFixed(0), // Format y-axis labels
+            style: {
+              fontFamily: "B Traffic",
+            },
+            formatter: (value) => value.toFixed(0),
           },
         },
-        series: [
-          {
-            name: "Value",
-            data: [], // Dynamically updated
-          },
-        ],
+        series: [], // Will be populated dynamically
       },
-      chartKey: 0, // Key to force re-render
+      chartKey: 0,
     };
   },
   watch: {
-    // Update chart data whenever the activeTab or tableData changes
-    activeTab: "updateChart",
-    tableData: {
-      handler: "updateChart",
-      deep: true,
-    },
+    // Fetch data when the active tab changes
+    activeTab: "fetchData",
     // Watch for changes in the theme and update the chart options
-    'AppStore.isDarkTheme': {
+    "AppStore.isDarkTheme": {
       handler(newVal) {
         this.chartOptions.theme.mode = newVal ? "dark" : "light";
-        this.chartOptions.colors = newVal ? ["#00E396"] : ["#008FFB"]; // Update colors based on theme
+        this.chartOptions.colors = newVal ? ["#00E396"] : ["#008FFB"];
         this.chartKey++; // Increment key to force re-render
         this.updateChart();
       },
@@ -164,18 +154,55 @@ export default {
     },
   },
   methods: {
+    // Fetch data from the server
+    async fetchData() {
+      try {
+        console.log("1");
+        const response = await fetch("http://172.16.8.33:3001/api/data");
+        console.log("2");
+        const data = await response.json();
+        console.log("3");
+        this.tableData = [data]; // Update tableData with fetched data
+        console.log("4");
+        this.updateChart();
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    },
+    // Update the chart based on the current tab's data
     updateChart() {
       const currentHeaders = this.headers[this.activeTab];
       const currentData = this.tableData[this.activeTab];
 
-      // Use the first column as categories (x-axis labels) and second column as data
-      const categories = currentData.map((row) => row[currentHeaders[0].value]);
-      const data = currentData.map((row) => Number(row[currentHeaders[1].value]));
+      if (currentData && currentData.length > 0) {
+        // Use the first column (ostantitle) as x-axis categories
+        const categories = currentData.map((row) => row[currentHeaders[0].value]);
 
-      // Update the chart's options
-      this.chartOptions.xaxis.categories = categories;
-      this.chartOptions.series = [{ name: currentHeaders[1].text, data }];
+        // Prepare series data for each group
+        const series = [
+          {
+            name: "Bonyad Maskan",
+            data: currentData.map((row) => Number(row["bonyad_maskan"])),
+            color: "#FF4560", // Red
+          },
+          {
+            name: "Sayer Manabe",
+            data: currentData.map((row) => Number(row["sayer_manabe"])),
+            color: "#FEB019", // Yellow
+          },
+          {
+            name: "Tarsim",
+            data: currentData.map((row) => Number(row["tarsim"])),
+            color: "#FF6699", // Pink
+          },
+        ];
+
+        // Update the chart's options
+        this.chartOptions.xaxis.categories = categories;
+        this.chartOptions.series = series;
+      }
     },
+    // Export the current tab's data to Excel
     exportToExcel() {
       const currentHeaders = this.headers[this.activeTab];
       const currentData = this.tableData[this.activeTab];
@@ -195,8 +222,8 @@ export default {
     },
   },
   mounted() {
-    // Initialize the chart with the data for the first tab
-    this.updateChart();
+    // Fetch data when the component is mounted
+    this.fetchData();
   },
 };
 </script>

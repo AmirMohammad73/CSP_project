@@ -12,6 +12,9 @@
   "dependencies": {
     "@mdi/font": "7.4.47",
     "apexcharts": "^4.3.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "pg": "^8.13.1",
     "roboto-fontface": "*",
     "vue": "^3.4.31",
     "vue3-apexcharts": "^1.8.0",

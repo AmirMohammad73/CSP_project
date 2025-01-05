@@ -18,21 +18,22 @@
       <template v-slot:header.favorite="{ column }">
         <div class="d-flex justify-center align-center">
           {{ column.title }}
-          <v-menu location="bottom end" :close-on-content-click="false">
+          <v-menu location="bottom end" :close-on-content-click="false" transition="scale-transition">
             <template v-slot:activator="{ props }">
               <v-btn icon="mdi-filter-variant" size="small" variant="text" v-bind="props" class="ms-2"></v-btn>
             </template>
-            <v-list density="compact" class="pa-2">
-              <v-list-item>
-                <v-list-item-title>
-                  <v-radio-group v-model="favoriteFilter" hide-details class="ma-0">
-                    <v-radio label="Checked" value="checked" class="ma-0"></v-radio>
-                    <v-radio label="Unchecked" value="unchecked" class="ma-0"></v-radio>
-                    <v-radio label="All" value="all" class="ma-0"></v-radio>
-                  </v-radio-group>
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
+            <v-card class="pa-2" elevation="4">
+              <v-list density="compact">
+                <v-list-item v-for="option in favoriteOptions" :key="option.value"
+                  @click="favoriteFilter = option.value">
+                  <v-list-item-title class="d-flex align-center">
+                    <v-icon :color="option.color" class="me-2">{{ option.icon }}</v-icon>
+                    <span>{{ option.label }}</span>
+                    <v-icon v-if="favoriteFilter === option.value" color="primary" class="ms-auto">mdi-check</v-icon>
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-card>
           </v-menu>
         </div>
       </template>
@@ -42,7 +43,6 @@
           <v-checkbox v-model="item.favorite" @click.stop color="primary"></v-checkbox>
         </div>
       </template>
-
 
       <!-- Capacity Column -->
       <template v-slot:item.capacity="{ item }">
@@ -172,6 +172,11 @@ export default {
       ],
       snackbar: false,
       snackbarMessage: '',
+      favoriteOptions: [
+        { label: 'Checked', value: 'checked', icon: 'mdi-checkbox-marked', color: 'primary' },
+        { label: 'Unchecked', value: 'unchecked', icon: 'mdi-checkbox-blank-outline', color: 'secondary' },
+        { label: 'All', value: 'all', icon: 'mdi-filter', color: 'success' },
+      ],
     };
   },
 
