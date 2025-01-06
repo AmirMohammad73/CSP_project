@@ -1,6 +1,6 @@
 const { query } = require('./db');
 
-const getData = async () => {
+const getMapStatusData = async () => {
   const sql = `
     SELECT 
       ostantitle,
@@ -18,4 +18,11 @@ const getData = async () => {
   return await query(sql);
 };
 
-module.exports = { getData };
+const getLocationsData = async () => {
+  const sql = `SELECT ostantitle, shahrestantitle, zonetitle, dehestantitle, locationname, population_point_id, shenaseh_melli, adam_paziresh AS bonyad_maskan, arseh_ayan AS tarsim, niazmande_eslah AS sayer_manabe, amaliate_meydani
+dadeh_amaei, eslah_naghsheh, daryafte_naghsheh, tolid_qr, pelak_talfighi AS nasbe_pelak, tayid_va_bargozari, tedad_sakhteman, tedad_geosakhteman, tedad_makan, tedad_geocode_makan, tedad_makan_jadid, pdf, ersal_setad
+FROM public.locations1 ORDER BY ostantitle, shahrestantitle, zonetitle, dehestantitle, locationname;`;
+  return await query(sql);
+};
+
+module.exports = { getMapStatusData, getLocationsData };

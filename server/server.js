@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { getData } = require('./api');
+const { getMapStatusData, getLocationsData } = require('./api');
 require('dotenv').config();
 
 const app = express();
@@ -18,7 +18,18 @@ app.get('/health', (req, res) => {
 // Data endpoint
 app.get('/api/data', async (req, res) => {
   try {
-    const data = await getData();
+    const data = await getMapStatusData();
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/locations', async (req, res) => {
+  try {
+    const data = await getLocationsData();
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
