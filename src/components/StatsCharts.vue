@@ -1,3 +1,4 @@
+<!-- statscharts.vue -->
 <template>
   <v-app dir="rtl">
     <v-container fluid>
@@ -62,150 +63,83 @@
 </template>
 
 <script>
+import { ref, watch } from "vue";
 import VueApexCharts from "vue3-apexcharts";
 import * as XLSX from "xlsx";
 import { useAppStore } from "../stores/app";
+import { useDataFetching } from "./useDataFetching";
 
 export default {
-  setup() {
-    const AppStore = useAppStore();
-    return { AppStore };
-  },
   components: {
     apexchart: VueApexCharts,
   },
-  data() {
-    return {
-      selectedOption: "Rural Operations Monitoring", // Updated default option
-      options: ["Rural Operations Monitoring", "Option 2", "Option 3"], // Updated options
-      tabs: [
-        "Map Status",
-        "Update Status",
-        "Geocode Status",
-        "License Plate Status",
-        "National ID",
-      ], // Updated tabs
-      activeTab: 0,
-      headers: [
-        [
-          { text: "Ostantitle", value: "ostantitle" },
-          { text: "Bonyad Maskan", value: "bonyad_maskan" },
-          { text: "Sayer Manabe", value: "sayer_manabe" },
-          { text: "Tarsim", value: "tarsim" },
-        ],
-        // Add headers for other tabs if needed
+  setup() {
+    const AppStore = useAppStore();
+    const selectedOption = ref("Rural Operations Monitoring");
+    const options = ref(["Rural Operations Monitoring", "Option 2", "Option 3"]);
+    const tabs = ref([
+      "Map Status",
+      "Update Status",
+      "Geocode Status", // Add Geocode Status tab
+      "License Plate Status",
+      "National ID",
+    ]);
+    const activeTab = ref(0);
+    const headers = ref([
+      [
+        { text: "Ostantitle", value: "ostantitle" },
+        { text: "Bonyad Maskan", value: "bonyad_maskan" },
+        { text: "Sayer Manabe", value: "sayer_manabe" },
+        { text: "Tarsim", value: "tarsim" },
       ],
-      tableData: [[]], // Will be populated from the server
-      chartOptions: {
-        chart: {
-          type: "bar",
-          stacked: false, // Disable stacking for grouped bars
-          toolbar: {
-            show: false,
-          },
-        },
-        theme: {
-          mode: this.AppStore.isDarkTheme ? "dark" : "light",
-        },
-        colors: ["#FF4560", "#FEB019", "#FF6699"], // Red, Yellow, Pink
-        plotOptions: {
-          bar: {
-            horizontal: false,
-            columnWidth: "50%", // Adjust column width
-            endingShape: "rounded",
-          },
-        },
-        dataLabels: {
-          enabled: false,
-        },
-        xaxis: {
-          categories: [], // Will be populated dynamically
-          labels: {
-            style: {
-              fontFamily: "B Traffic",
-            },
-          },
-        },
-        yaxis: {
-          labels: {
-            style: {
-              fontFamily: "B Traffic",
-            },
-            formatter: (value) => value.toFixed(0),
-          },
-        },
-        series: [], // Will be populated dynamically
-      },
-      chartKey: 0,
+      [
+        { text: "Ostantitle", value: "ostantitle" },
+        { text: "Amaliate Meydani", value: "amaliate_meydani" },
+        { text: "Dadeh Amaei", value: "dadeh_amaei" },
+        { text: "Eslah Naghsheh", value: "eslah_naghsheh" },
+        { text: "Total", value: "total" },
+      ],
+      // Add headers for Geocode Status
+      [
+        { text: "Ostantitle", value: "ostantitle" },
+        { text: "Eslah Naghsheh", value: "eslah_naghsheh" },
+        { text: "Tayid va Bargozari", value: "tayid_va_bargozari" },
+        { text: "Daryafte Naghsheh", value: "daryafte_naghsheh" },
+        { text: "Total", value: "total" },
+      ],
+    ]);
+
+    // Define API endpoints for each tab
+    const tabEndpoints = {
+      0: "http://172.16.8.33:3001/api/data", // Map Status
+      1: "http://172.16.8.33:3001/api/update", // Update Status
+      2: "http://172.16.8.33:3001/api/geocode", // Geocode Status
     };
-  },
-  watch: {
-    // Fetch data when the active tab changes
-    activeTab: "fetchData",
+
+    // Use the composable function
+    const { tableData, chartOptions, chartKey, fetchData, updateChart } = useDataFetching(
+      activeTab,
+      headers,
+      tabs,
+      tabEndpoints
+    );
+
     // Watch for changes in the theme and update the chart options
-    "AppStore.isDarkTheme": {
-      handler(newVal) {
-        this.chartOptions.theme.mode = newVal ? "dark" : "light";
-        this.chartOptions.colors = newVal ? ["#00E396"] : ["#008FFB"];
-        this.chartKey++; // Increment key to force re-render
-        this.updateChart();
+    watch(
+      () => AppStore.isDarkTheme,
+      (newVal) => {
+        chartOptions.value.theme.mode = newVal ? "dark" : "light";
+        chartOptions.value.colors = newVal ? ["#00E396"] : ["#008FFB"];
+        chartKey.value++; // Increment key to force re-render
+        updateChart();
       },
-      immediate: true,
-    },
-  },
-  methods: {
-    // Fetch data from the server
-    async fetchData() {
-      try {
-        console.log("1");
-        const response = await fetch("http://172.16.8.33:3001/api/data");
-        console.log("2");
-        const data = await response.json();
-        console.log("3");
-        this.tableData = [data]; // Update tableData with fetched data
-        console.log("4");
-        this.updateChart();
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    },
-    // Update the chart based on the current tab's data
-    updateChart() {
-      const currentHeaders = this.headers[this.activeTab];
-      const currentData = this.tableData[this.activeTab];
+      { immediate: true }
+    );
 
-      if (currentData && currentData.length > 0) {
-        // Use the first column (ostantitle) as x-axis categories
-        const categories = currentData.map((row) => row[currentHeaders[0].value]);
-
-        // Prepare series data for each group
-        const series = [
-          {
-            name: "Bonyad Maskan",
-            data: currentData.map((row) => Number(row["bonyad_maskan"])),
-            color: "#FF4560", // Red
-          },
-          {
-            name: "Sayer Manabe",
-            data: currentData.map((row) => Number(row["sayer_manabe"])),
-            color: "#FEB019", // Yellow
-          },
-          {
-            name: "Tarsim",
-            data: currentData.map((row) => Number(row["tarsim"])),
-            color: "#FF6699", // Pink
-          },
-        ];
-
-        // Update the chart's options
-        this.chartOptions.xaxis.categories = categories;
-        this.chartOptions.series = series;
-      }
-    },
-    // Export the current tab's data to Excel
-    exportToExcel() {
-      const currentHeaders = this.headers[this.activeTab];
-      const currentData = this.tableData[this.activeTab];
+    // Export to Excel
+    const exportToExcel = () => {
+      const currentHeaders = headers.value[activeTab.value];
+      const currentData = tableData.value[activeTab.value];
 
       const worksheetData = [currentHeaders.map((header) => header.text)];
       currentData.forEach((row) => {
@@ -215,16 +149,24 @@ export default {
 
       const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, this.tabs[this.activeTab]);
+      XLSX.utils.book_append_sheet(workbook, worksheet, tabs.value[activeTab.value]);
 
-      const excelFileName = `${this.tabs[this.activeTab]}-Table.xlsx`;
+      const excelFileName = `${tabs.value[activeTab.value]}-Table.xlsx`;
       XLSX.writeFile(workbook, excelFileName);
-    },
-  },
-  mounted() {
-    // Fetch data when the component is mounted
-    this.fetchData();
-  },
+    };
+
+    return {
+      selectedOption,
+      options,
+      tabs,
+      activeTab,
+      headers,
+      tableData,
+      chartOptions,
+      chartKey,
+      exportToExcel,
+    };
+  }
 };
 </script>
 

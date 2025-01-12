@@ -18,6 +18,38 @@ const getMapStatusData = async () => {
   return await query(sql);
 };
 
+const getUpdateStatusData = async () => {
+  const sql = `SELECT 
+      ostantitle,
+      COUNT(CASE WHEN amaliate_meydani THEN 1 END) AS amaliate_meydani,
+      COUNT(CASE WHEN dadeh_amaei THEN 1 END) AS dadeh_amaei,
+      COUNT(CASE WHEN eslah_naghsheh THEN 1 END) AS eslah_naghsheh,
+      COUNT(*) AS total
+    FROM 
+      public.locations1
+    GROUP BY 
+      ostantitle
+    ORDER BY 
+      ostantitle;`;
+  return await query(sql);
+};
+
+const getGeocodeStatusData = async () => {
+  const sql = `SELECT 
+      ostantitle,
+      COUNT(CASE WHEN eslah_naghsheh THEN 1 END) AS eslah_naghsheh,
+      COUNT(CASE WHEN tayid_va_bargozari THEN 1 END) AS tayid_va_bargozari,
+      COUNT(CASE WHEN daryafte_naghsheh THEN 1 END) AS daryafte_naghsheh,
+      COUNT(*) AS total
+    FROM 
+      public.locations1
+    GROUP BY 
+      ostantitle
+    ORDER BY 
+      ostantitle;`;
+  return await query(sql);
+};
+
 const getLocationsData = async () => {
   const sql = `SELECT ostantitle, shahrestantitle, zonetitle, dehestantitle, locationname, population_point_id, shenaseh_melli, adam_paziresh AS bonyad_maskan, arseh_ayan AS tarsim, niazmande_eslah AS sayer_manabe, amaliate_meydani
 dadeh_amaei, eslah_naghsheh, daryafte_naghsheh, tolid_qr, pelak_talfighi AS nasbe_pelak, tayid_va_bargozari, tedad_sakhteman, tedad_geosakhteman, tedad_makan, tedad_geocode_makan, tedad_makan_jadid, pdf, ersal_setad
@@ -25,4 +57,4 @@ FROM public.locations1 ORDER BY ostantitle, shahrestantitle, zonetitle, dehestan
   return await query(sql);
 };
 
-module.exports = { getMapStatusData, getLocationsData };
+module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData };
