@@ -141,6 +141,29 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints) {
                         color: "#FF6699", // Pink
                     },
                 ];
+            } else if (activeTab.value === 3) {
+                // License Plate Status tab
+                series = [
+                    {
+                        name: "Tolid QR",
+                        data: currentData.map((row) => Number(row["tolid_qr"])),
+                        color: "#FF4560", // Red
+                    },
+                    {
+                        name: "Pelak Talfighi",
+                        data: currentData.map((row) => Number(row["pelak_talfighi"])),
+                        color: "#FEB019", // Yellow
+                    },
+                ];
+            } else if (activeTab.value === 4) {
+                // National ID tab
+                series = [
+                    {
+                        name: "Shenaseh Melli",
+                        data: currentData.map((row) => Number(row["shenaseh_melli"])),
+                        color: "#00E396", // Green
+                    },
+                ];
             }
 
             // Update the chart's options

@@ -80,9 +80,9 @@ export default {
     const tabs = ref([
       "Map Status",
       "Update Status",
-      "Geocode Status", // Add Geocode Status tab
-      "License Plate Status",
-      "National ID",
+      "Geocode Status",
+      "License Plate Status", // Add License Plate Status tab
+      "National ID", // Add National ID tab
     ]);
     const activeTab = ref(0);
     const headers = ref([
@@ -99,12 +99,24 @@ export default {
         { text: "Eslah Naghsheh", value: "eslah_naghsheh" },
         { text: "Total", value: "total" },
       ],
-      // Add headers for Geocode Status
       [
         { text: "Ostantitle", value: "ostantitle" },
         { text: "Eslah Naghsheh", value: "eslah_naghsheh" },
         { text: "Tayid va Bargozari", value: "tayid_va_bargozari" },
         { text: "Daryafte Naghsheh", value: "daryafte_naghsheh" },
+        { text: "Total", value: "total" },
+      ],
+      // Add headers for License Plate Status
+      [
+        { text: "Ostantitle", value: "ostantitle" },
+        { text: "Tolid QR", value: "tolid_qr" },
+        { text: "Pelak Talfighi", value: "pelak_talfighi" },
+        { text: "Total", value: "total" },
+      ],
+      // Add headers for National ID
+      [
+        { text: "Ostantitle", value: "ostantitle" },
+        { text: "Shenaseh Melli", value: "shenaseh_melli" },
         { text: "Total", value: "total" },
       ],
     ]);
@@ -114,6 +126,8 @@ export default {
       0: "http://172.16.8.33:3001/api/data", // Map Status
       1: "http://172.16.8.33:3001/api/update", // Update Status
       2: "http://172.16.8.33:3001/api/geocode", // Geocode Status
+      3: "http://172.16.8.33:3001/api/license-plate", // License Plate Status
+      4: "http://172.16.8.33:3001/api/national-id", // National ID
     };
 
     // Use the composable function

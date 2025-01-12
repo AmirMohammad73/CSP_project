@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData } = require('./api');
+const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData } = require('./api');
 require('dotenv').config();
 
 const app = express();
@@ -52,6 +52,31 @@ app.get('/api/update', async (req, res) => {
 app.get('/api/geocode', async (req, res) => {
   try {
     const data = await getGeocodeStatusData();
+	console.log(data);
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/license-plate', async (req, res) => {
+  try {
+    const data = await getPlateStatusData();
+	console.log(data);
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/national-id', async (req, res) => {
+  try {
+    const data = await getNationalIDStatusData();
+	console.log(data);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
