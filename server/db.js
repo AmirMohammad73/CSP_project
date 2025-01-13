@@ -24,13 +24,13 @@ const testConnection = async () => {
 testConnection();
 
 // Query function to handle database queries
-const query = async (text, params) => {
+const query = async (sql, params = []) => {
+  const client = await pool.connect();
   try {
-    const result = await pool.query(text, params);
-    return result.rows;
-  } catch (err) {
-    console.error('Database query error:', err);
-    throw err;
+    const res = await client.query(sql, params);
+    return res.rows;
+  } finally {
+    client.release();
   }
 };
 

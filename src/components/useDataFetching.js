@@ -1,4 +1,3 @@
-//useDataqFetching.js
 import { ref, watch } from "vue";
 
 export function useDataFetching(activeTab, headers, tabs, tabEndpoints) {
@@ -57,6 +56,7 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints) {
             // Update tableData for the current tab
             tableData.value[activeTab.value] = data;
 
+            // Update the chart with the new data
             updateChart();
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -169,6 +169,9 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints) {
             // Update the chart's options
             chartOptions.value.xaxis.categories = categories;
             chartOptions.value.series = series;
+
+            // Force re-render of the chart
+            chartKey.value++;
         }
     };
 

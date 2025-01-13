@@ -1,4 +1,3 @@
-<!-- statscharts.vue -->
 <template>
   <v-app dir="rtl">
     <v-container fluid>
@@ -22,26 +21,26 @@
               <v-card class="mt-4">
                 <v-card-text>
                   <!-- Chart -->
-                  <div class="chart-container">
-                    <h4 class="text-h6 text-right mb-2">
-                      {{ tabs[activeTab] }} Chart
-                    </h4>
-                    <v-row>
-                      <v-col cols="12">
-                        <!-- Add a key to force re-render -->
-                        <apexchart :key="chartKey" width="100%" height="600" type="bar" :options="chartOptions"
-                          :series="chartOptions.series"></apexchart>
-                      </v-col>
-                    </v-row>
-                  </div>
-
+                  <transition name="fade">
+                    <div class="chart-container">
+                      <h4 class="text-h6 text-right mb-2">
+                        {{ tabs[activeTab] }} Chart
+                      </h4>
+                      <v-row>
+                        <v-col cols="12">
+                          <!-- Add a key to force re-render -->
+                          <apexchart :key="chartKey" width="100%" height="600" type="bar" :options="chartOptions"
+                            :series="chartOptions.series"></apexchart>
+                        </v-col>
+                      </v-row>
+                    </div>
+                  </transition>
                   <!-- Table -->
                   <div class="table-container mt-8">
                     <h4 class="text-h6 text-right mb-2">
                       {{ tabs[activeTab] }} Table
                     </h4>
-                    <v-data-table :headers="headers[activeTab]" :items="tableData[activeTab]"
-                      class="elevation-1"></v-data-table>
+                    <v-data-table :items="tableData[activeTab]" class="elevation-1"></v-data-table>
                   </div>
                 </v-card-text>
               </v-card>
@@ -63,7 +62,7 @@
 </template>
 
 <script>
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import VueApexCharts from "vue3-apexcharts";
 import * as XLSX from "xlsx";
 import { useAppStore } from "../stores/app";
@@ -149,6 +148,16 @@ export default {
       },
       { immediate: true }
     );
+
+    // Fetch data on initial load
+    onMounted(() => {
+      fetchData();
+    });
+
+    // Watch for changes in activeTab and fetch data
+    watch(activeTab, () => {
+      fetchData();
+    });
 
     // Export to Excel
     const exportToExcel = () => {
