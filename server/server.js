@@ -19,6 +19,7 @@ app.get('/health', (req, res) => {
 app.get('/api/data', async (req, res) => {
   try {
     const data = await getMapStatusData();
+	console.log(data);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
