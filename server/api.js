@@ -64,7 +64,61 @@ const getPlateStatusData = async () => {
       ostantitle;`;
   return await query(sql);
 };
+// Function to construct and execute the SQL query
+const getQueryData = async (selectedItems) => {
+    let whereCondition = '';
 
+    // Add WHERE condition if selectedItems is provided
+    if (selectedItems && selectedItems.length > 0) {
+        const formattedItems = selectedItems.map(item => `'${item}'`).join(', ');
+        whereCondition = `AND ostantitle IN (${formattedItems})`;
+    }
+
+    const sql = `SELECT 
+    ostantitle, 
+    shahrestantitle, 
+    zonetitle, 
+    dehestantitle, 
+    locationname, 
+    population_point_id, 
+    adam_paziresh AS bonyad_maskan, 
+    niazmande_eslah AS sayer_manabe,
+    arseh_ayan AS tarsim, 
+    amaliate_meydani, 
+    dadeh_amaei, 
+    eslah_naghsheh, 
+    daryafte_naghsheh AS geocode, 
+    pdf, 
+    ersal_setad,
+    date,
+    tedad_geocode_makan,
+    tedad_makan_jadid,
+    tedad_sakhteman,
+    tedad_makan,
+    tedad_geosakhteman,
+    tayid_va_bargozari,
+    (COALESCE(NULLIF(tedad_parcel, '')::integer, 0) + COALESCE(NULLIF(tedad_parcel_tarsimi, '')::integer, 0)) AS total_parcels
+FROM 
+    public.locations1
+WHERE 
+    ((adam_paziresh = true
+    OR niazmande_eslah = true 
+    OR arseh_ayan = true) 
+    OR amaliate_meydani = true 
+    OR dadeh_amaei = true 
+    OR eslah_naghsheh = true 
+    OR daryafte_naghsheh = true
+    OR pdf = true 
+    OR ersal_setad = true)
+ORDER BY 
+    ostantitle, 
+    shahrestantitle, 
+    zonetitle, 
+    dehestantitle, 
+    locationname;`;
+
+    return await query(sql); // Execute the query and return the results
+};
 const getNationalIDStatusData = async () => {
   const sql = `SELECT 
       ostantitle,
@@ -264,4 +318,8 @@ const getDehestanData = async (ostantitle, shahrestantitle, zonetitle) => {
         dehestantitle;`;
   return await query(sql, [ostantitle, shahrestantitle, zonetitle]);
 };
-module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData };
+const getOstanNames = async () => {
+  const sql = `SELECT ostantitle FROM public.locations1 GROUP BY ostantitle ORDER BY ostantitle;`;
+  return await query(sql);
+};
+module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getOstanNames, getQueryData };

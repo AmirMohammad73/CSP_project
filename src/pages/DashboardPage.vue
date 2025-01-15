@@ -1,3 +1,4 @@
+<!-- dashboardpage.vue -->
 <template>
   <v-layout class="rounded rounded-md">
     <SideBar @change-component="changeComponent" />
@@ -16,6 +17,7 @@ import DashboardContent from '../components/Dashboard.vue';
 import InfoEntry from '../components/InfoEntry.vue';
 import Users from '../components/Users.vue';
 import StatsCharts from '../components/StatsCharts.vue';
+import Reports from '@/components/Reports.vue';
 
 let currentComponent = ref(DashboardContent);
 
@@ -33,6 +35,9 @@ function changeComponent(componentName) {
     case 'StatsCharts':
       currentComponent.value = StatsCharts;
       break;
+    case 'Reports':
+      currentComponent.value = Reports;
+      break;
     default:
       currentComponent.value = DashboardContent; // Default to Dashboard if no match
   }
@@ -40,6 +45,6 @@ function changeComponent(componentName) {
 
 defineComponent({
   name: 'DashboardPage',
-  components: { SideBar, NavBar, DashboardContent, InfoEntry, Users, StatsCharts }
+  components: { SideBar, NavBar, DashboardContent, InfoEntry, Users, StatsCharts, Reports }
 });
 </script>

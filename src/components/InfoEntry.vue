@@ -1,3 +1,4 @@
+<!-- infoentry.vue -->
 <template>
   <v-card title="Locations" flat elevation="2" dir="rtl" class="pa-6 rounded">
     <!-- Card Title -->
@@ -148,7 +149,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/detailed`);
+        const response = await fetch(`http://172.16.8.33:3001/api/locations/detailed`);
         if (!response.ok) {
           throw new Error('Failed to fetch detailed locations data');
         }
@@ -166,7 +167,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`);
+        const response = await fetch(`http://172.16.8.33:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch shahrestan data');
         }
@@ -184,7 +185,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`);
+        const response = await fetch(`http://172.16.8.33:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch zone data');
         }
@@ -202,7 +203,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`);
+        const response = await fetch(`http://172.16.8.33:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch dehestan data');
         }
@@ -220,7 +221,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch('http://192.168.47.1:3001/api/locations'); // Replace with your API endpoint
+        const response = await fetch('http://172.16.8.33:3001/api/locations'); // Replace with your API endpoint
         if (!response.ok) {
           throw new Error('Failed to fetch locations data');
         }

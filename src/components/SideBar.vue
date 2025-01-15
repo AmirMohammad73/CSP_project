@@ -5,14 +5,16 @@
       title="Jane Smith"></v-list-item>
     <v-divider></v-divider>
     <v-list density="compact" nav>
-      <v-list-item prepend-icon="mdi-home-city" title="داشبورد" value="home" class="white--text"
+      <v-list-item prepend-icon="mdi-view-dashboard" title="داشبورد" value="home" class="white--text"
         @click="$emit('change-component', 'Dashboard')"></v-list-item>
-      <v-list-item prepend-icon="mdi-account" title="ورود اطلاعات" value="account" class="white--text"
+      <v-list-item prepend-icon="mdi-pencil" title="ورود اطلاعات" value="account" class="white--text"
         @click="$emit('change-component', 'InfoEntry')"></v-list-item>
-      <v-list-item prepend-icon="mdi-account-group-outline" title="Users" value="users" class="white--text"
+      <v-list-item prepend-icon="mdi-account-group" title="Users" value="users" class="white--text"
         @click="$emit('change-component', 'Users')"></v-list-item>
-      <v-list-item prepend-icon="mdi-account-group-outline" title="آمارها" value="stats" class="white--text"
+      <v-list-item prepend-icon="mdi-chart-bar" title="آمارها" value="stats" class="white--text"
         @click="$emit('change-component', 'StatsCharts')"></v-list-item>
+      <v-list-item prepend-icon="mdi-file-document" title="گزارشگیری" value="reports" class="white--text"
+        @click="$emit('change-component', 'Reports')"></v-list-item>
     </v-list>
   </v-navigation-drawer>
 </template>

@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData } = require('./api');
+const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getOstanNames, getQueryData } = require('./api');
 require('dotenv').config();
 
 const app = express();
@@ -37,7 +37,17 @@ app.get('/api/locations', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
+// Endpoint to handle the query with dynamic WHERE conditions
+app.post('/query', async (req, res) => {
+    try {
+        const { selectedItems } = req.body; // Array of selected ostantitles
+        const data = await getQueryData(selectedItems);
+        res.json(data);
+    } catch (err) {
+        console.error('API error:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 app.get('/api/locations/detailed', async (req, res) => {
   try {
     const data = await getDetailedLocationsData();
@@ -73,6 +83,15 @@ app.get('/api/locations/dehestan', async (req, res) => {
   try {
     const data = await getDehestanData(ostantitle, shahrestantitle, zonetitle);
 	console.log(data);
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+app.get('/ostans', async (req, res) => {
+  try {
+    const data = await getOstanNames();
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
