@@ -59,6 +59,35 @@
         </v-btn>
       </template>
     </v-snackbar>
+    <!-- Dialog for Dehestan Details -->
+    <!-- Dialog for Roosta Details -->
+    <!-- Dialog for Roosta Details -->
+    <v-dialog v-model="dialog" max-width="none" content-class="full-width-dialog">
+      <v-card>
+        <v-card-title class="text-h5">
+          Roosta Details
+        </v-card-title>
+        <v-card-text>
+          <!-- Display roosta data in a table -->
+          <v-table dir="rtl">
+            <thead>
+              <tr>
+                <th v-for="header in roostaHeaders" :key="header.key">{{ header.title }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in roostaData" :key="index">
+                <td v-for="header in roostaHeaders" :key="header.key">{{ item[header.key] }}</td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="dialog = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -71,6 +100,8 @@ export default {
   data() {
     return {
       search: '',
+      dialog: false,
+      selectedDehestan: {},
       bonyadMaskanFilter: 'all',
       headers: [
         { title: 'ردیف', align: 'end', key: 'row_number', class: 'text-subtitle-1 font-weight-bold' },
@@ -95,6 +126,30 @@ export default {
         { title: 'تعداد حریم روستا', align: 'end', key: 'mahdoudeh_roosta_count', class: 'text-subtitle-1 font-weight-bold' },
       ],
       locations: [], // Data will be fetched from the server
+      roostaHeaders: [
+        { title: 'استان', key: 'ostantitle' },
+        { title: 'شهرستان', key: 'shahrestantitle' },
+        { title: 'بخش', key: 'zonetitle' },
+        { title: 'دهستان', key: 'dehestantitle' },
+        { title: 'روستا', key: 'locationname' },
+        { title: 'ID', key: 'population_point_id' },
+        { title: 'شناسه ملی', key: 'shenaseh_melli' },
+        { title: 'بنیاد مسکن', key: 'bonyad_maskan' },
+        { title: 'سایر منابع', key: 'sayer_manabe' },
+        { title: 'ترسیم', key: 'tarsim' },
+        { title: 'پارسلها', key: 'tedad_parcel' },
+        { title: 'عملیات میدانی', key: 'amaliate_meydani' },
+        { title: 'داده آمائی', key: 'dadeh_amaei' },
+        { title: 'اصلاح و ارسال', key: 'eslah_naghsheh' },
+        { title: 'ژئوکد', key: 'geocode' },
+        { title: 'عدم تایید', key: 'adam_tayid' },
+        { title: 'تایید و بارگذاری', key: 'tayid_va_bargozari' },
+        { title: 'مختصات روستا', key: 'mokhtasat_rousta' },
+        { title: 'حریم روستا', key: 'mahdoudeh_rousta' },
+        { title: 'Tolid QR', key: 'tolid_qr' },
+        { title: 'Pelak Talfighi', key: 'pelak_talfighi' },
+      ],
+      roostaData: [], // Stores the fetched roosta data
       loading: false,
       error: false,
       snackbar: false,
@@ -125,23 +180,28 @@ export default {
         this.currentLevel = 'ostantitle';
         await this.fetchDetailedLocations(item.locname);
       } else if (this.currentLevel === 'ostantitle') {
-
         // Second drill-down: Fetch data for shahrestantitle
         this.breadcrumb.push({ text: item.locname, disabled: false });
         this.currentLevel = 'shahrestantitle';
         this.selectedostan = item.locname;
         await this.fetchShahrestanData(item.locname);
       } else if (this.currentLevel === 'shahrestantitle') {
-        // Third drill-down: Fetch data for shahrestantitle
+        // Third drill-down: Fetch data for zonetitle
         this.breadcrumb.push({ text: item.locname, disabled: false });
         this.currentLevel = 'zonetitle';
         this.selectedshahrestan = item.locname;
         await this.fetchZoneData(this.selectedostan, item.locname);
       } else if (this.currentLevel === 'zonetitle') {
-        // Third drill-down: Fetch data for shahrestantitle
+        // Fourth drill-down: Fetch data for dehestantitle
         this.breadcrumb.push({ text: item.locname, disabled: false });
         this.currentLevel = 'dehestantitle';
+        this.selectedzonetitle = item.locname;
         await this.fetchDehestanData(this.selectedostan, this.selectedshahrestan, item.locname);
+      } else if (this.currentLevel === 'dehestantitle') {
+        // Fetch roosta data and open the dialog
+        this.selectedDehestan = item; // Store the selected dehestan data
+        await this.fetchRoostaData(this.selectedostan, this.selectedshahrestan, this.selectedzonetitle, item.locname);
+        this.dialog = true; // Open the dialog
       }
     },
     async fetchDetailedLocations() {
@@ -149,7 +209,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://172.16.8.33:3001/api/locations/detailed`);
+        const response = await fetch(`http://192.168.47.1:3001/api/locations/detailed`);
         if (!response.ok) {
           throw new Error('Failed to fetch detailed locations data');
         }
@@ -167,7 +227,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://172.16.8.33:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`);
+        const response = await fetch(`http://192.168.47.1:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch shahrestan data');
         }
@@ -185,7 +245,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://172.16.8.33:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`);
+        const response = await fetch(`http://192.168.47.1:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch zone data');
         }
@@ -203,7 +263,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://172.16.8.33:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`);
+        const response = await fetch(`http://192.168.47.1:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch dehestan data');
         }
@@ -216,12 +276,32 @@ export default {
         this.loading = false;
       }
     },
+    async fetchRoostaData(ostantitle, shahrestantitle, zonetitle, dehestantitle) {
+      this.loading = true;
+      this.error = false;
+
+      try {
+        const response = await fetch(
+          `http://192.168.47.1:3001/api/locations/roosta?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}&dehestantitle=${encodeURIComponent(dehestantitle)}`
+        );
+        if (!response.ok) {
+          throw new Error('Failed to fetch roosta data');
+        }
+        const data = await response.json();
+        this.roostaData = data; // Store the fetched roosta data
+      } catch (error) {
+        console.error('Error fetching roosta data:', error);
+        this.error = true;
+      } finally {
+        this.loading = false;
+      }
+    },
     async fetchLocations() {
       this.loading = true;
       this.error = false;
 
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/locations'); // Replace with your API endpoint
+        const response = await fetch('http://192.168.47.1:3001/api/locations'); // Replace with your API endpoint
         if (!response.ok) {
           throw new Error('Failed to fetch locations data');
         }
@@ -236,25 +316,25 @@ export default {
     },
     navigateBreadcrumb(item) {
       if (item.text === 'کشور') {
-        console.log("000");
         this.currentLevel = 'کشور';
         this.breadcrumb = [{ text: 'کشور', disabled: false }];
         this.fetchLocations();
+        this.roostaData = []; // Reset roosta data
       } else if (this.breadcrumb.length > 1 && item.text === this.breadcrumb[1].text) {
-        console.log("111");
         this.currentLevel = 'ostantitle';
         this.breadcrumb = this.breadcrumb.slice(0, 2);
         this.fetchDetailedLocations(this.currentOstantitle);
+        this.roostaData = []; // Reset roosta data
       } else if (this.breadcrumb.length > 2 && item.text === this.breadcrumb[2].text) {
-        console.log("222");
         this.currentLevel = 'shahrestantitle';
         this.breadcrumb = this.breadcrumb.slice(0, 3);
         this.fetchShahrestanData(this.selectedostan);
+        this.roostaData = []; // Reset roosta data
       } else if (this.breadcrumb.length > 3 && item.text === this.breadcrumb[3].text) {
-        console.log("333");
         this.currentLevel = 'zonetitle';
         this.breadcrumb = this.breadcrumb.slice(0, 4);
         this.fetchZoneData(this.selectedostan, this.selectedshahrestan);
+        this.roostaData = []; // Reset roosta data
       }
     },
     saveChanges() {
@@ -376,5 +456,11 @@ export default {
 /* Ensure the radio group doesn't have unnecessary padding */
 .v-radio-group {
   padding: 0;
+}
+
+.full-width-dialog {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
 }
 </style>
