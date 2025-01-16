@@ -64,6 +64,18 @@ const getPlateStatusData = async () => {
       ostantitle;`;
   return await query(sql);
 };
+
+const getPieMap = async () => {
+  const sql = `SELECT
+    SUM(CASE WHEN adam_paziresh THEN 1 ELSE 0 END) AS bonyad_maskan,
+    SUM(CASE WHEN arseh_ayan THEN 1 ELSE 0 END) AS tarsim,
+    SUM(CASE WHEN niazmande_eslah THEN 1 ELSE 0 END) AS sayer_manabe,
+    COUNT(*) - SUM(CASE WHEN adam_paziresh THEN 1 ELSE 0 END) - 
+               SUM(CASE WHEN arseh_ayan THEN 1 ELSE 0 END) - 
+               SUM(CASE WHEN niazmande_eslah THEN 1 ELSE 0 END) AS remaining_count
+FROM public.locations1;`;
+  return await query(sql);
+};
 // Function to construct and execute the SQL query
 const getQueryData = async (selectedItems) => {
     let whereCondition = '';
@@ -329,4 +341,4 @@ const getOstanNames = async () => {
   const sql = `SELECT ostantitle FROM public.locations1 GROUP BY ostantitle ORDER BY ostantitle;`;
   return await query(sql);
 };
-module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData };
+module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap };

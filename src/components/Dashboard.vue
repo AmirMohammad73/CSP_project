@@ -4,11 +4,11 @@
       <v-col>
         <ColumnChart />
       </v-col>
-      <v-col style="height: 20vh">
+      <v-col>
         <PieChart />
       </v-col>
     </v-row>
-    <v-row style="height: 30vh">
+    <v-row>
       <!-- Additional content here -->
     </v-row>
   </v-container>

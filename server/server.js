@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData } = require('./api');
+const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap } = require('./api');
 require('dotenv').config();
 
 const app = express();
@@ -93,6 +93,16 @@ app.get('/api/locations/roosta', async (req, res) => {
   const { ostantitle, shahrestantitle, zonetitle, dehestantitle } = req.query;
   try {
     const data = await getRoostaData(ostantitle, shahrestantitle, zonetitle, dehestantitle);
+	console.log(data);
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+app.get('/dashboard/piemap', async (req, res) => {
+  try {
+    const data = await getPieMap();
 	console.log(data);
     res.json(data);
   } catch (err) {

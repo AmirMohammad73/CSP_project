@@ -45,7 +45,7 @@ const selectedItems = ref([])
 // Function to fetch data from the server
 const fetchItems = async () => {
     try {
-        const response = await fetch('http://192.168.47.1:3001/ostans')
+        const response = await fetch('http://172.16.8.33:3001/ostans')
         const data = await response.json()
         // Map the fetched data to match the structure expected by the component
         items.value = data.map((location, index) => ({
@@ -66,7 +66,7 @@ onMounted(() => {
 const exportToExcel = async () => {
     try {
         // Send selected items to the server
-        const response = await fetch('http://192.168.47.1:3001/query', {
+        const response = await fetch('http://172.16.8.33:3001/query', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

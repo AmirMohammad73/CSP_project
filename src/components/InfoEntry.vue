@@ -59,13 +59,10 @@
         </v-btn>
       </template>
     </v-snackbar>
-    <!-- Dialog for Dehestan Details -->
-    <!-- Dialog for Roosta Details -->
-    <!-- Dialog for Roosta Details -->
     <v-dialog v-model="dialog" max-width="none" content-class="full-width-dialog">
       <v-card>
         <v-card-title class="text-h5">
-          Roosta Details
+          <div style="direction: rtl;">مشخصات روستا</div>
         </v-card-title>
         <v-card-text>
           <!-- Display roosta data in a table -->
@@ -77,14 +74,30 @@
             </thead>
             <tbody>
               <tr v-for="(item, index) in roostaData" :key="index">
-                <td v-for="header in roostaHeaders" :key="header.key">{{ item[header.key] }}</td>
+                <td v-for="header in roostaHeaders" :key="header.key">
+                  <!-- Convert shenaseh_melli and tedad_parcel to text fields -->
+                  <template v-if="header.key === 'shenaseh_melli'">
+                    <v-text-field v-model="item[header.key]" variant="outlined" density="compact" hide-details
+                      :class="header.key === 'shenaseh_melli' ? 'wide-field-5x' : 'wide-field-3x'"></v-text-field>
+                  </template>
+                  <!-- Convert boolean columns to checkboxes -->
+                  <template v-else-if="isBooleanColumn(header.key)">
+                    <v-checkbox v-model="item[header.key]" :true-value="true" :false-value="false" hide-details
+                      density="compact"></v-checkbox>
+                  </template>
+                  <!-- Display other columns as plain text -->
+                  <template v-else>
+                    {{ item[header.key] }}
+                  </template>
+                </td>
               </tr>
             </tbody>
           </v-table>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" @click="dialog = false">Close</v-btn>
+          <v-btn color="primary" @click="saveRoostaData">Save</v-btn>
+          <v-btn color="error" @click="dialog = false">Close</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -113,9 +126,9 @@ export default {
         { title: 'تعداد نقشه ها', align: 'end', key: 'total_naghsheh_count', class: 'text-subtitle-1 font-weight-bold' },
         { title: 'تعداد پارسلها', align: 'end', key: 'total_parcel_count', class: 'text-subtitle-1 font-weight-bold' },
         { title: 'تعداد عملیات میدانی', align: 'end', key: 'amaliate_meydani_count', class: 'text-subtitle-1 font-weight-bold' },
-        { title: 'Record Count', align: 'end', key: 'record_count', class: 'text-subtitle-1 font-weight-bold' },
-        { title: 'Makan Count', align: 'end', key: 'makan_count', class: 'text-subtitle-1 font-weight-bold' },
-        { title: 'Building Count', align: 'end', key: 'building_count', class: 'text-subtitle-1 font-weight-bold' },
+        { title: 'تعداد رکورد بهنگام شده', align: 'end', key: 'record_count', class: 'text-subtitle-1 font-weight-bold' },
+        { title: 'تعداد مکان بهنگام شده', align: 'end', key: 'makan_count', class: 'text-subtitle-1 font-weight-bold' },
+        { title: 'تعداد ساختمان', align: 'end', key: 'building_count', class: 'text-subtitle-1 font-weight-bold' },
         { title: 'تعداد داده آمائی', align: 'end', key: 'dadeh_amaei_count', class: 'text-subtitle-1 font-weight-bold' },
         { title: 'تعداد اصلاح نقشه', align: 'end', key: 'eslah_naghsheh_count', class: 'text-subtitle-1 font-weight-bold' },
         { title: 'تعداد تایید و بارگذاری', align: 'end', key: 'tayid_va_bargozari_count', class: 'text-subtitle-1 font-weight-bold' },
@@ -133,11 +146,11 @@ export default {
         { title: 'دهستان', key: 'dehestantitle' },
         { title: 'روستا', key: 'locationname' },
         { title: 'ID', key: 'population_point_id' },
-        { title: 'شناسه ملی', key: 'shenaseh_melli' },
+        { title: 'شناسه ملی', key: 'shenaseh_melli' }, // Editable
         { title: 'بنیاد مسکن', key: 'bonyad_maskan' },
         { title: 'سایر منابع', key: 'sayer_manabe' },
         { title: 'ترسیم', key: 'tarsim' },
-        { title: 'پارسلها', key: 'tedad_parcel' },
+        { title: 'پارسلها', key: 'tedad_parcel' }, // Editable
         { title: 'عملیات میدانی', key: 'amaliate_meydani' },
         { title: 'داده آمائی', key: 'dadeh_amaei' },
         { title: 'اصلاح و ارسال', key: 'eslah_naghsheh' },
@@ -146,8 +159,8 @@ export default {
         { title: 'تایید و بارگذاری', key: 'tayid_va_bargozari' },
         { title: 'مختصات روستا', key: 'mokhtasat_rousta' },
         { title: 'حریم روستا', key: 'mahdoudeh_rousta' },
-        { title: 'Tolid QR', key: 'tolid_qr' },
-        { title: 'Pelak Talfighi', key: 'pelak_talfighi' },
+        { title: 'تولید QR', key: 'tolid_qr' },
+        { title: 'نصب پلاک', key: 'pelak_talfighi' },
       ],
       roostaData: [], // Stores the fetched roosta data
       loading: false,
@@ -172,6 +185,42 @@ export default {
   },
 
   methods: {
+    isBooleanColumn(key) {
+      const booleanColumns = [
+        'bonyad_maskan',
+        'sayer_manabe',
+        'tarsim',
+        'amaliate_meydani',
+        'dadeh_amaei',
+        'eslah_naghsheh',
+        'geocode',
+        'adam_tayid',
+        'tayid_va_bargozari',
+        'mokhtasat_rousta',
+        'mahdoudeh_rousta',
+        'tolid_qr',
+        'pelak_talfighi',
+      ];
+      return booleanColumns.includes(key);
+    },
+    async saveRoostaData() {
+      try {
+        const response = await fetch('http://172.16.8.33:3001/api/locations/update-roosta', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(this.roostaData),
+        });
+        if (!response.ok) {
+          throw new Error('Failed to save roosta data');
+        }
+        this.snackbarMessage = 'Roosta data saved successfully!';
+        this.snackbar = true;
+      } catch (error) {
+        console.error('Error saving roosta data:', error);
+        this.snackbarMessage = 'Error saving roosta data';
+        this.snackbar = true;
+      }
+    },
     async handleRowClick(event, { item }) {
       if (this.currentLevel === 'کشور') {
         // First drill-down: Fetch data for ostantitle
@@ -209,7 +258,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/detailed`);
+        const response = await fetch(`http://172.16.8.33:3001/api/locations/detailed`);
         if (!response.ok) {
           throw new Error('Failed to fetch detailed locations data');
         }
@@ -227,7 +276,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`);
+        const response = await fetch(`http://172.16.8.33:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch shahrestan data');
         }
@@ -245,7 +294,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`);
+        const response = await fetch(`http://172.16.8.33:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch zone data');
         }
@@ -263,7 +312,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`);
+        const response = await fetch(`http://172.16.8.33:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch dehestan data');
         }
@@ -282,7 +331,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://192.168.47.1:3001/api/locations/roosta?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}&dehestantitle=${encodeURIComponent(dehestantitle)}`
+          `http://172.16.8.33:3001/api/locations/roosta?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}&dehestantitle=${encodeURIComponent(dehestantitle)}`
         );
         if (!response.ok) {
           throw new Error('Failed to fetch roosta data');
@@ -301,7 +350,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch('http://192.168.47.1:3001/api/locations'); // Replace with your API endpoint
+        const response = await fetch('http://172.16.8.33:3001/api/locations'); // Replace with your API endpoint
         if (!response.ok) {
           throw new Error('Failed to fetch locations data');
         }
@@ -411,6 +460,7 @@ export default {
 
 .v-text-field {
   max-width: 400px;
+  font-family: 'B Traffic', sans-serif;
 }
 
 .v-snackbar {
@@ -462,5 +512,46 @@ export default {
   width: 100% !important;
   max-width: 100% !important;
   margin: 0 !important;
+}
+
+/* Custom width for shenaseh_melli (5 times wider, but reduced to one-third) */
+.wide-field-5x {
+  width: 115px;
+  /* 500px / 3 */
+}
+
+/* Custom width for tedad_parcel (3 times wider, but reduced to one-third) */
+.wide-field-3x {
+  width: 70px;
+  /* 300px / 3 */
+}
+
+/* Ensure the table cells expand to fit the content */
+.v-table td {
+  white-space: nowrap;
+  padding: 8px;
+  font-family: 'B Traffic', sans-serif;
+  /* Prevent text wrapping */
+}
+
+/* Optional: Adjust the table header width to match the content */
+.v-table th {
+  white-space: nowrap;
+  font-family: 'B Traffic', sans-serif;
+  font-size: smaller;
+}
+
+/* Ensure the table layout respects the column widths */
+.v-table {
+  table-layout: auto;
+  /* Allows columns to resize based on content */
+}
+.v-dialog {
+  font-family: 'B Traffic', sans-serif;
+}
+.v-checkbox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
