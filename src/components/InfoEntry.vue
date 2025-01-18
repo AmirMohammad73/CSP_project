@@ -1,4 +1,3 @@
-<!-- infoentry.vue -->
 <template>
   <v-card title="Locations" flat elevation="2" dir="rtl" class="pa-6 rounded">
     <!-- Card Title -->
@@ -18,23 +17,35 @@
       </template>
     </v-breadcrumbs>
 
-    <!-- Search Field -->
-    <v-card-text>
-      <v-text-field v-model="search" label="Search for locations" append-inner-icon="mdi-magnify" variant="outlined"
-        hide-details single-line dir="rtl" color="primary" class="mb-4"></v-text-field>
-    </v-card-text>
-
     <!-- Loading State -->
     <v-progress-linear v-if="loading" indeterminate color="primary"></v-progress-linear>
 
     <!-- Error State -->
     <v-alert v-if="error" type="error" class="mb-4">
-      Failed to load locations data. Please try again later.
+      اشکالی در بارگیری داده ها پیش آمد.
     </v-alert>
 
     <!-- Data Table -->
     <v-data-table-virtual v-if="!loading && !error" :headers="headers" :items="filteredLocations" height="auto"
       item-value="row_number" class="elevation-1 rounded" fixed-header @click:row="handleRowClick">
+      <template v-slot:item.amaliate_meydani_count="{ item }">
+        <div class="data-bar-container">
+          <div class="data-bar" :style="{ width: (item.amaliate_meydani_count / item.total_count) * 100 + '%' }"></div>
+          <span class="data-bar-value">{{ item.amaliate_meydani_count }}</span>
+        </div>
+      </template>
+      <template v-slot:item.dadeh_amaei_count="{ item }">
+        <div class="data-bar-container">
+          <div class="data-bar" :style="{ width: (item.dadeh_amaei_count / item.total_count) * 100 + '%' }"></div>
+          <span class="data-bar-value">{{ item.dadeh_amaei_count }}</span>
+        </div>
+      </template>
+      <template v-slot:item.total_naghsheh_count="{ item }">
+        <div class="data-bar-container">
+          <div class="data-bar" :style="{ width: (item.total_naghsheh_count / item.total_count) * 100 + '%' }"></div>
+          <span class="data-bar-value">{{ item.total_naghsheh_count }}</span>
+        </div>
+      </template>
     </v-data-table-virtual>
 
     <!-- Action Buttons -->
@@ -59,33 +70,31 @@
         </v-btn>
       </template>
     </v-snackbar>
+
+    <!-- Dialog for Roosta Data -->
     <v-dialog v-model="dialog" max-width="none" content-class="full-width-dialog">
       <v-card>
         <v-card-title class="text-h5">
           <div style="direction: rtl;">مشخصات روستا</div>
         </v-card-title>
-        <v-card-text>
-          <!-- Display roosta data in a table -->
-          <v-table dir="rtl">
+        <v-card-text class="table-container">
+          <v-table dir="rtl" class="sticky-header-table" :style="{ '--sticky-header-bg': stickyHeaderBackgroundColor }">
             <thead>
               <tr>
-                <th v-for="header in roostaHeaders" :key="header.key">{{ header.title }}</th>
+                <th v-for="header in roostaHeaders" :key="header.key" class="sticky-header">{{ header.title }}</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(item, index) in roostaData" :key="index">
                 <td v-for="header in roostaHeaders" :key="header.key">
-                  <!-- Convert shenaseh_melli and tedad_parcel to text fields -->
                   <template v-if="header.key === 'shenaseh_melli'">
                     <v-text-field v-model="item[header.key]" variant="outlined" density="compact" hide-details
                       :class="header.key === 'shenaseh_melli' ? 'wide-field-5x' : 'wide-field-3x'"></v-text-field>
                   </template>
-                  <!-- Convert boolean columns to checkboxes -->
                   <template v-else-if="isBooleanColumn(header.key)">
-                    <v-checkbox v-model="item[header.key]" :true-value="true" :false-value="false" hide-details
-                      density="compact"></v-checkbox>
+                    <v-checkbox v-model="item[header.key]" :true-value="true" :false-value="false"
+                      :disabled="!isEditableCheckbox(header.key)" hide-details density="compact"></v-checkbox>
                   </template>
-                  <!-- Display other columns as plain text -->
                   <template v-else>
                     {{ item[header.key] }}
                   </template>
@@ -106,13 +115,17 @@
 
 <script>
 import * as XLSX from 'xlsx';
+import { useAppStore } from "../stores/app";
 
 export default {
+  setup() {
+    const AppStore = useAppStore();
+    return { AppStore };
+  },
   name: 'LocationsManagement',
 
   data() {
     return {
-      search: '',
       dialog: false,
       selectedDehestan: {},
       bonyadMaskanFilter: 'all',
@@ -125,7 +138,7 @@ export default {
         { title: 'تعداد ترسیم', align: 'end', key: 'tarsim_count', class: 'text-subtitle-1 font-weight-bold' },
         { title: 'تعداد نقشه ها', align: 'end', key: 'total_naghsheh_count', class: 'text-subtitle-1 font-weight-bold' },
         { title: 'تعداد پارسلها', align: 'end', key: 'total_parcel_count', class: 'text-subtitle-1 font-weight-bold' },
-        { title: 'تعداد عملیات میدانی', align: 'end', key: 'amaliate_meydani_count', class: 'text-subtitle-1 font-weight-bold' },
+        { title: 'تعداد عملیات میدانی', align: 'end', key: 'amaliate_meydani_count', class: 'text-subtitle-1 font-weight-bold data-bar-column' },
         { title: 'تعداد رکورد بهنگام شده', align: 'end', key: 'record_count', class: 'text-subtitle-1 font-weight-bold' },
         { title: 'تعداد مکان بهنگام شده', align: 'end', key: 'makan_count', class: 'text-subtitle-1 font-weight-bold' },
         { title: 'تعداد ساختمان', align: 'end', key: 'building_count', class: 'text-subtitle-1 font-weight-bold' },
@@ -179,12 +192,26 @@ export default {
   },
 
   computed: {
+    stickyHeaderBackgroundColor() {
+      return this.AppStore.isDarkTheme ? 'black' : 'white';
+    },
+
     filteredLocations() {
       return this.locations; // No need for filtering since the data is already aggregated
     },
   },
 
   methods: {
+    isEditableCheckbox(key) {
+      // Only enable checkboxes for these columns
+      const editableColumns = [
+        'amaliate_meydani', // عملیات میدانی
+        'dadeh_amaei',      // داده آمائی
+        'eslah_naghsheh',   // اصلاح و ارسال
+        'geocode',          // ژئوکد
+      ];
+      return editableColumns.includes(key);
+    },
     isBooleanColumn(key) {
       const booleanColumns = [
         'bonyad_maskan',
@@ -205,7 +232,7 @@ export default {
     },
     async saveRoostaData() {
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/locations/update-roosta', {
+        const response = await fetch('http://192.168.47.1:3001/api/locations/update-roosta', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(this.roostaData),
@@ -222,6 +249,7 @@ export default {
       }
     },
     async handleRowClick(event, { item }) {
+      console.log(item.total_count);
       if (this.currentLevel === 'کشور') {
         // First drill-down: Fetch data for ostantitle
         this.currentOstantitle = item.locname;
@@ -258,7 +286,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://172.16.8.33:3001/api/locations/detailed`);
+        const response = await fetch(`http://192.168.47.1:3001/api/locations/detailed`);
         if (!response.ok) {
           throw new Error('Failed to fetch detailed locations data');
         }
@@ -276,7 +304,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://172.16.8.33:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`);
+        const response = await fetch(`http://192.168.47.1:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch shahrestan data');
         }
@@ -294,7 +322,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://172.16.8.33:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`);
+        const response = await fetch(`http://192.168.47.1:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch zone data');
         }
@@ -312,7 +340,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://172.16.8.33:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`);
+        const response = await fetch(`http://192.168.47.1:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch dehestan data');
         }
@@ -331,7 +359,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://172.16.8.33:3001/api/locations/roosta?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}&dehestantitle=${encodeURIComponent(dehestantitle)}`
+          `http://192.168.47.1:3001/api/locations/roosta?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}&dehestantitle=${encodeURIComponent(dehestantitle)}`
         );
         if (!response.ok) {
           throw new Error('Failed to fetch roosta data');
@@ -350,7 +378,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/locations'); // Replace with your API endpoint
+        const response = await fetch('http://192.168.47.1:3001/api/locations'); // Replace with your API endpoint
         if (!response.ok) {
           throw new Error('Failed to fetch locations data');
         }
@@ -546,12 +574,95 @@ export default {
   table-layout: auto;
   /* Allows columns to resize based on content */
 }
+
 .v-dialog {
   font-family: 'B Traffic', sans-serif;
 }
+
 .v-checkbox {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.sticky-header-table {
+  overflow: auto;
+  height: 70vh;
+  /* Adjust this value as needed */
+}
+
+.sticky-header-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  background-color: var(--sticky-header-bg);
+  /* Adjust this color to match your design */
+  z-index: 1;
+}
+
+/* Ensure the table takes up the full width of its container */
+.v-table {
+  width: 100%;
+}
+
+/* Add a max-height to the table container to enable scrolling */
+.table-container {
+  max-height: 70vh;
+  /* Adjust this value as needed */
+  overflow-y: auto;
+}
+
+/* Data Bar Container */
+.data-bar-container {
+  position: relative;
+  width: 100%;
+  height: 20px;
+  /* Adjust height as needed */
+  background-color: #e0e0e0;
+  /* Background color for the bar container */
+  border-radius: 4px;
+  /* Rounded corners */
+  overflow: hidden;
+  /* Ensure the bar doesn't overflow */
+  direction: rtl;
+  /* Fill from the right */
+}
+
+/* Data Bar */
+.data-bar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  /* Align to the right */
+  height: 100%;
+  background-color: lightgreen;
+  /* Color of the filled bar */
+  transition: width 0.3s ease;
+  /* Smooth transition for width changes */
+}
+
+/* Data Bar Value */
+.data-bar-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* Center the text */
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  /* Adjust font size as needed */
+  color: #000;
+  /* Text color */
+  z-index: 1;
+  /* Ensure the text is above the bar */
+}
+
+/* Ensure the column aligns properly */
+.data-bar-column {
+  text-align: center !important;
 }
 </style>

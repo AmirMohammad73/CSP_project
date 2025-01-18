@@ -77,7 +77,7 @@ export default defineComponent({
       loading.value = true;
       error.value = null;
       try {
-        const response = await fetch('http://172.16.8.33:3001/dashboard/piemap');
+        const response = await fetch('http://192.168.47.1:3001/dashboard/piemap');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

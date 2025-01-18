@@ -19,7 +19,6 @@ app.get('/health', (req, res) => {
 app.get('/api/data', async (req, res) => {
   try {
     const data = await getMapStatusData();
-	console.log(data);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
@@ -42,6 +41,7 @@ app.post('/query', async (req, res) => {
     try {
         const { selectedItems } = req.body; // Array of selected ostantitles
         const data = await getQueryData(selectedItems);
+		console.log(data);
         res.json(data);
     } catch (err) {
         console.error('API error:', err);
@@ -59,7 +59,6 @@ app.get('/api/locations/detailed', async (req, res) => {
 });
 app.get('/api/locations/shahrestan', async (req, res) => {
   const { ostantitle } = req.query;
-  console.log(ostantitle);
   try {
     const data = await getShahrestanData(ostantitle);
     res.json(data);
@@ -82,7 +81,6 @@ app.get('/api/locations/dehestan', async (req, res) => {
   const { ostantitle, shahrestantitle, zonetitle } = req.query;
   try {
     const data = await getDehestanData(ostantitle, shahrestantitle, zonetitle);
-	console.log(data);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
@@ -93,7 +91,6 @@ app.get('/api/locations/roosta', async (req, res) => {
   const { ostantitle, shahrestantitle, zonetitle, dehestantitle } = req.query;
   try {
     const data = await getRoostaData(ostantitle, shahrestantitle, zonetitle, dehestantitle);
-	console.log(data);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
@@ -103,7 +100,6 @@ app.get('/api/locations/roosta', async (req, res) => {
 app.get('/dashboard/piemap', async (req, res) => {
   try {
     const data = await getPieMap();
-	console.log(data);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
