@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap } = require('./api');
+const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data } = require('./api');
 require('dotenv').config();
 
 const app = express();
@@ -36,12 +36,25 @@ app.get('/api/locations', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+// Data endpoint
+app.get('/api/bsc/tab1', async (req, res) => {
+  try {
+	console.log("HEY");
+    const data = await getBSCTab1Data();
+	console.log(data);
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Endpoint to handle the query with dynamic WHERE conditions
 app.post('/query', async (req, res) => {
     try {
         const { selectedItems } = req.body; // Array of selected ostantitles
         const data = await getQueryData(selectedItems);
-		console.log(data);
         res.json(data);
     } catch (err) {
         console.error('API error:', err);

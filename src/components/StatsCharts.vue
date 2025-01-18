@@ -67,6 +67,8 @@ import VueApexCharts from "vue3-apexcharts";
 import * as XLSX from "xlsx";
 import { useAppStore } from "../stores/app";
 import { useDataFetching } from "./useDataFetching";
+import { useRuralOperationsMonitoring } from "./ruralOperationsMonitoring"; // Import the specific module
+import { useBSCIndices } from "./BSCIndices";
 
 export default {
   components: {
@@ -75,66 +77,30 @@ export default {
   setup() {
     const AppStore = useAppStore();
     const selectedOption = ref("Rural Operations Monitoring");
-    const options = ref(["Rural Operations Monitoring", "Option 2", "Option 3"]);
-    const tabs = ref([
-      "Map Status",
-      "Update Status",
-      "Geocode Status",
-      "License Plate Status", // Add License Plate Status tab
-      "National ID", // Add National ID tab
-    ]);
-    const activeTab = ref(0);
-    const headers = ref([
-      [
-        { text: "Ostantitle", value: "ostantitle" },
-        { text: "Bonyad Maskan", value: "bonyad_maskan" },
-        { text: "Sayer Manabe", value: "sayer_manabe" },
-        { text: "Tarsim", value: "tarsim" },
-      ],
-      [
-        { text: "Ostantitle", value: "ostantitle" },
-        { text: "Amaliate Meydani", value: "amaliate_meydani" },
-        { text: "Dadeh Amaei", value: "dadeh_amaei" },
-        { text: "Eslah Naghsheh", value: "eslah_naghsheh" },
-        { text: "Total", value: "total" },
-      ],
-      [
-        { text: "Ostantitle", value: "ostantitle" },
-        { text: "Eslah Naghsheh", value: "eslah_naghsheh" },
-        { text: "Tayid va Bargozari", value: "tayid_va_bargozari" },
-        { text: "Daryafte Naghsheh", value: "daryafte_naghsheh" },
-        { text: "Total", value: "total" },
-      ],
-      // Add headers for License Plate Status
-      [
-        { text: "Ostantitle", value: "ostantitle" },
-        { text: "Tolid QR", value: "tolid_qr" },
-        { text: "Pelak Talfighi", value: "pelak_talfighi" },
-        { text: "Total", value: "total" },
-      ],
-      // Add headers for National ID
-      [
-        { text: "Ostantitle", value: "ostantitle" },
-        { text: "Shenaseh Melli", value: "shenaseh_melli" },
-        { text: "Total", value: "total" },
-      ],
-    ]);
+    const options = ref(["Rural Operations Monitoring", "BSC", "Option 3"]);
 
-    // Define API endpoints for each tab
-    const tabEndpoints = {
-      0: "http://192.168.47.1:3001/api/data", // Map Status
-      1: "http://192.168.47.1:3001/api/update", // Update Status
-      2: "http://192.168.47.1:3001/api/geocode", // Geocode Status
-      3: "http://192.168.47.1:3001/api/license-plate", // License Plate Status
-      4: "http://192.168.47.1:3001/api/national-id", // National ID
+    // Load the appropriate module based on the selected option
+    const loadModule = () => {
+      switch (selectedOption.value) {
+        case "Rural Operations Monitoring":
+          return useRuralOperationsMonitoring();
+        case "BSC":
+          return useBSCIndices();
+        // Add cases for other options here
+        default:
+          return null;
+      }
     };
 
-    // Use the composable function
+    const { tabs, headers, tabEndpoints } = loadModule() || { tabs: [], headers: [], tabEndpoints: {} };
+
+    const activeTab = ref(0);
     const { tableData, chartOptions, chartKey, fetchData, updateChart } = useDataFetching(
       activeTab,
       headers,
       tabs,
-      tabEndpoints
+      tabEndpoints,
+      selectedOption // Pass the selected option
     );
 
     // Watch for changes in the theme and update the chart options
@@ -192,35 +158,3 @@ export default {
   }
 };
 </script>
-
-<style>
-.chart-container {
-  margin-bottom: 20px;
-  text-align: right;
-}
-
-.table-container {
-  margin-top: 20px;
-  text-align: right;
-}
-
-.v-tabs {
-  direction: rtl;
-}
-
-.v-tab {
-  text-align: right;
-}
-
-.v-data-table {
-  direction: rtl;
-}
-
-.v-data-table th {
-  text-align: right;
-}
-
-.v-data-table td {
-  text-align: right;
-}
-</style>

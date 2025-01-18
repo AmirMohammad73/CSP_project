@@ -28,22 +28,43 @@
     <!-- Data Table -->
     <v-data-table-virtual v-if="!loading && !error" :headers="headers" :items="filteredLocations" height="auto"
       item-value="row_number" class="elevation-1 rounded" fixed-header @click:row="handleRowClick">
+      <template v-slot:item.total_naghsheh_count="{ item }">
+        <div class="data-bar-container" v-tooltip="getPercentageTooltip(item.total_naghsheh_count, item.total_count)">
+          <div class="data-bar" :style="{ width: (item.total_naghsheh_count / item.total_count) * 100 + '%' }"></div>
+          <span class="data-bar-value">{{ item.total_naghsheh_count }}</span>
+        </div>
+      </template>
       <template v-slot:item.amaliate_meydani_count="{ item }">
-        <div class="data-bar-container">
+        <div class="data-bar-container" v-tooltip="getPercentageTooltip(item.amaliate_meydani_count, item.total_count)">
           <div class="data-bar" :style="{ width: (item.amaliate_meydani_count / item.total_count) * 100 + '%' }"></div>
           <span class="data-bar-value">{{ item.amaliate_meydani_count }}</span>
         </div>
       </template>
       <template v-slot:item.dadeh_amaei_count="{ item }">
-        <div class="data-bar-container">
+        <div class="data-bar-container" v-tooltip="getPercentageTooltip(item.dadeh_amaei_count, item.total_count)">
           <div class="data-bar" :style="{ width: (item.dadeh_amaei_count / item.total_count) * 100 + '%' }"></div>
           <span class="data-bar-value">{{ item.dadeh_amaei_count }}</span>
         </div>
       </template>
-      <template v-slot:item.total_naghsheh_count="{ item }">
-        <div class="data-bar-container">
-          <div class="data-bar" :style="{ width: (item.total_naghsheh_count / item.total_count) * 100 + '%' }"></div>
-          <span class="data-bar-value">{{ item.total_naghsheh_count }}</span>
+      <!-- <template v-slot:item.eslah_naghsheh_count="{ item }">
+        <div class="data-bar-container" v-tooltip="getPercentageTooltip(item.eslah_naghsheh_count, item.total_count)">
+          <div class="data-bar" :style="{ width: (item.eslah_naghsheh_count / item.total_count) * 100 + '%' }"></div>
+          <span class="data-bar-value">{{ item.eslah_naghsheh_count }}</span>
+        </div>
+      </template> -->
+      <!-- <template v-slot:item.tayid_va_bargozari_count="{ item }">
+        <div class="data-bar-container"
+          v-tooltip="getPercentageTooltip(item.tayid_va_bargozari_count, item.total_count)">
+          <div class="data-bar" :style="{ width: (item.tayid_va_bargozari_count / item.total_count) * 100 + '%' }">
+          </div>
+          <span class="data-bar-value">{{ item.tayid_va_bargozari_count }}</span>
+        </div>
+      </template> -->
+      <template v-slot:item.geocode_count="{ item }">
+        <div class="data-bar-container" v-tooltip="getPercentageTooltip(item.geocode_count, item.total_count)">
+          <div class="data-bar" :style="{ width: (item.geocode_count / item.total_count) * 100 + '%' }">
+          </div>
+          <span class="data-bar-value">{{ item.geocode_count }}</span>
         </div>
       </template>
     </v-data-table-virtual>
@@ -132,7 +153,7 @@ export default {
       headers: [
         { title: 'ردیف', align: 'end', key: 'row_number', class: 'text-subtitle-1 font-weight-bold' },
         { title: 'مکان', align: 'end', key: 'locname', class: 'text-subtitle-1 font-weight-bold' },
-        { title: 'تعداد رکورد کل', align: 'end', key: 'total_record_count', class: 'text-subtitle-1 font-weight-bold' },
+        // { title: 'تعداد رکورد کل', align: 'end', key: 'total_record_count', class: 'text-subtitle-1 font-weight-bold' },
         { title: 'تعداد بنیاد مسکن', align: 'end', key: 'bonyad_maskan_count', class: 'text-subtitle-1 font-weight-bold' },
         { title: 'تعداد سایر منابع', align: 'end', key: 'sayer_manabe_count', class: 'text-subtitle-1 font-weight-bold' },
         { title: 'تعداد ترسیم', align: 'end', key: 'tarsim_count', class: 'text-subtitle-1 font-weight-bold' },
@@ -143,10 +164,10 @@ export default {
         { title: 'تعداد مکان بهنگام شده', align: 'end', key: 'makan_count', class: 'text-subtitle-1 font-weight-bold' },
         { title: 'تعداد ساختمان', align: 'end', key: 'building_count', class: 'text-subtitle-1 font-weight-bold' },
         { title: 'تعداد داده آمائی', align: 'end', key: 'dadeh_amaei_count', class: 'text-subtitle-1 font-weight-bold' },
-        { title: 'تعداد اصلاح نقشه', align: 'end', key: 'eslah_naghsheh_count', class: 'text-subtitle-1 font-weight-bold' },
-        { title: 'تعداد تایید و بارگذاری', align: 'end', key: 'tayid_va_bargozari_count', class: 'text-subtitle-1 font-weight-bold' },
-        { title: 'GeoCode Count', align: 'end', key: 'geocode_count', class: 'text-subtitle-1 font-weight-bold' },
-        { title: 'Geocode Makan Count', align: 'end', key: 'geocode_makan_count', class: 'text-subtitle-1 font-weight-bold' },
+        // { title: 'تعداد اصلاح نقشه', align: 'end', key: 'eslah_naghsheh_count', class: 'text-subtitle-1 font-weight-bold' },
+        // { title: 'تعداد تایید و بارگذاری', align: 'end', key: 'tayid_va_bargozari_count', class: 'text-subtitle-1 font-weight-bold' },
+        { title: 'تعداد ژئوکد', align: 'end', key: 'geocode_count', class: 'text-subtitle-1 font-weight-bold' },
+        { title: 'تعداد مکان ژئوکدشده', align: 'end', key: 'geocode_makan_count', class: 'text-subtitle-1 font-weight-bold' },
         { title: 'ساختمانهای ژئوکدشده', align: 'end', key: 'geocode_building_count', class: 'text-subtitle-1 font-weight-bold' },
         { title: 'تعداد مختصات روستا', align: 'end', key: 'mokhtasat_roosta_count', class: 'text-subtitle-1 font-weight-bold' },
         { title: 'تعداد حریم روستا', align: 'end', key: 'mahdoudeh_roosta_count', class: 'text-subtitle-1 font-weight-bold' },
@@ -166,10 +187,10 @@ export default {
         { title: 'پارسلها', key: 'tedad_parcel' }, // Editable
         { title: 'عملیات میدانی', key: 'amaliate_meydani' },
         { title: 'داده آمائی', key: 'dadeh_amaei' },
-        { title: 'اصلاح و ارسال', key: 'eslah_naghsheh' },
+        // { title: 'اصلاح و ارسال', key: 'eslah_naghsheh' },
         { title: 'ژئوکد', key: 'geocode' },
         { title: 'عدم تایید', key: 'adam_tayid' },
-        { title: 'تایید و بارگذاری', key: 'tayid_va_bargozari' },
+        // { title: 'تایید و بارگذاری', key: 'tayid_va_bargozari' },
         { title: 'مختصات روستا', key: 'mokhtasat_rousta' },
         { title: 'حریم روستا', key: 'mahdoudeh_rousta' },
         { title: 'تولید QR', key: 'tolid_qr' },
@@ -202,12 +223,17 @@ export default {
   },
 
   methods: {
+    getPercentageTooltip(count, total) {
+      if (total === 0) return '0%'; // Avoid division by zero
+      const percentage = ((count / total) * 100).toFixed(2); // Calculate percentage with 2 decimal places
+      return `${percentage}%`; // Return the formatted percentage
+    },
     isEditableCheckbox(key) {
       // Only enable checkboxes for these columns
       const editableColumns = [
         'amaliate_meydani', // عملیات میدانی
         'dadeh_amaei',      // داده آمائی
-        'eslah_naghsheh',   // اصلاح و ارسال
+        // 'eslah_naghsheh',   // اصلاح و ارسال
         'geocode',          // ژئوکد
       ];
       return editableColumns.includes(key);
@@ -219,10 +245,10 @@ export default {
         'tarsim',
         'amaliate_meydani',
         'dadeh_amaei',
-        'eslah_naghsheh',
+        // 'eslah_naghsheh',
         'geocode',
         'adam_tayid',
-        'tayid_va_bargozari',
+        // 'tayid_va_bargozari',
         'mokhtasat_rousta',
         'mahdoudeh_rousta',
         'tolid_qr',
@@ -232,7 +258,7 @@ export default {
     },
     async saveRoostaData() {
       try {
-        const response = await fetch('http://192.168.47.1:3001/api/locations/update-roosta', {
+        const response = await fetch('http://172.16.8.33:3001/api/locations/update-roosta', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(this.roostaData),
@@ -286,7 +312,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/detailed`);
+        const response = await fetch(`http://172.16.8.33:3001/api/locations/detailed`);
         if (!response.ok) {
           throw new Error('Failed to fetch detailed locations data');
         }
@@ -304,7 +330,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`);
+        const response = await fetch(`http://172.16.8.33:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch shahrestan data');
         }
@@ -322,7 +348,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`);
+        const response = await fetch(`http://172.16.8.33:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch zone data');
         }
@@ -340,7 +366,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`);
+        const response = await fetch(`http://172.16.8.33:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch dehestan data');
         }
@@ -359,7 +385,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://192.168.47.1:3001/api/locations/roosta?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}&dehestantitle=${encodeURIComponent(dehestantitle)}`
+          `http://172.16.8.33:3001/api/locations/roosta?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}&dehestantitle=${encodeURIComponent(dehestantitle)}`
         );
         if (!response.ok) {
           throw new Error('Failed to fetch roosta data');
@@ -378,7 +404,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch('http://192.168.47.1:3001/api/locations'); // Replace with your API endpoint
+        const response = await fetch('http://172.16.8.33:3001/api/locations'); // Replace with your API endpoint
         if (!response.ok) {
           throw new Error('Failed to fetch locations data');
         }
@@ -425,7 +451,7 @@ export default {
         const exportData = this.filteredLocations.map((location) => ({
           'ردیف': location.row_number,
           'مکان': location.locname,
-          'Total Record Count': location.total_record_count,
+          // 'Total Record Count': location.total_record_count,
           'Bonyad Maskan Count': location.bonyad_maskan_count,
           'Sayer Manabe Count': location.sayer_manabe_count,
           'Tarsim Count': location.tarsim_count,
@@ -436,8 +462,8 @@ export default {
           'Makan Count': location.makan_count,
           'تعداد ساختمان': location.building_count,
           'تعداد داده آمائی': location.dadeh_amaei_count,
-          'Eslah Naghsheh Count': location.eslah_naghsheh_count,
-          'تعداد تایید و بارگذاری': location.tayid_va_bargozari_count,
+          // 'Eslah Naghsheh Count': location.eslah_naghsheh_count,
+          // 'تعداد تایید و بارگذاری': location.tayid_va_bargozari_count,
           'GeoCode Count': location.geocode_count,
           'Geocode Makan Count': location.geocode_makan_count,
           'Geocode Building Count': location.geocode_building_count,

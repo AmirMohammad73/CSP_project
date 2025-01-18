@@ -1,6 +1,6 @@
 import { ref, watch } from "vue";
 
-export function useDataFetching(activeTab, headers, tabs, tabEndpoints) {
+export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selectedOption) {
     const tableData = ref([]); // Initialize as an empty array
 
     const chartOptions = ref({
@@ -72,95 +72,119 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints) {
             // Use the first column (ostantitle) as x-axis categories
             const categories = currentData.map((row) => row[currentHeaders[0].value]);
 
-            // Prepare series data for each group
             let series = [];
-            if (activeTab.value === 0) {
-                // Map Status tab
+
+            // Handle data for Rural Operations Monitoring
+            if (selectedOption.value === "Rural Operations Monitoring") {
+                if (activeTab.value === 0) {
+                    // Map Status tab
+                    series = [
+                        {
+                            name: "Bonyad Maskan",
+                            data: currentData.map((row) => Number(row["bonyad_maskan"])),
+                            color: "#FF4560", // Red
+                        },
+                        {
+                            name: "Sayer Manabe",
+                            data: currentData.map((row) => Number(row["sayer_manabe"])),
+                            color: "#FEB019", // Yellow
+                        },
+                        {
+                            name: "Tarsim",
+                            data: currentData.map((row) => Number(row["tarsim"])),
+                            color: "#FF6699", // Pink
+                        },
+                    ];
+                } else if (activeTab.value === 1) {
+                    // Update Status tab
+                    series = [
+                        {
+                            name: "Total",
+                            data: currentData.map((row) => Number(row["total"])),
+                            color: "#D3D3D3", // Light gray for background
+                            columnWidth: "90%", // Make the "Total" column thicker
+                            zIndex: -1, // Ensure it's behind the other columns
+                        },
+                        {
+                            name: "Amaliate Meydani",
+                            data: currentData.map((row) => Number(row["amaliate_meydani"])),
+                            color: "#00E396", // Green
+                            columnWidth: "30%", // Make the grouped columns thinner
+                        },
+                        {
+                            name: "Dadeh Amaei",
+                            data: currentData.map((row) => Number(row["dadeh_amaei"])),
+                            color: "#008FFB", // Blue
+                            columnWidth: "30%", // Make the grouped columns thinner
+                        },
+                        {
+                            name: "Eslah Naghsheh",
+                            data: currentData.map((row) => Number(row["eslah_naghsheh"])),
+                            color: "#775DD0", // Purple
+                            columnWidth: "30%", // Make the grouped columns thinner
+                        },
+                    ];
+                } else if (activeTab.value === 2) {
+                    // Geocode Status tab
+                    series = [
+                        {
+                            name: "Eslah Naghsheh",
+                            data: currentData.map((row) => Number(row["eslah_naghsheh"])),
+                            color: "#FF4560", // Red
+                        },
+                        {
+                            name: "Tayid va Bargozari",
+                            data: currentData.map((row) => Number(row["tayid_va_bargozari"])),
+                            color: "#FEB019", // Yellow
+                        },
+                        {
+                            name: "Daryafte Naghsheh",
+                            data: currentData.map((row) => Number(row["daryafte_naghsheh"])),
+                            color: "#FF6699", // Pink
+                        },
+                    ];
+                } else if (activeTab.value === 3) {
+                    // License Plate Status tab
+                    series = [
+                        {
+                            name: "Tolid QR",
+                            data: currentData.map((row) => Number(row["tolid_qr"])),
+                            color: "#FF4560", // Red
+                        },
+                        {
+                            name: "Pelak Talfighi",
+                            data: currentData.map((row) => Number(row["pelak_talfighi"])),
+                            color: "#FEB019", // Yellow
+                        },
+                    ];
+                } else if (activeTab.value === 4) {
+                    // National ID tab
+                    series = [
+                        {
+                            name: "Shenaseh Melli",
+                            data: currentData.map((row) => Number(row["shenaseh_melli"])),
+                            color: "#00E396", // Green
+                        },
+                    ];
+                }
+            }
+
+            // Handle data for Option 2
+            else if (selectedOption.value === "BSC") {
                 series = [
                     {
-                        name: "Bonyad Maskan",
-                        data: currentData.map((row) => Number(row["bonyad_maskan"])),
+                        name: "Amalkard",
+                        data: currentData.map((row) => Number(row["amalkard"])),
                         color: "#FF4560", // Red
                     },
                     {
-                        name: "Sayer Manabe",
-                        data: currentData.map((row) => Number(row["sayer_manabe"])),
+                        name: "Dirkard",
+                        data: currentData.map((row) => Number(row["dirkard"])),
                         color: "#FEB019", // Yellow
                     },
                     {
-                        name: "Tarsim",
-                        data: currentData.map((row) => Number(row["tarsim"])),
-                        color: "#FF6699", // Pink
-                    },
-                ];
-            } else if (activeTab.value === 1) {
-                // Update Status tab
-                series = [
-                    {
-                        name: "Total",
-                        data: currentData.map((row) => Number(row["total"])),
-                        color: "#D3D3D3", // Light gray for background
-                        columnWidth: "90%", // Make the "Total" column thicker
-                        zIndex: -1, // Ensure it's behind the other columns
-                    },
-                    {
-                        name: "Amaliate Meydani",
-                        data: currentData.map((row) => Number(row["amaliate_meydani"])),
-                        color: "#00E396", // Green
-                        columnWidth: "30%", // Make the grouped columns thinner
-                    },
-                    {
-                        name: "Dadeh Amaei",
-                        data: currentData.map((row) => Number(row["dadeh_amaei"])),
-                        color: "#008FFB", // Blue
-                        columnWidth: "30%", // Make the grouped columns thinner
-                    },
-                    {
-                        name: "Eslah Naghsheh",
-                        data: currentData.map((row) => Number(row["eslah_naghsheh"])),
-                        color: "#775DD0", // Purple
-                        columnWidth: "30%", // Make the grouped columns thinner
-                    },
-                ];
-            } else if (activeTab.value === 2) {
-                // Geocode Status tab
-                series = [
-                    {
-                        name: "Eslah Naghsheh",
-                        data: currentData.map((row) => Number(row["eslah_naghsheh"])),
-                        color: "#FF4560", // Red
-                    },
-                    {
-                        name: "Tayid va Bargozari",
-                        data: currentData.map((row) => Number(row["tayid_va_bargozari"])),
-                        color: "#FEB019", // Yellow
-                    },
-                    {
-                        name: "Daryafte Naghsheh",
-                        data: currentData.map((row) => Number(row["daryafte_naghsheh"])),
-                        color: "#FF6699", // Pink
-                    },
-                ];
-            } else if (activeTab.value === 3) {
-                // License Plate Status tab
-                series = [
-                    {
-                        name: "Tolid QR",
-                        data: currentData.map((row) => Number(row["tolid_qr"])),
-                        color: "#FF4560", // Red
-                    },
-                    {
-                        name: "Pelak Talfighi",
-                        data: currentData.map((row) => Number(row["pelak_talfighi"])),
-                        color: "#FEB019", // Yellow
-                    },
-                ];
-            } else if (activeTab.value === 4) {
-                // National ID tab
-                series = [
-                    {
-                        name: "Shenaseh Melli",
-                        data: currentData.map((row) => Number(row["shenaseh_melli"])),
+                        name: "Barnameh Diff",
+                        data: currentData.map((row) => Number(row["barnameh_diff"])),
                         color: "#00E396", // Green
                     },
                 ];

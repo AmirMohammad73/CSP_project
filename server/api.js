@@ -336,8 +336,46 @@ const getRoostaData = async (ostantitle, shahrestantitle, zonetitle, dehestantit
 WHERE ostantitle = $1 AND shahrestantitle = $2 AND zonetitle = $3 AND dehestantitle = $4;`;
   return await query(sql, [ostantitle, shahrestantitle, zonetitle, dehestantitle]);
 };
+const getBSCTab1Data = async () => {
+  const sql = `WITH bsc_summary AS (
+        SELECT
+            ostantitle,
+            month_calc(12, 1, 1, bsc) AS amalkard,
+            month_calc(12, 2, 1, bsc) AS barnameh,
+            month_calc(12, 2, 1, bsc) AS total_barnameh,
+            amaliat
+        FROM public.bsc
+        WHERE amaliat = 1
+        GROUP BY ostantitle, amaliat, bsc
+    )
+    -- section1
+    , section1_summary AS (
+        SELECT
+            ostantitle,
+            amalkard,
+            barnameh - amalkard AS dirkard,
+            total_barnameh - amalkard - (barnameh - amalkard) AS barnameh_diff,
+            amaliat
+        FROM bsc_summary
+    )
+    -- Calculate totals for section1
+    , section1_totals AS (
+        SELECT
+            'جمع کشوری' AS ostantitle,
+            SUM(amalkard) AS amalkard,
+            SUM(dirkard) AS dirkard,
+            SUM(barnameh_diff) AS barnameh_diff,
+            MAX(amaliat) AS amaliat
+        FROM section1_summary
+    )
+    -- Combine results
+    (SELECT * FROM section1_totals)
+    UNION ALL
+    (SELECT * FROM section1_summary ORDER BY ostantitle);`;
+  return await query(sql);
+};
 const getOstanNames = async () => {
   const sql = `SELECT ostantitle FROM public.locations1 GROUP BY ostantitle ORDER BY ostantitle;`;
   return await query(sql);
 };
-module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap };
+module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data };
