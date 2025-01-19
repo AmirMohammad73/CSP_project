@@ -158,3 +158,8 @@ export default {
   }
 };
 </script>
+<style scoped>
+.elevation-1{
+  direction: rtl;
+}
+</style>
