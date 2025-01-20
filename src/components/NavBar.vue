@@ -78,33 +78,37 @@
     <!-- Logout Confirmation Dialog -->
     <v-dialog v-model="logoutDialog" max-width="400px">
       <v-card>
-        <v-card-title>Logout</v-card-title>
-        <v-card-text>Are you sure you want to logout?</v-card-text>
+        <v-card-title>خروج</v-card-title>
+        <v-card-text>آیا مطمئن هستید که می‌خواهید خارج شوید؟</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" @click="confirmLogout">Yes</v-btn>
-          <v-btn color="error" @click="closeLogoutDialog">No</v-btn>
+          <v-btn color="primary" @click="confirmLogout">بله</v-btn>
+          <v-btn color="error" @click="closeLogoutDialog">خیر</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
   </v-app-bar>
 </template>
-
 <script>
-import { useAppStore } from '../stores/app';
+import { useAuthStore } from '../stores/app'; // Import the auth store
+import { useAppStore } from '../stores/app'; // Import any necessary store
+import { useRouter } from 'vue-router'; // Import Vue Router
+
 export default {
   setup() {
     const AppStore = useAppStore();
+    const authStore = useAuthStore(); // Access the auth store
+    const router = useRouter(); // Access the router
 
     const toggleValue = () => {
       AppStore.toggle(); // Calls the store's toggle action
     };
 
-    return { AppStore, toggleValue };
+    return { AppStore, authStore, toggleValue, router };
   },
   data() {
     return {
-      items: ['تغییر پسورد', 'خروج'],
+      items: ['تغییر پسورد', 'خروج'], // Menu items
       changePasswordDialog: false,
       logoutDialog: false,
       currentPassword: '',
@@ -147,8 +151,10 @@ export default {
       this.logoutDialog = false;
     },
     confirmLogout() {
-      alert("Logged out successfully!"); // Replace with your actual logic
-      this.closeLogoutDialog();
+      // Clear authentication state and redirect to login
+      this.authStore.logout(); // Call the logout action in the auth store
+      this.router.push('/'); // Redirect to the login page
+      this.closeLogoutDialog(); // Close the logout dialog
     },
     markAsSeen(index) {
       this.notifications[index].seen = true;

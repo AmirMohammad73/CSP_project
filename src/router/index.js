@@ -7,7 +7,31 @@
 // Composables
 import { createRouter, createWebHistory } from 'vue-router/auto'
 import { setupLayouts } from 'virtual:generated-layouts'
-import { routes } from 'vue-router/auto-routes'
+// import { routes } from 'vue-router/auto-routes'
+import LoginPage from '../pages/LoginPage.vue';
+import DashboardPage from '../pages/DashboardPage.vue';
+import { useAuthStore } from '../stores/app';
+
+const routes = [
+  {
+    path: '/',
+    name: 'Login',
+    component: LoginPage,
+  },
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: DashboardPage,
+    beforeEnter: (to, from, next) => {
+      const authStore = useAuthStore();
+      if (authStore.isLoggedIn) {
+        next();
+      } else {
+        next({ name: 'Login' }); // Redirect to login if not authenticated
+      }
+    },
+  },
+];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
