@@ -48,3 +48,8 @@ defineComponent({
   components: { SideBar, NavBar, DashboardContent, InfoEntry, Users, StatsCharts, Reports }
 });
 </script>
+<style scoped>
+.rounded{
+  position: static !important;
+}
+</style>

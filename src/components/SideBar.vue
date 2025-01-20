@@ -1,9 +1,11 @@
-<!-- sidebar.vue -->
 <template v-slot:prepend>
   <v-navigation-drawer app location="right" permanent @update:expanded="false">
+    <!-- User Info -->
     <v-list-item lines="two" prepend-avatar="https://randomuser.me/api/portraits/women/81.jpg" subtitle="Logged in"
-      title="Jane Smith"></v-list-item>
+      :title="username"></v-list-item>
     <v-divider></v-divider>
+
+    <!-- Navigation Items -->
     <v-list density="compact" nav>
       <v-list-item prepend-icon="mdi-view-dashboard" title="داشبورد" value="home" class="white--text"
         @click="$emit('change-component', 'Dashboard')"></v-list-item>
@@ -20,8 +22,18 @@
 </template>
 
 <script>
+import { useAuthStore } from '../stores/app'; // Import the Pinia auth store
+
 export default {
   emits: ['change-component'],
+  setup() {
+    const authStore = useAuthStore(); // Access the auth store
+    const username = authStore.username; // Retrieve the logged-in username
+
+    return {
+      username, // Pass the username to the template
+    };
+  },
 };
 </script>
 
@@ -32,6 +44,8 @@ export default {
 }
 
 .v-navigation-drawer {
+  height: 100vh !important; /* Forces the drawer to take the entire screen height */
+  overflow-y: auto; /* Enables scrolling if content exceeds the viewport height */
   background-color: #212631;
 }
 
