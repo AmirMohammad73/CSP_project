@@ -74,8 +74,8 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
 
             let series = [];
 
-            // Handle data for Rural Operations Monitoring
-            if (selectedOption.value === "Rural Operations Monitoring") {
+            // Handle data for پایش عملیات روستایی
+            if (selectedOption.value === "پایش عملیات روستایی") {
                 if (activeTab.value === 0) {
                     // Map Status tab
                     series = [

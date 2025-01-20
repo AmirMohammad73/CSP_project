@@ -7,28 +7,44 @@ export const useAppStore = defineStore('app', {
     //
   }),
   actions: {
-    toggle () {
+    toggle() {
       this.isDarkTheme = !this.isDarkTheme
     }
   }
 })
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    username: '', // To store the username of the logged-in user
-    isLoggedIn: false, // To track login status
+    username: localStorage.getItem('username') || '', // Load from localStorage
+    isLoggedIn: localStorage.getItem('isAuthenticated') === 'true' || false, // Load from localStorage
   }),
   actions: {
     login(username, password) {
       if (username === 'admin' && password === '123456') {
         this.username = username;
         this.isLoggedIn = true;
+
+        localStorage.setItem('username', username);
+        localStorage.setItem('isAuthenticated', true);
+
         return true; // Login success
       }
       return false; // Login failed
     },
     logout() {
-      this.username = '';
+      this.username = null;
       this.isLoggedIn = false;
+      // Clear localStorage
+      localStorage.removeItem('username');
+      localStorage.removeItem('isLoggedIn');
+    },
+    initialize() {
+      // Listen for storage events to sync state across tabs
+      window.addEventListener('storage', (event) => {
+        if (event.key === 'isLoggedIn') {
+          this.isLoggedIn = event.newValue === 'true';
+          this.username = localStorage.getItem('username') || '';
+        }
+      });
     },
   },
 });

@@ -1,9 +1,9 @@
 <template>
-    <div class="login-page">
+    <div class="login-page" dir="rtl">
         <div class="login-container">
             <div class="logo-container">
                 <!-- Add a logo or icon above the form -->
-                <img src="../components/Login/icons/logo.png" alt="Logo" class="logo" />
+                <img src="../components/Login/icons/login.png" alt="Logo" class="logo" />
             </div>
             <h2>ورود به سیستم</h2>
             <p class="subheading">لطفاً اطلاعات خود را وارد کنید</p>
@@ -73,10 +73,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'B Traffic', sans-serif;
-}
-
-b {
-    direction: rtl;
+    direction: rtl; /* Set direction to RTL for the entire page */
 }
 
 /* Login Page Background */
@@ -84,16 +81,14 @@ b {
     font-size: large;
     font-weight: bolder;
     font-family: 'B Traffic';
-    direction: rtl;
+    direction: rtl; /* Ensure RTL direction */
     height: 100vh;
     width: 100vw;
     display: flex;
     justify-content: center;
     align-items: center;
     background-image: url('../components/Login/26165.png');
-    /* Restored the background image */
     background-size: cover;
-    /* Ensures the image covers the entire screen */
     background-position: center;
     background-repeat: no-repeat;
     position: fixed;
@@ -104,7 +99,6 @@ b {
 /* Login Container */
 .login-container {
     background: rgba(0, 0, 0, 0.7);
-    /* Black background with transparency */
     padding: 30px;
     border-radius: 15px;
     width: 400px;
@@ -140,7 +134,7 @@ h2 {
 /* Input Group */
 .input-group {
     margin-bottom: 20px;
-    text-align: left;
+    text-align: right; /* Align text to the right */
 }
 
 label {
@@ -158,10 +152,12 @@ input {
     background: #333;
     color: white;
     font-size: 14px;
+    text-align: right; /* Align input text to the right */
 }
 
 input::placeholder {
     color: rgba(255, 255, 255, 0.6);
+    text-align: right; /* Align placeholder text to the right */
 }
 
 input:focus {

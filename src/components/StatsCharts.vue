@@ -76,13 +76,13 @@ export default {
   },
   setup() {
     const AppStore = useAppStore();
-    const selectedOption = ref("Rural Operations Monitoring");
-    const options = ref(["Rural Operations Monitoring", "BSC", "Option 3"]);
+    const selectedOption = ref("پایش عملیات روستایی");
+    const options = ref(["پایش عملیات روستایی", "BSC", "Option 3"]);
 
     // Load the appropriate module based on the selected option
     const loadModule = () => {
       switch (selectedOption.value) {
-        case "Rural Operations Monitoring":
+        case "پایش عملیات روستایی":
           return useRuralOperationsMonitoring();
         case "BSC":
           return useBSCIndices();

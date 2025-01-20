@@ -47,7 +47,7 @@ const fetchItems = async () => {
     loading.value = true
     error.value = ''
     try {
-        const response = await fetch('http://192.168.47.1:3001/ostans')
+        const response = await fetch('http://172.16.8.33:3001/ostans')
         const data = await response.json()
         items.value = data.map((location, index) => ({
             id: index + 1,
@@ -68,7 +68,7 @@ const handleSelectionChange = () => {
 const exportToExcel = async () => {
     exporting.value = true
     try {
-        const response = await fetch('http://192.168.47.1:3001/query', {
+        const response = await fetch('http://172.16.8.33:3001/query', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
