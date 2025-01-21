@@ -178,6 +178,61 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
+// Endpoint to update roosta data
+app.post('/api/locations/update-roosta', async (req, res) => {
+  const modifiedRecords = req.body;
+
+  if (!Array.isArray(modifiedRecords) || modifiedRecords.length === 0) {
+    return res.status(400).json({ error: 'No valid data provided' });
+  }
+
+  const data = await pool.connect();
+
+  try {
+    await client.query('BEGIN'); // Start a transaction
+
+    for (const record of modifiedRecords) {
+      const { population_point_id, shenaseh_melli, amaliate_meydani, dadeh_amaei, geocode } = record;
+
+      // Update the main table
+      const updateQuery = `
+        UPDATE roosta_table
+        SET 
+          shenaseh_melli = $1,
+          amaliate_meydani = $2,
+          dadeh_amaei = $3,
+          geocode = $4
+        WHERE population_point_id = $5;
+      `;
+
+      await client.query(updateQuery, [shenaseh_melli, amaliate_meydani, dadeh_amaei, geocode, population_point_id]);
+
+      // Insert the changes into the changes table
+      const insertQuery = `
+        INSERT INTO roosta_changes (
+          population_point_id, 
+          shenaseh_melli, 
+          amaliate_meydani, 
+          dadeh_amaei, 
+          geocode, 
+          changed_at
+        )
+        VALUES ($1, $2, $3, $4, $5, NOW());
+      `;
+
+      await client.query(insertQuery, [population_point_id, shenaseh_melli, amaliate_meydani, dadeh_amaei, geocode]);
+    }
+
+    await client.query('COMMIT'); // Commit the transaction
+    res.status(200).json({ message: 'Roosta data updated and changes logged successfully!' });
+  } catch (error) {
+    await client.query('ROLLBACK'); // Rollback the transaction in case of error
+    console.error('Error updating roosta data:', error);
+    res.status(500).json({ error: 'Failed to update roosta data' });
+  } finally {
+    client.release();
+  }
+});
 // Start the server
 app.listen(port, () => {
   console.log(`Server running at http://172.16.8.33:${port}`);
