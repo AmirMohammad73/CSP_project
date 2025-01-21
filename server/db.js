@@ -34,4 +34,4 @@ const query = async (sql, params = []) => {
   }
 };
 
-module.exports = { query };
+module.exports = { query, pool }; // Export both query and pool

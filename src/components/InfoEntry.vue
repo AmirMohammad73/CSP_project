@@ -38,20 +38,24 @@
       </v-btn>
     </v-card-actions>
 
-    <!-- Snackbar -->
-    <v-snackbar v-model="snackbar" :timeout="3000" :top="true" color="success" class="rounded elevation-2">
-      {{ snackbarMessage }}
-      <template v-slot:action="{ attrs }">
-        <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
+    <template>
+      <div>
+        <!-- Dialog for Roosta Data -->
+        <RoostaDialog v-model="dialog" :roosta-data="roostaData" :roosta-headers="roostaHeaders"
+          :sticky-header-background-color="stickyHeaderBackgroundColor" @save-success="handleSaveSuccess"
+          @save-error="handleSaveError" />
 
-    <!-- Dialog for Roosta Data -->
-    <RoostaDialog v-model="dialog" :roosta-data="roostaData" :roosta-headers="roostaHeaders"
-      :sticky-header-background-color="stickyHeaderBackgroundColor" @save-success="handleSaveSuccess"
-      @save-error="handleSaveError" />
+        <!-- Snackbar -->
+        <v-snackbar v-model="snackbar" :timeout="3000" :top="true" :color="snackbarColor" class="rounded elevation-2">
+          <div v-html="snackbarMessage" class="rtl-message"></div>
+          <template v-slot:action="{ attrs }">
+            <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
+              بستن
+            </v-btn>
+          </template>
+        </v-snackbar>
+      </div>
+    </template>
   </v-card>
 </template>
 
@@ -177,7 +181,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/detailed`);
+        const response = await fetch(`http://172.16.8.33:3001/api/locations/detailed`);
         if (!response.ok) {
           throw new Error('Failed to fetch detailed locations data');
         }
@@ -195,7 +199,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`);
+        const response = await fetch(`http://172.16.8.33:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch shahrestan data');
         }
@@ -213,7 +217,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`);
+        const response = await fetch(`http://172.16.8.33:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch zone data');
         }
@@ -231,7 +235,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`);
+        const response = await fetch(`http://172.16.8.33:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch dehestan data');
         }
@@ -250,7 +254,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://192.168.47.1:3001/api/locations/roosta?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}&dehestantitle=${encodeURIComponent(dehestantitle)}`
+          `http://172.16.8.33:3001/api/locations/roosta?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}&dehestantitle=${encodeURIComponent(dehestantitle)}`
         );
         if (!response.ok) {
           throw new Error('Failed to fetch roosta data');
@@ -269,7 +273,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch('http://192.168.47.1:3001/api/locations');
+        const response = await fetch('http://172.16.8.33:3001/api/locations');
         if (!response.ok) {
           throw new Error('Failed to fetch locations data');
         }
@@ -354,11 +358,13 @@ export default {
       }
     },
     handleSaveSuccess(message) {
-      this.snackbarMessage = message;
+      this.snackbarMessage = `<span dir="rtl">${message}</span>`;
+      this.snackbarColor = 'success';
       this.snackbar = true;
     },
     handleSaveError(message) {
-      this.snackbarMessage = message;
+      this.snackbarMessage = `<span dir="rtl">${message}</span>`;
+      this.snackbarColor = 'error';
       this.snackbar = true;
     },
   },
@@ -415,5 +421,12 @@ export default {
 
 .v-radio-group {
   padding: 0;
+}
+
+.rtl-message {
+  direction: rtl;
+  text-align: right;
+  font-family: 'B Traffic', sans-serif;
+  /* Use the same font as in your dialog */
 }
 </style>

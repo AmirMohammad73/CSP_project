@@ -1,4 +1,4 @@
-const { query } = require('./db');
+const { query, pool } = require('./db');
 
 const getMapStatusData = async () => {
   const sql = `
@@ -374,8 +374,205 @@ const getBSCTab1Data = async () => {
     (SELECT * FROM section1_summary ORDER BY ostantitle);`;
   return await query(sql);
 };
+const getBSCTab2Data = async () => {
+  const sql = `WITH bsc_summary AS (
+        SELECT
+            ostantitle,
+            month_calc(12, 1, 2, bsc) AS amalkard,
+            month_calc(12, 2, 2, bsc) AS barnameh,
+            month_calc(12, 2, 2, bsc) AS total_barnameh,
+            amaliat
+        FROM public.bsc
+        WHERE amaliat = 2
+        GROUP BY ostantitle, amaliat, bsc
+    )
+    -- section1
+    , section1_summary AS (
+        SELECT
+            ostantitle,
+            amalkard,
+            barnameh - amalkard AS dirkard,
+            total_barnameh - amalkard - (barnameh - amalkard) AS barnameh_diff,
+            amaliat
+        FROM bsc_summary
+    )
+    -- Calculate totals for section1
+    , section1_totals AS (
+        SELECT
+            'جمع کشوری' AS ostantitle,
+            SUM(amalkard) AS amalkard,
+            SUM(dirkard) AS dirkard,
+            SUM(barnameh_diff) AS barnameh_diff,
+            MAX(amaliat) AS amaliat
+        FROM section1_summary
+    )
+    -- Combine results
+    (SELECT * FROM section1_totals)
+    UNION ALL
+    (SELECT * FROM section1_summary ORDER BY ostantitle);`;
+  return await query(sql);
+};
+const getBSCTab3Data = async () => {
+  const sql = `WITH bsc_summary AS (
+        SELECT
+            ostantitle,
+            month_calc(12, 1, 3, bsc) AS amalkard,
+            month_calc(12, 2, 3, bsc) AS barnameh,
+            month_calc(12, 2, 3, bsc) AS total_barnameh,
+            amaliat
+        FROM public.bsc
+        WHERE amaliat = 3
+        GROUP BY ostantitle, amaliat, bsc
+    )
+    -- section1
+    , section1_summary AS (
+        SELECT
+            ostantitle,
+            amalkard,
+            barnameh - amalkard AS dirkard,
+            total_barnameh - amalkard - (barnameh - amalkard) AS barnameh_diff,
+            amaliat
+        FROM bsc_summary
+    )
+    -- Calculate totals for section1
+    , section1_totals AS (
+        SELECT
+            'جمع کشوری' AS ostantitle,
+            SUM(amalkard) AS amalkard,
+            SUM(dirkard) AS dirkard,
+            SUM(barnameh_diff) AS barnameh_diff,
+            MAX(amaliat) AS amaliat
+        FROM section1_summary
+    )
+    -- Combine results
+    (SELECT * FROM section1_totals)
+    UNION ALL
+    (SELECT * FROM section1_summary ORDER BY ostantitle);`;
+  return await query(sql);
+};
+const getBSCTab4Data = async () => {
+  const sql = `WITH bsc_summary AS (
+        SELECT
+            ostantitle,
+            month_calc(12, 1, 4, bsc) AS amalkard,
+            month_calc(12, 2, 4, bsc) AS barnameh,
+            month_calc(12, 2, 4, bsc) AS total_barnameh,
+            amaliat
+        FROM public.bsc
+        WHERE amaliat = 4
+        GROUP BY ostantitle, amaliat, bsc
+    )
+    -- section1
+    , section1_summary AS (
+        SELECT
+            ostantitle,
+            amalkard,
+            barnameh - amalkard AS dirkard,
+            total_barnameh - amalkard - (barnameh - amalkard) AS barnameh_diff,
+            amaliat
+        FROM bsc_summary
+    )
+    -- Calculate totals for section1
+    , section1_totals AS (
+        SELECT
+            'جمع کشوری' AS ostantitle,
+            SUM(amalkard) AS amalkard,
+            SUM(dirkard) AS dirkard,
+            SUM(barnameh_diff) AS barnameh_diff,
+            MAX(amaliat) AS amaliat
+        FROM section1_summary
+    )
+    -- Combine results
+    (SELECT * FROM section1_totals)
+    UNION ALL
+    (SELECT * FROM section1_summary ORDER BY ostantitle);`;
+  return await query(sql);
+};
+const getBSCTab5Data = async () => {
+  const sql = `WITH bsc_summary AS (
+        SELECT
+            ostantitle,
+            month_calc(12, 1, 5, bsc) AS amalkard,
+            month_calc(12, 2, 5, bsc) AS barnameh,
+            month_calc(12, 2, 5, bsc) AS total_barnameh,
+            amaliat
+        FROM public.bsc
+        WHERE amaliat = 5
+        GROUP BY ostantitle, amaliat, bsc
+    )
+    -- section1
+    , section1_summary AS (
+        SELECT
+            ostantitle,
+            amalkard,
+            barnameh - amalkard AS dirkard,
+            total_barnameh - amalkard - (barnameh - amalkard) AS barnameh_diff,
+            amaliat
+        FROM bsc_summary
+    )
+    -- Calculate totals for section1
+    , section1_totals AS (
+        SELECT
+            'جمع کشوری' AS ostantitle,
+            SUM(amalkard) AS amalkard,
+            SUM(dirkard) AS dirkard,
+            SUM(barnameh_diff) AS barnameh_diff,
+            MAX(amaliat) AS amaliat
+        FROM section1_summary
+    )
+    -- Combine results
+    (SELECT * FROM section1_totals)
+    UNION ALL
+    (SELECT * FROM section1_summary ORDER BY ostantitle);`;
+  return await query(sql);
+};
+// Update roosta data
+const updateRoostaData = async (modifiedRecords) => {
+  const client = await pool.connect(); // Now pool is defined
+  try {
+    await client.query('BEGIN'); // Start a transaction
+
+    for (const record of modifiedRecords) {
+      const { population_point_id, shenaseh_melli, amaliate_meydani, dadeh_amaei, geocode } = record;
+
+      // Update the main table
+      const updateQuery = `
+        UPDATE public.locations1
+        SET 
+          shenaseh_melli = $1,
+          amaliate_meydani = $2,
+          dadeh_amaei = $3,
+          daryafte_naghsheh = $4
+        WHERE population_point_id = $5;
+      `;
+      await client.query(updateQuery, [shenaseh_melli, amaliate_meydani, dadeh_amaei, geocode, population_point_id]);
+
+      // Insert the changes into the changes table
+      const insertQuery = `
+        INSERT INTO roosta_changes (
+          population_point_id, 
+          shenaseh_melli, 
+          amaliate_meydani, 
+          dadeh_amaei, 
+          daryafte_naghsheh, 
+          changed_at
+        )
+        VALUES ($1, $2, $3, $4, $5, NOW());
+      `;
+      await client.query(insertQuery, [population_point_id, shenaseh_melli, amaliate_meydani, dadeh_amaei, geocode]);
+    }
+
+    await client.query('COMMIT'); // Commit the transaction
+    return { message: 'Roosta data updated and changes logged successfully!' };
+  } catch (error) {
+    await client.query('ROLLBACK'); // Rollback the transaction in case of error
+    throw error;
+  } finally {
+    client.release();
+  }
+};
 const getOstanNames = async () => {
   const sql = `SELECT ostantitle FROM public.locations1 GROUP BY ostantitle ORDER BY ostantitle;`;
   return await query(sql);
 };
-module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data };
+module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, updateRoostaData};

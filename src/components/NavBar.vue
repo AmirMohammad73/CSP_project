@@ -17,7 +17,7 @@
         </v-list-item>
         <v-list-item @click="openLogoutDialog">
           <v-list-item-title>
-            <div class="menu" style="direction: rtl;">{{ items[1] }}</div>
+            <div class="menu" style="direction: rtl; color: red;">{{ items[1] }}</div>
           </v-list-item-title>
         </v-list-item>
       </v-list>

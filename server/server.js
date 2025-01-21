@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data } = require('./api');
+const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, updateRoostaData } = require('./api');
 require('dotenv').config();
 
 const app = express();
@@ -40,9 +40,51 @@ app.get('/api/locations', async (req, res) => {
 // Data endpoint
 app.get('/api/bsc/tab1', async (req, res) => {
   try {
-	console.log("HEY");
     const data = await getBSCTab1Data();
-	console.log(data);
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/bsc/tab2', async (req, res) => {
+  try {
+    const data = await getBSCTab2Data();
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/bsc/tab3', async (req, res) => {
+  try {
+    const data = await getBSCTab3Data();
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/bsc/tab4', async (req, res) => {
+  try {
+    const data = await getBSCTab4Data();
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/bsc/tab5', async (req, res) => {
+  try {
+    const data = await getBSCTab5Data();
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
@@ -179,6 +221,7 @@ app.use((err, req, res, next) => {
 });
 
 // Endpoint to update roosta data
+// POST /api/locations/update-roosta
 app.post('/api/locations/update-roosta', async (req, res) => {
   const modifiedRecords = req.body;
 
@@ -186,51 +229,12 @@ app.post('/api/locations/update-roosta', async (req, res) => {
     return res.status(400).json({ error: 'No valid data provided' });
   }
 
-  const data = await pool.connect();
-
   try {
-    await client.query('BEGIN'); // Start a transaction
-
-    for (const record of modifiedRecords) {
-      const { population_point_id, shenaseh_melli, amaliate_meydani, dadeh_amaei, geocode } = record;
-
-      // Update the main table
-      const updateQuery = `
-        UPDATE roosta_table
-        SET 
-          shenaseh_melli = $1,
-          amaliate_meydani = $2,
-          dadeh_amaei = $3,
-          geocode = $4
-        WHERE population_point_id = $5;
-      `;
-
-      await client.query(updateQuery, [shenaseh_melli, amaliate_meydani, dadeh_amaei, geocode, population_point_id]);
-
-      // Insert the changes into the changes table
-      const insertQuery = `
-        INSERT INTO roosta_changes (
-          population_point_id, 
-          shenaseh_melli, 
-          amaliate_meydani, 
-          dadeh_amaei, 
-          geocode, 
-          changed_at
-        )
-        VALUES ($1, $2, $3, $4, $5, NOW());
-      `;
-
-      await client.query(insertQuery, [population_point_id, shenaseh_melli, amaliate_meydani, dadeh_amaei, geocode]);
-    }
-
-    await client.query('COMMIT'); // Commit the transaction
-    res.status(200).json({ message: 'Roosta data updated and changes logged successfully!' });
+    const result = await updateRoostaData(modifiedRecords);
+    res.status(200).json(result);
   } catch (error) {
-    await client.query('ROLLBACK'); // Rollback the transaction in case of error
     console.error('Error updating roosta data:', error);
     res.status(500).json({ error: 'Failed to update roosta data' });
-  } finally {
-    client.release();
   }
 });
 // Start the server

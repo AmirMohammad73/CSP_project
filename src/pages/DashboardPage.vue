@@ -4,7 +4,7 @@
     <SideBar @change-component="changeComponent" />
     <!-- <v-app-bar title="Application bar"></v-app-bar> -->
     <NavBar />
-    <v-main>
+    <v-main class="maincontent">
       <component :is="currentComponent" />
     </v-main>
   </v-layout>
@@ -49,6 +49,10 @@ defineComponent({
 });
 </script>
 <style scoped>
+.maincontent{
+  height: 49vw;
+  overflow-y: scroll;
+}
 .rounded{
   position: static !important;
 }

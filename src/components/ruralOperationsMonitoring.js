@@ -45,11 +45,11 @@ export function useRuralOperationsMonitoring() {
     ]);
 
     const tabEndpoints = {
-        0: "http://192.168.47.1:3001/api/data", // Map Status
-        1: "http://192.168.47.1:3001/api/update", // Update Status
-        2: "http://192.168.47.1:3001/api/geocode", // Geocode Status
-        3: "http://192.168.47.1:3001/api/license-plate", // License Plate Status
-        4: "http://192.168.47.1:3001/api/national-id", // National ID
+        0: "http://172.16.8.33:3001/api/data", // Map Status
+        1: "http://172.16.8.33:3001/api/update", // Update Status
+        2: "http://172.16.8.33:3001/api/geocode", // Geocode Status
+        3: "http://172.16.8.33:3001/api/license-plate", // License Plate Status
+        4: "http://172.16.8.33:3001/api/national-id", // National ID
     };
 
     return {

@@ -76,7 +76,7 @@ export default {
   },
   setup() {
     const AppStore = useAppStore();
-    const selectedOption = ref("پایش عملیات روستایی");
+    const selectedOption = ref("BSC");
     const options = ref(["پایش عملیات روستایی", "BSC", "Option 3"]);
 
     // Load the appropriate module based on the selected option

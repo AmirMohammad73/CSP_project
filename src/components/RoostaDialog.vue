@@ -71,6 +71,7 @@ export default {
                 'amaliate_meydani',
                 'dadeh_amaei',
                 'geocode',
+                'pelak_talfighi'
             ];
             return editableColumns.includes(key);
         },
@@ -98,12 +99,12 @@ export default {
                 });
 
                 if (modifiedRecords.length === 0) {
-                    this.$emit('save-success', 'No changes to save.');
+                    this.$emit('save-success', '<span dir="rtl">تغییری برای ذخیره وجود ندارد.</span>');
                     return;
                 }
 
                 // Send only the modified records to the server
-                const response = await fetch('http://192.168.47.1:3001/api/locations/update-roosta', {
+                const response = await fetch('http://172.16.8.33:3001/api/locations/update-roosta', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(modifiedRecords),
@@ -116,10 +117,10 @@ export default {
                 // Update the original data to reflect the changes
                 this.originalData = JSON.parse(JSON.stringify(this.roostaData));
 
-                this.$emit('save-success', 'Roosta data saved successfully!');
+                this.$emit('save-success', '<span dir="rtl">اطلاعات با موفقیت ذخیره شد!</span>');
             } catch (error) {
                 console.error('Error saving roosta data:', error);
-                this.$emit('save-error', 'Error saving roosta data');
+                this.$emit('save-error', '<span dir="rtl">خطا در ذخیره اطلاعات!</span>');
             }
         },
         closeDialog() {
