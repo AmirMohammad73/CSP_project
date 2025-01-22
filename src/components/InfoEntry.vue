@@ -181,7 +181,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://172.16.8.33:3001/api/locations/detailed`);
+        const response = await fetch(`http://192.168.47.1:3001/api/locations/detailed`);
         if (!response.ok) {
           throw new Error('Failed to fetch detailed locations data');
         }
@@ -199,7 +199,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://172.16.8.33:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`);
+        const response = await fetch(`http://192.168.47.1:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch shahrestan data');
         }
@@ -217,7 +217,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://172.16.8.33:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`);
+        const response = await fetch(`http://192.168.47.1:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch zone data');
         }
@@ -235,7 +235,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://172.16.8.33:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`);
+        const response = await fetch(`http://192.168.47.1:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch dehestan data');
         }
@@ -254,7 +254,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://172.16.8.33:3001/api/locations/roosta?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}&dehestantitle=${encodeURIComponent(dehestantitle)}`
+          `http://192.168.47.1:3001/api/locations/roosta?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}&dehestantitle=${encodeURIComponent(dehestantitle)}`
         );
         if (!response.ok) {
           throw new Error('Failed to fetch roosta data');
@@ -273,7 +273,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/locations');
+        const response = await fetch('http://192.168.47.1:3001/api/locations');
         if (!response.ok) {
           throw new Error('Failed to fetch locations data');
         }

@@ -46,11 +46,11 @@ export function useBSCIndices() {
     ]);
 
     const tabEndpoints = {
-        0: "http://172.16.8.33:3001/api/bsc/tab1",
-        1: "http://172.16.8.33:3001/api/bsc/tab2",
-        2: "http://172.16.8.33:3001/api/bsc/tab3",
-        3: "http://172.16.8.33:3001/api/bsc/tab4",
-        4: "http://172.16.8.33:3001/api/bsc/tab5",
+        0: "http://192.168.47.1:3001/api/bsc/tab1",
+        1: "http://192.168.47.1:3001/api/bsc/tab2",
+        2: "http://192.168.47.1:3001/api/bsc/tab3",
+        3: "http://192.168.47.1:3001/api/bsc/tab4",
+        4: "http://192.168.47.1:3001/api/bsc/tab5",
     };
 
     return {

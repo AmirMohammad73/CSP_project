@@ -104,7 +104,7 @@ export default {
                 }
 
                 // Send only the modified records to the server
-                const response = await fetch('http://172.16.8.33:3001/api/locations/update-roosta', {
+                const response = await fetch('http://192.168.47.1:3001/api/locations/update-roosta', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(modifiedRecords),
