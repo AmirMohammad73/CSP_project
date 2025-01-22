@@ -36,7 +36,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import * as XLSX from 'xlsx'
-
+import {useIPStore} from '../stores/app';
 const items = ref([])
 const selectedItems = ref([])
 const loading = ref(false)
@@ -44,10 +44,12 @@ const exporting = ref(false)
 const error = ref('')
 
 const fetchItems = async () => {
+    const ipStore = useIPStore();
+    const SERVER_HOST = ipStore.SERVER_HOST;
     loading.value = true
     error.value = ''
     try {
-        const response = await fetch('http://192.168.47.1:3001/ostans')
+        const response = await fetch(`http://${SERVER_HOST}:3001/ostans`)
         const data = await response.json()
         items.value = data.map((location, index) => ({
             id: index + 1,

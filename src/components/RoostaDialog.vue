@@ -45,6 +45,7 @@
 </template>
 
 <script>
+import {useIPStore} from '../stores/app';
 export default {
     props: {
         modelValue: Boolean, // Use `modelValue` instead of `dialog`
@@ -93,6 +94,8 @@ export default {
         },
         async saveRoostaData() {
             try {
+                const ipStore = useIPStore();
+                const SERVER_HOST = ipStore.SERVER_HOST;
                 // Filter out only the modified records
                 const modifiedRecords = this.roostaData.filter((record, index) => {
                     return !this.isEqual(record, this.originalData[index]);
@@ -104,7 +107,7 @@ export default {
                 }
 
                 // Send only the modified records to the server
-                const response = await fetch('http://192.168.47.1:3001/api/locations/update-roosta', {
+                const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/update-roosta`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(modifiedRecords),

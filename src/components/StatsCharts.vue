@@ -1,3 +1,4 @@
+<!-- statscharts.vue -->
 <template>
   <v-app dir="rtl">
     <v-container fluid>
@@ -62,12 +63,13 @@
 </template>
 
 <script>
+// In statscharts.vue (setup)
 import { ref, watch, onMounted } from "vue";
 import VueApexCharts from "vue3-apexcharts";
 import * as XLSX from "xlsx";
 import { useAppStore } from "../stores/app";
 import { useDataFetching } from "./useDataFetching";
-import { useRuralOperationsMonitoring } from "./ruralOperationsMonitoring"; // Import the specific module
+import { useRuralOperationsMonitoring } from "./ruralOperationsMonitoring";
 import { useBSCIndices } from "./BSCIndices";
 
 export default {
@@ -76,56 +78,105 @@ export default {
   },
   setup() {
     const AppStore = useAppStore();
-    const selectedOption = ref("BSC");
-    const options = ref(["پایش عملیات روستایی", "BSC", "Option 3"]);
 
-    // Load the appropriate module based on the selected option
+    // Reactive references
+    const selectedOption = ref("پایش عملیات روستایی");
+    const options = ref(["پایش عملیات روستایی", "BSC", "Option 3"]);
+    const activeTab = ref(0);
+    const tableData = ref([]);
+    const chartOptions = ref({});
+    const chartKey = ref(0);
+
+    // Load the appropriate module based on dropdown selection
     const loadModule = () => {
       switch (selectedOption.value) {
         case "پایش عملیات روستایی":
           return useRuralOperationsMonitoring();
         case "BSC":
           return useBSCIndices();
-        // Add cases for other options here
         default:
           return null;
       }
     };
 
-    const { tabs, headers, tabEndpoints } = loadModule() || { tabs: [], headers: [], tabEndpoints: {} };
-
-    const activeTab = ref(0);
-    const { tableData, chartOptions, chartKey, fetchData, updateChart } = useDataFetching(
-      activeTab,
-      headers,
-      tabs,
-      tabEndpoints,
-      selectedOption // Pass the selected option
-    );
-
-    // Watch for changes in the theme and update the chart options
+    // ==============  WATCH FOR THEME CHANGES  ==============
     watch(
       () => AppStore.isDarkTheme,
       (newVal) => {
-        chartOptions.value.theme.mode = newVal ? "dark" : "light";
+        // If your chartOptions already has .theme and .colors, adjust them
+        // Make sure these keys exist in your chart options structure.
+        if (chartOptions.value.theme) {
+          chartOptions.value.theme.mode = newVal ? "dark" : "light";
+        } else {
+          // If not defined, define it
+          chartOptions.value.theme = { mode: newVal ? "dark" : "light" };
+        }
+        console.log(newVal);
         chartOptions.value.colors = newVal ? ["#00E396"] : ["#008FFB"];
-        chartKey.value++; // Increment key to force re-render
-        updateChart();
+
+        // Force re-render
+        chartKey.value++;
+        // If you have updateChart from the composable, call it here
+        // but only if your composable returns that function
       },
       { immediate: true }
     );
 
-    // Fetch data on initial load
+    watch(selectedOption, (newValue) => {
+      activeTab.value = 0;
+      const { tabs: modTabs, headers, tabEndpoints } = loadModule() || {
+        tabs: [],
+        headers: [],
+        tabEndpoints: {},
+      };
+      tabs.value = modTabs.value;
+      // Retrieve the data/computed from useDataFetching
+      const {
+        tableData: newTableData,
+        chartOptions: newChartOptions,
+        chartKey: newChartKey,
+        fetchData,
+        // updateChart: newUpdateChart, // if needed
+      } = useDataFetching(activeTab, headers, modTabs, tabEndpoints, selectedOption);
+
+      // Update local refs
+      tableData.value = newTableData.value;
+      chartOptions.value = newChartOptions.value;
+      chartKey.value = newChartKey.value;
+
+      // Fetch the new data so that the chart/table refresh
+      fetchData();
+    });
+
+    // ============== INITIALIZE WITH DEFAULT MODULE ==============
+    const { tabs, headers, tabEndpoints } = loadModule() || {
+      tabs: [],
+      headers: [],
+      tabEndpoints: {},
+    };
+    const {
+      tableData: initialTableData,
+      chartOptions: initialChartOptions,
+      chartKey: initialChartKey,
+      fetchData: initialFetchData,
+      updateChart: initialUpdateChart,
+    } = useDataFetching(activeTab, headers, tabs, tabEndpoints, selectedOption);
+
+    tableData.value = initialTableData.value;
+    chartOptions.value = initialChartOptions.value;
+    chartKey.value = initialChartKey.value;
+
+    // Fetch data on mount
     onMounted(() => {
-      fetchData();
+      initialFetchData();
     });
 
-    // Watch for changes in activeTab and fetch data
+    // Whenever the tab changes, fetch new data
     watch(activeTab, () => {
-      fetchData();
+      initialFetchData();
     });
 
-    // Export to Excel
+    // ============== EXPORT EXCEL HANDLER ==============
     const exportToExcel = () => {
       const currentHeaders = headers.value[activeTab.value];
       const currentData = tableData.value[activeTab.value];
@@ -138,7 +189,11 @@ export default {
 
       const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, tabs.value[activeTab.value]);
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        tabs.value[activeTab.value]
+      );
 
       const excelFileName = `${tabs.value[activeTab.value]}-Table.xlsx`;
       XLSX.writeFile(workbook, excelFileName);
@@ -155,11 +210,11 @@ export default {
       chartKey,
       exportToExcel,
     };
-  }
+  },
 };
 </script>
 <style scoped>
-.elevation-1{
+.elevation-1 {
   direction: rtl;
 }
 </style>

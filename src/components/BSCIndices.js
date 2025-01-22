@@ -1,8 +1,14 @@
 // BSCIndices.js
 import { ref } from "vue";
+import { useIPStore } from "../stores/app"; // Import the Pinia store
 
 export function useBSCIndices() {
-    console.log("BSC");
+    // Access the Pinia store
+    const ipStore = useIPStore();
+
+    // Use SERVER_HOST from the store
+    const SERVER_HOST = ipStore.SERVER_HOST;
+
     const tabs = ref([
         "بهنگام سازی اطلاعات نشانی و ژئوکد نقاط شهری",
         "تامین و تولید لایه معابر شهری",
@@ -45,12 +51,13 @@ export function useBSCIndices() {
         ],
     ]);
 
+    // Use SERVER_HOST to construct the endpoints
     const tabEndpoints = {
-        0: "http://192.168.47.1:3001/api/bsc/tab1",
-        1: "http://192.168.47.1:3001/api/bsc/tab2",
-        2: "http://192.168.47.1:3001/api/bsc/tab3",
-        3: "http://192.168.47.1:3001/api/bsc/tab4",
-        4: "http://192.168.47.1:3001/api/bsc/tab5",
+        0: `http://${SERVER_HOST}:3001/api/bsc/tab1`,
+        1: `http://${SERVER_HOST}:3001/api/bsc/tab2`,
+        2: `http://${SERVER_HOST}:3001/api/bsc/tab3`,
+        3: `http://${SERVER_HOST}:3001/api/bsc/tab4`,
+        4: `http://${SERVER_HOST}:3001/api/bsc/tab5`,
     };
 
     return {

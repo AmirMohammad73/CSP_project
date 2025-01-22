@@ -1,13 +1,19 @@
 // ruralOperationsMonitoring.js
 import { ref } from "vue";
-
+import { useIPStore } from "../stores/app"; // Import the Pinia store
 export function useRuralOperationsMonitoring() {
+    // Access the Pinia store
+    const ipStore = useIPStore();
+
+    // Use SERVER_HOST from the store
+    const SERVER_HOST = ipStore.SERVER_HOST;
+
     const tabs = ref([
-        "Map Status",
-        "Update Status",
-        "Geocode Status",
-        "License Plate Status",
-        "National ID",
+        "وضعیت نقشه",
+        "وضعیت بهنگام سازی",
+        "وضعیت ژئوکد",
+        "وضعیت پلاک",
+        "وضعیت شناسه ملی",
     ]);
 
     const headers = ref([
@@ -45,11 +51,11 @@ export function useRuralOperationsMonitoring() {
     ]);
 
     const tabEndpoints = {
-        0: "http://192.168.47.1:3001/api/data", // Map Status
-        1: "http://192.168.47.1:3001/api/update", // Update Status
-        2: "http://192.168.47.1:3001/api/geocode", // Geocode Status
-        3: "http://192.168.47.1:3001/api/license-plate", // License Plate Status
-        4: "http://192.168.47.1:3001/api/national-id", // National ID
+        0: `http://${SERVER_HOST}:3001/api/data`, // Map Status
+        1: `http://${SERVER_HOST}:3001/api/update`, // Update Status
+        2: `http://${SERVER_HOST}:3001/api/geocode`, // Geocode Status
+        3: `http://${SERVER_HOST}:3001/api/license-plate`, // License Plate Status
+        4: `http://${SERVER_HOST}:3001/api/national-id`, // National ID
     };
 
     return {

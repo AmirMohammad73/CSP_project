@@ -12,7 +12,8 @@
 <script>
 import { defineComponent, ref, onMounted, watch } from 'vue';
 import ApexCharts from 'vue3-apexcharts';
-import { useAppStore } from '../stores/app'; // Import the AppStore
+import { useAppStore } from '../stores/app';
+import { useIPStore } from '../stores/app';
 
 export default defineComponent({
   components: {
@@ -20,6 +21,8 @@ export default defineComponent({
   },
   setup() {
     const AppStore = useAppStore();
+    const IPStore = useIPStore();
+    const SERVER_HOST = IPStore.SERVER_HOST;
     const series = ref([]);
     const chartOptions = ref({
       chart: {
@@ -74,10 +77,11 @@ export default defineComponent({
     const error = ref(null);
 
     const fetchData = async () => {
+
       loading.value = true;
       error.value = null;
       try {
-        const response = await fetch('http://192.168.47.1:3001/dashboard/piemap');
+        const response = await fetch(`http://${SERVER_HOST}:3001/dashboard/piemap`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

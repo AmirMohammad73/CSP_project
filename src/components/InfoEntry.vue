@@ -62,6 +62,7 @@
 <script>
 import * as XLSX from 'xlsx';
 import { useAppStore } from "../stores/app";
+import { useIPStore } from '../stores/app';
 import LocationsTable from './LocationsTable.vue';
 import RoostaDialog from './RoostaDialog.vue';
 
@@ -179,9 +180,10 @@ export default {
     async fetchDetailedLocations() {
       this.loading = true;
       this.error = false;
-
+      const ipStore = useIPStore();
+      const SERVER_HOST = ipStore.SERVER_HOST;
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/detailed`);
+        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/detailed`);
         if (!response.ok) {
           throw new Error('Failed to fetch detailed locations data');
         }
@@ -195,11 +197,13 @@ export default {
       }
     },
     async fetchShahrestanData(ostantitle) {
+      const ipStore = useIPStore();
+      const SERVER_HOST = ipStore.SERVER_HOST;
       this.loading = true;
       this.error = false;
 
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`);
+        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch shahrestan data');
         }
@@ -213,11 +217,13 @@ export default {
       }
     },
     async fetchZoneData(ostantitle, shahrestantitle) {
+      const ipStore = useIPStore();
+      const SERVER_HOST = ipStore.SERVER_HOST;
       this.loading = true;
       this.error = false;
 
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`);
+        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch zone data');
         }
@@ -231,11 +237,12 @@ export default {
       }
     },
     async fetchDehestanData(ostantitle, shahrestantitle, zonetitle) {
+      const ipStore = useIPStore();
+      const SERVER_HOST = ipStore.SERVER_HOST;
       this.loading = true;
       this.error = false;
-
       try {
-        const response = await fetch(`http://192.168.47.1:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`);
+        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch dehestan data');
         }
@@ -249,12 +256,13 @@ export default {
       }
     },
     async fetchRoostaData(ostantitle, shahrestantitle, zonetitle, dehestantitle) {
+      const ipStore = useIPStore();
+      const SERVER_HOST = ipStore.SERVER_HOST;
       this.loading = true;
       this.error = false;
-
       try {
         const response = await fetch(
-          `http://192.168.47.1:3001/api/locations/roosta?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}&dehestantitle=${encodeURIComponent(dehestantitle)}`
+          `http://${SERVER_HOST}:3001/api/locations/roosta?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}&dehestantitle=${encodeURIComponent(dehestantitle)}`
         );
         if (!response.ok) {
           throw new Error('Failed to fetch roosta data');
@@ -269,11 +277,13 @@ export default {
       }
     },
     async fetchLocations() {
+      const ipStore = useIPStore();
+      const SERVER_HOST = ipStore.SERVER_HOST;
       this.loading = true;
       this.error = false;
 
       try {
-        const response = await fetch('http://192.168.47.1:3001/api/locations');
+        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations`);
         if (!response.ok) {
           throw new Error('Failed to fetch locations data');
         }

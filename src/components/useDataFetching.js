@@ -1,3 +1,4 @@
+//usedatafetching.js
 import { ref, watch } from "vue";
 
 export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selectedOption) {
@@ -67,11 +68,9 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
     const updateChart = () => {
         const currentHeaders = headers.value[activeTab.value];
         const currentData = tableData.value[activeTab.value];
-
         if (currentData && currentData.length > 0) {
             // Use the first column (ostantitle) as x-axis categories
             const categories = currentData.map((row) => row[currentHeaders[0].value]);
-
             let series = [];
 
             // Handle data for پایش عملیات روستایی
@@ -189,14 +188,15 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                     },
                 ];
             }
-
             // Update the chart's options
             chartOptions.value.xaxis.categories = categories;
             chartOptions.value.series = series;
 
             // Force re-render of the chart
             chartKey.value++;
-        }
+        } else {
+        console.error("No data available for the current tab.");
+    }
     };
 
     // Watch for changes in the active tab and fetch data

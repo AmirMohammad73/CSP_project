@@ -11,7 +11,13 @@ export const useAppStore = defineStore('app', {
       this.isDarkTheme = !this.isDarkTheme
     }
   }
-})
+});
+export const useIPStore = defineStore('address', {
+  state: () => ({
+    SERVER_HOST: '172.16.8.33'
+    //
+  }),
+});
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     username: localStorage.getItem('username') || '', // Load from localStorage
