@@ -6,34 +6,36 @@
                 <div style="direction: rtl;">مشخصات روستاها</div>
             </v-card-title>
             <v-card-text class="table-container">
-                <v-table dir="rtl" class="sticky-header-table"
-                    :style="{ '--sticky-header-bg': stickyHeaderBackgroundColor }">
-                    <thead>
-                        <tr>
-                            <th v-for="header in roostaHeaders" :key="header.key" class="sticky-header">{{ header.title
-                                }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(item, index) in roostaData" :key="index">
-                            <td v-for="header in roostaHeaders" :key="header.key">
-                                <template v-if="header.key === 'shenaseh_melli'">
-                                    <v-text-field v-model="item[header.key]" variant="outlined" density="compact"
-                                        hide-details
-                                        :class="header.key === 'shenaseh_melli' ? 'wide-field-5x' : 'wide-field-3x'"></v-text-field>
-                                </template>
-                                <template v-else-if="isBooleanColumn(header.key)">
-                                    <v-checkbox v-model="item[header.key]" :true-value="true" :false-value="false"
-                                        :disabled="!isEditableCheckbox(header.key)" hide-details
-                                        density="compact"></v-checkbox>
-                                </template>
-                                <template v-else>
-                                    {{ item[header.key] }}
-                                </template>
-                            </td>
-                        </tr>
-                    </tbody>
-                </v-table>
+                <v-infinite-scroll :height="700" :items="visibleRoostaData" @load="loadMoreRoostaData">
+                    <v-table dir="rtl" class="sticky-header-table"
+                        :style="{ '--sticky-header-bg': stickyHeaderBackgroundColor }">
+                        <thead>
+                            <tr>
+                                <th v-for="header in roostaHeaders" :key="header.key" class="sticky-header">{{
+                                    header.title }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(item, index) in visibleRoostaData" :key="index">
+                                <td v-for="header in roostaHeaders" :key="header.key">
+                                    <template v-if="header.key === 'shenaseh_melli'">
+                                        <v-text-field v-model="item[header.key]" variant="outlined" density="compact"
+                                            hide-details
+                                            :class="header.key === 'shenaseh_melli' ? 'wide-field-5x' : 'wide-field-3x'"></v-text-field>
+                                    </template>
+                                    <template v-else-if="isBooleanColumn(header.key)">
+                                        <v-checkbox v-model="item[header.key]" :true-value="true" :false-value="false"
+                                            :disabled="!isEditableCheckbox(header.key)" hide-details
+                                            density="compact"></v-checkbox>
+                                    </template>
+                                    <template v-else>
+                                        {{ item[header.key] }}
+                                    </template>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </v-table>
+                </v-infinite-scroll>
             </v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
@@ -45,7 +47,8 @@
 </template>
 
 <script>
-import {useIPStore} from '../stores/app';
+import { useIPStore } from '../stores/app';
+
 export default {
     props: {
         modelValue: Boolean, // Use `modelValue` instead of `dialog`
@@ -56,6 +59,10 @@ export default {
     data() {
         return {
             originalData: [], // Store the original data for comparison
+            visibleRoostaData: [], // Data currently visible in the table
+            pageSize: 70, // Number of records to load at a time
+            currentPage: 1, // Current page of data
+            isLoading: false, // Track loading state
         };
     },
     watch: {
@@ -63,6 +70,8 @@ export default {
             if (newVal) {
                 // When the dialog opens, create a deep copy of the original data
                 this.originalData = JSON.parse(JSON.stringify(this.roostaData));
+                // Load the first page of data
+                this.loadInitialData();
             }
         },
     },
@@ -72,7 +81,7 @@ export default {
                 'amaliate_meydani',
                 'dadeh_amaei',
                 'geocode',
-                'pelak_talfighi'
+                'pelak_talfighi',
             ];
             return editableColumns.includes(key);
         },
@@ -92,12 +101,49 @@ export default {
             ];
             return booleanColumns.includes(key);
         },
+        loadInitialData() {
+            // Load the first page of data
+            this.visibleRoostaData = this.roostaData.slice(0, this.pageSize);
+            this.currentPage = 1;
+        },
+        async loadMoreRoostaData({ done }) {
+            if (this.isLoading) return;
+
+            this.isLoading = true;
+
+            // Simulate an API call delay (replace with actual API call if needed)
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // Calculate the next page of data
+            const start = this.currentPage * this.pageSize;
+            const end = start + this.pageSize;
+            const nextPageData = this.roostaData.slice(start, end);
+
+            // If there are no more records, mark the loading as complete
+            if (nextPageData.length === 0) {
+                done('empty');
+                this.isLoading = false;
+                return;
+            }
+
+            // Add the new data to the visible data
+            this.visibleRoostaData.push(...nextPageData);
+            this.currentPage++;
+
+            // Log that new records were loaded
+            console.log(`Loaded ${nextPageData.length} new records. Current page: ${this.currentPage}`);
+
+            // Mark the loading as complete
+            done('ok');
+            this.isLoading = false;
+        },
         async saveRoostaData() {
             try {
                 const ipStore = useIPStore();
                 const SERVER_HOST = ipStore.SERVER_HOST;
+
                 // Filter out only the modified records
-                const modifiedRecords = this.roostaData.filter((record, index) => {
+                const modifiedRecords = this.visibleRoostaData.filter((record, index) => {
                     return !this.isEqual(record, this.originalData[index]);
                 });
 
@@ -109,7 +155,9 @@ export default {
                 // Send only the modified records to the server
                 const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/update-roosta`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                     body: JSON.stringify(modifiedRecords),
                 });
 
@@ -118,8 +166,7 @@ export default {
                 }
 
                 // Update the original data to reflect the changes
-                this.originalData = JSON.parse(JSON.stringify(this.roostaData));
-
+                this.originalData = JSON.parse(JSON.stringify(this.visibleRoostaData));
                 this.$emit('save-success', '<span dir="rtl">اطلاعات با موفقیت ذخیره شد!</span>');
             } catch (error) {
                 console.error('Error saving roosta data:', error);
@@ -145,13 +192,13 @@ export default {
 }
 
 .table-container {
-    max-height: 70vh;
+    max-height: 80vh;
     overflow-y: auto;
 }
 
 .sticky-header-table {
     overflow: auto;
-    height: 70vh;
+    height: 80vh;
 }
 
 .sticky-header-table thead {
