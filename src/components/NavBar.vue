@@ -1,66 +1,75 @@
 <template>
-  <v-app-bar :elevation="4" :color="$vuetify.theme.global.name === 'dark' ? '#212631' : 'white'" border>
-
+  <v-app-bar :elevation="4" :color="$vuetify.theme.global.name === 'dark' ? '#212631' : 'white'" class="app-bar">
     <!-- Account Menu -->
-    <v-menu location="bottom left" offset-y>
+    <v-menu location="bottom left" offset-y transition="slide-y-transition">
       <template v-slot:activator="{ props }">
-        <v-btn icon v-bind="props">
-          <v-icon icon="mdi-account-circle"></v-icon>
+        <v-btn icon v-bind="props" class="account-btn">
+          <v-icon icon="mdi-account-circle" size="28"></v-icon>
         </v-btn>
       </template>
-      <v-list>
+      <v-list class="menu-list">
         <v-list-item @click="openChangePasswordDialog">
           <v-list-item-title>
-            <div class="menu" style="direction: rtl;">{{ items[0] }}</div>
+            <div class="menu-item">
+              <v-icon icon="mdi-lock" class="mr-2"></v-icon>
+              {{ items[0] }}
+            </div>
           </v-list-item-title>
         </v-list-item>
         <v-list-item @click="openLogoutDialog">
           <v-list-item-title>
-            <div class="menu" style="direction: rtl; color: red;">{{ items[1] }}</div>
+            <div class="menu-item logout-text">
+              <v-icon icon="mdi-logout" class="mr-2"></v-icon>
+              {{ items[1] }}
+            </div>
           </v-list-item-title>
         </v-list-item>
       </v-list>
     </v-menu>
 
     <!-- Theme Toggle Button -->
-    <v-btn icon @click="toggleTheme">
-      <v-icon>{{ AppStore.isDarkTheme ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
+    <v-btn icon @click="toggleTheme" class="theme-btn">
+      <v-icon :class="{ 'spin-icon': isThemeToggling }">
+        {{ AppStore.isDarkTheme ? 'mdi-weather-sunny' : 'mdi-weather-night' }}
+      </v-icon>
     </v-btn>
 
     <!-- Notification Menu -->
-    <v-menu location="bottom end" offset-y>
+    <v-menu location="bottom end" offset-y transition="slide-y-transition">
       <template v-slot:activator="{ props }">
-        <v-btn icon v-bind="props">
-          <v-icon icon="mdi-bell"></v-icon>
+        <v-btn icon v-bind="props" class="notification-btn">
+          <v-badge v-if="unseenNotificationsCount" color="error" :content="unseenNotificationsCount">
+            <v-icon icon="mdi-bell" size="28"></v-icon>
+          </v-badge>
+          <v-icon v-else icon="mdi-bell" size="28"></v-icon>
         </v-btn>
       </template>
       <v-list class="notification-menu">
         <v-list-item v-for="(notification, index) in notifications" :key="index"
           :class="['notification-item', { 'seen': notification.seen }]" @click="markAsSeen(index)">
           <v-list-item-content>
-            <v-list-item-title>
-              <div style="display: flex; align-items: center;">
-                <v-icon :icon="notification.icon" class="mr-2"></v-icon>
-                <div>
-                  <div class="notification-date">{{ notification.date }}</div>
-                  <div class="notification-content">{{ notification.content }}</div>
-                </div>
+            <div class="notification-content-wrapper">
+              <v-avatar size="40" class="notification-avatar">
+                <v-icon :icon="notification.icon" size="24"></v-icon>
+              </v-avatar>
+              <div class="notification-details">
+                <div class="notification-date">{{ notification.date }}</div>
+                <div class="notification-content">{{ notification.content }}</div>
               </div>
-            </v-list-item-title>
+            </div>
           </v-list-item-content>
         </v-list-item>
-        <v-divider v-if="index < notifications.length - 1"></v-divider>
       </v-list>
     </v-menu>
 
     <v-spacer></v-spacer>
 
-    <span class="title"> GNAF سامانه جامع پایش عملکرد پروژه  </span>
+    <span class="title"> GNAF سامانه جامع پایش عملکرد پروژه </span>
 
     <!-- Change Password Dialog -->
-    <v-dialog v-model="changePasswordDialog" max-width="500px">
-      <v-card>
-        <v-card-title>Change Password</v-card-title>
+    <v-dialog v-model="changePasswordDialog" max-width="500px" transition="dialog-bottom-transition">
+      <v-card class="dialog-card">
+        <v-card-title class="dialog-title">Change Password</v-card-title>
         <v-card-text>
           <v-text-field v-model="currentPassword" label="Current Password" type="password" outlined></v-text-field>
           <v-text-field v-model="newPassword" label="New Password" type="password" outlined></v-text-field>
@@ -75,8 +84,8 @@
     </v-dialog>
 
     <!-- Logout Confirmation Dialog -->
-    <v-dialog v-model="logoutDialog" max-width="400px">
-      <v-card>
+    <v-dialog v-model="logoutDialog" max-width="400px" transition="dialog-bottom-transition">
+      <v-card class="dialog-card">
         <v-card-title>خروج</v-card-title>
         <v-card-text>آیا مطمئن هستید که می‌خواهید خارج شوید؟</v-card-text>
         <v-card-actions>
@@ -88,26 +97,23 @@
     </v-dialog>
   </v-app-bar>
 </template>
+
 <script>
-import { useAuthStore } from '../stores/app'; // Import the auth store
-import { useAppStore } from '../stores/app'; // Import any necessary store
-import { useRouter } from 'vue-router'; // Import Vue Router
+import { useAuthStore } from '../stores/app';
+import { useAppStore } from '../stores/app';
+import { useRouter } from 'vue-router';
 
 export default {
   setup() {
     const AppStore = useAppStore();
-    const authStore = useAuthStore(); // Access the auth store
-    const router = useRouter(); // Access the router
+    const authStore = useAuthStore();
+    const router = useRouter();
 
-    const toggleValue = () => {
-      AppStore.toggle(); // Calls the store's toggle action
-    };
-
-    return { AppStore, authStore, toggleValue, router };
+    return { AppStore, authStore, router };
   },
   data() {
     return {
-      items: ['تغییر پسورد', 'خروج'], // Menu items
+      items: ['تغییر پسورد', 'خروج'],
       changePasswordDialog: false,
       logoutDialog: false,
       currentPassword: '',
@@ -118,29 +124,35 @@ export default {
         { date: '2023-10-02', content: 'System update available', icon: 'mdi-alert', seen: true },
         { date: '2023-10-03', content: 'New friend request', icon: 'mdi-account-plus', seen: false },
       ],
+      isThemeToggling: false,
     };
+  },
+  computed: {
+    unseenNotificationsCount() {
+      return this.notifications.filter((n) => !n.seen).length;
+    },
   },
   methods: {
     toggleTheme() {
+      this.isThemeToggling = true;
+      setTimeout(() => {
+        this.isThemeToggling = false;
+      }, 300);
       this.AppStore.toggle();
       this.$vuetify.theme.global.name = this.AppStore.isDarkTheme ? 'dark' : 'light';
-      this.updateThemeStyles();
     },
     openChangePasswordDialog() {
       this.changePasswordDialog = true;
     },
     closeChangePasswordDialog() {
       this.changePasswordDialog = false;
-      this.currentPassword = '';
-      this.newPassword = '';
-      this.repeatNewPassword = '';
     },
     confirmChangePassword() {
       if (this.newPassword === this.repeatNewPassword) {
-        alert("Password changed successfully!"); // Replace with your actual logic
+        alert('Password changed successfully!');
         this.closeChangePasswordDialog();
       } else {
-        alert("New passwords do not match!");
+        alert('New passwords do not match!');
       }
     },
     openLogoutDialog() {
@@ -150,49 +162,48 @@ export default {
       this.logoutDialog = false;
     },
     confirmLogout() {
-      // Clear authentication state and redirect to login
-      this.authStore.logout(); // Call the logout action in the auth store
-      this.router.push('/'); // Redirect to the login page
-      this.closeLogoutDialog(); // Close the logout dialog
+      this.authStore.logout();
+      this.router.push('/');
+      this.closeLogoutDialog();
     },
     markAsSeen(index) {
       this.notifications[index].seen = true;
     },
-    updateThemeStyles() {
-      if (this.AppStore.isDarkTheme) {
-        document.documentElement.style.setProperty('--notification-seen-bg', '#0a0a0a');
-        document.documentElement.style.setProperty('--notification-hover-bg', '#1f1f1f');
-      } else {
-        document.documentElement.style.setProperty('--notification-seen-bg', '#f5f5f5');
-        document.documentElement.style.setProperty('--notification-hover-bg', '#e0e0e0');
-      }
-    },
-  },
-  mounted() {
-    this.updateThemeStyles(); // Set initial theme styles
-  },
-  watch: {
-    'AppStore.isDarkTheme': 'updateThemeStyles', // Watch for theme changes
   },
 };
 </script>
 
 <style scoped>
-.title {
-  font-size: 1.25rem;
+.app-bar {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.menu {
-  font-family: 'B Traffic';
+.menu-list {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.logout-text {
+  color: #ff4444;
 }
 
 .notification-menu {
   width: 350px;
-  /* Wider menu */
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
 }
 
 .notification-item {
-  padding: 8px 16px;
+  padding: 12px;
   transition: background-color 0.3s ease;
 }
 
@@ -204,16 +215,71 @@ export default {
   background-color: var(--notification-hover-bg);
 }
 
-.notification-icon {
-  margin-right: 12px;
+.notification-content-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.notification-avatar {
+  background-color: transparent;
+}
+
+.notification-details {
+  margin-left: 12px;
 }
 
 .notification-date {
-  font-size: 0.75rem;
-  color: grey;
+  font-size: 12px;
+  color: #666;
 }
 
 .notification-content {
-  font-size: 0.875rem;
+  font-size: 14px;
+  color: #333;
+}
+
+.dialog-card {
+  border-radius: 12px;
+}
+
+.dialog-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.theme-btn .spin-icon {
+  animation: spin 0.3s ease-in-out;
+}
+
+/* Dark Mode Styles */
+.v-theme--dark .notification-menu {
+  background: rgba(33, 38, 49, 0.9);
+  /* Dark background for notifications */
+}
+
+.v-theme--dark .notification-item.seen {
+  background-color: #000;
+  /* Completely black for seen notifications */
+}
+
+.v-theme--dark .notification-item:not(.seen) {
+  background-color: #1a1a1a;
+  /* Slightly lighter black for unseen notifications */
+}
+
+.v-theme--dark .notification-date,
+.v-theme--dark .notification-content {
+  color: #fff;
+  /* White text for dark mode */
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

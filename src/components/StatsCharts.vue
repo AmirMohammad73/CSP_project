@@ -150,9 +150,10 @@ export default {
       chartKey.value = newChartKey.value + 1;
 
       // Fetch the new data so that the chart/table refresh
-      fetchData();
+      fetchData().then(() => {
+        chartKey.value++; // Force re-render after data is fetched
+      });
     });
-
 
     // Initialize with the default module
     const { tabs, headers, tabEndpoints } = loadModule() || {
@@ -173,17 +174,19 @@ export default {
 
     // Fetch data on mount
     onMounted(() => {
-      initialFetchData();
-
-      // Ensure chart theme is set correctly during initial load
-      chartOptions.value.theme.mode = AppStore.isDarkTheme ? "dark" : "light";
-      chartOptions.value.colors = AppStore.isDarkTheme ? ["#00E396"] : ["#008FFB"];
-      chartKey.value++; // Force re-render to apply theme
+      initialFetchData().then(() => {
+        // Ensure chart theme is set correctly during initial load
+        chartOptions.value.theme.mode = AppStore.isDarkTheme ? "dark" : "light";
+        chartOptions.value.colors = AppStore.isDarkTheme ? ["#00E396"] : ["#008FFB"];
+        chartKey.value++; // Force re-render to apply theme
+      });
     });
 
     // Whenever the tab changes, fetch new data
     watch(activeTab, () => {
-      initialFetchData();
+      initialFetchData().then(() => {
+        chartKey.value++; // Force re-render after data is fetched
+      });
     });
 
     // Export to Excel handler
@@ -221,7 +224,6 @@ export default {
       exportToExcel,
     };
   },
-
 };
 </script>
 <style scoped>

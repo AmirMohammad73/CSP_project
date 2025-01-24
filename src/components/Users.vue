@@ -4,18 +4,22 @@
       <v-row justify="center" align="center" class="fill-height">
         <v-col cols="12" sm="8" md="6" lg="4">
           <v-card class="elevation-12" :style="cardStyle">
-            <v-toolbar :color="AppStore.isDarkTheme ? '#2c3e50' : '#3498db'" dark>
-              <v-toolbar-title style="font-family: 'B Yekan'; font-size: 24px;">دسترسی غیر مجاز</v-toolbar-title>
+            <v-toolbar :color="AppStore.isDarkTheme ? '#1e272e' : '#74b9ff'" dark>
+              <v-toolbar-title class="toolbar-title">دسترسی غیر مجاز</v-toolbar-title>
             </v-toolbar>
             <v-card-text>
               <div class="text-center">
-                <v-icon size="100" :color="AppStore.isDarkTheme ? '#e74c3c' : '#e74c3c'">mdi-lock</v-icon>
+                <v-icon size="100" :color="AppStore.isDarkTheme ? '#e17055' : '#d63031'">mdi-lock</v-icon>
               </div>
               <h2 class="text-center mt-4" :style="textStyle">شما مجوز دسترسی به این صفحه را ندارید.</h2>
-              <p class="text-center mt-2" :style="subTextStyle">لطفا با مدیر سیستم تماس بگیرید اگر این یک اشتباه است.</p>
+              <p class="text-center mt-2" :style="subTextStyle">لطفا با مدیر سیستم تماس بگیرید اگر این یک اشتباه است.
+              </p>
             </v-card-text>
             <v-card-actions class="justify-center">
-              <v-btn :color="AppStore.isDarkTheme ? '#27ae60' : '#2ecc71'" @click="$router.back()">بازگشت</v-btn>
+              <v-btn :color="AppStore.isDarkTheme ? '#00cec9' : '#55efc4'" class="action-button"
+                @click="$router.back()">
+                بازگشت
+              </v-btn>
             </v-card-actions>
           </v-card>
         </v-col>
@@ -25,7 +29,7 @@
 </template>
 
 <script>
-import { useAppStore } from '../stores/app'; // Import the AppStore
+import { useAppStore } from '../stores/app';
 
 export default {
   name: 'AccessDenied',
@@ -34,52 +38,68 @@ export default {
     return { AppStore };
   },
   computed: {
-    // Dynamic styles based on the theme
     cardStyle() {
       return {
-        backgroundColor: this.AppStore.isDarkTheme ? '#34495e' : '#f7f7f7',
-        border: this.AppStore.isDarkTheme ? '1px solid #2c3e50' : '1px solid #ccc',
-        boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+        backgroundColor: this.AppStore.isDarkTheme ? '#2f3640' : '#f5f6fa',
+        border: this.AppStore.isDarkTheme ? '1px solid #353b48' : '1px solid #dcdde1',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+        borderRadius: '12px',
       };
     },
     textStyle() {
       return {
         fontFamily: "'B Yekan'",
         fontSize: '20px',
-        color: this.AppStore.isDarkTheme ? '#ecf0f1' : '#666',
+        color: this.AppStore.isDarkTheme ? '#dcdde1' : '#2f3640',
+        lineHeight: '1.5',
       };
     },
     subTextStyle() {
       return {
         fontFamily: "'B Yekan'",
         fontSize: '16px',
-        color: this.AppStore.isDarkTheme ? '#bdc3c7' : '#999',
+        color: this.AppStore.isDarkTheme ? '#7f8fa6' : '#636e72',
+        lineHeight: '1.4',
       };
     },
   },
 };
 </script>
 
-<style scoped>
+<style>
 @import url('https://fonts.googleapis.com/css2?family=B+Yekan&display=swap');
 
 .v-card {
-  border-radius: 10px;
+  border-radius: 12px;
+  padding: 16px;
 }
 
 .v-toolbar {
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
 }
 
-/* Global theme styles */
+.toolbar-title {
+  font-family: 'B Yekan';
+  font-size: 24px;
+  letter-spacing: 0.5px;
+}
+
+.action-button {
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+}
+
 .dark-theme {
-  background-color: #2c3e50;
-  color: #ecf0f1;
+  background-color: #1e272e;
+  color: #dcdde1;
 }
 
 .light-theme {
-  background-color: #ffffff;
-  color: #2c3e50;
+  background-color: #f5f6fa;
+  color: #2f3640;
 }
 </style>
