@@ -1,6 +1,5 @@
 <template>
   <v-app-bar :elevation="4" :color="$vuetify.theme.global.name === 'dark' ? '#212631' : 'white'" border>
-    <v-app-bar-nav-icon></v-app-bar-nav-icon>
 
     <!-- Account Menu -->
     <v-menu location="bottom left" offset-y>
@@ -56,7 +55,7 @@
 
     <v-spacer></v-spacer>
 
-    <span class="title">Application</span>
+    <span class="title"> GNAF سامانه جامع پایش عملکرد پروژه  </span>
 
     <!-- Change Password Dialog -->
     <v-dialog v-model="changePasswordDialog" max-width="500px">

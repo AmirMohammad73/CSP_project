@@ -324,9 +324,9 @@ export default {
         const exportData = this.filteredLocations.map((location) => ({
           'ردیف': location.row_number,
           'مکان': location.locname,
-          'Bonyad Maskan Count': location.bonyad_maskan_count,
-          'Sayer Manabe Count': location.sayer_manabe_count,
-          'Tarsim Count': location.tarsim_count,
+          'تعداد بنیاد مسکن': location.bonyad_maskan_count,
+          'تعداد سایر منابع': location.sayer_manabe_count,
+          'تعداد ترسیم': location.tarsim_count,
           'تعداد نقشه ها': location.total_naghsheh_count,
           'تعداد پارسلها': location.total_parcel_count,
           'تعداد عملیات میدانی': location.amaliate_meydani_count,

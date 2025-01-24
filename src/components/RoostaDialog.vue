@@ -5,18 +5,27 @@
             <v-card-title class="text-h5">
                 <div style="direction: rtl;">مشخصات روستاها</div>
             </v-card-title>
+
+            <!-- Search Bar -->
+            <v-card-text class="d-flex justify-end">
+                <v-text-field v-model="searchTerm" variant="outlined" density="compact" hide-details clearable dir="rtl"
+                    class="search-bar" prepend-inner-icon="mdi-magnify"></v-text-field>
+            </v-card-text>
+
+            <!-- Table -->
             <v-card-text class="table-container">
-                <v-infinite-scroll :height="700" :items="visibleRoostaData" @load="loadMoreRoostaData">
+                <v-infinite-scroll :items="filteredRoostaData" @load="loadMoreRoostaData">
                     <v-table dir="rtl" class="sticky-header-table"
                         :style="{ '--sticky-header-bg': stickyHeaderBackgroundColor }">
                         <thead>
                             <tr>
-                                <th v-for="header in roostaHeaders" :key="header.key" class="sticky-header">{{
-                                    header.title }}</th>
+                                <th v-for="header in roostaHeaders" :key="header.key" class="sticky-header">
+                                    {{ header.title }}
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(item, index) in visibleRoostaData" :key="index">
+                            <tr v-for="(item, index) in filteredRoostaData" :key="index">
                                 <td v-for="header in roostaHeaders" :key="header.key">
                                     <template v-if="header.key === 'shenaseh_melli'">
                                         <v-text-field v-model="item[header.key]" variant="outlined" density="compact"
@@ -33,10 +42,19 @@
                                     </template>
                                 </td>
                             </tr>
+                            <!-- Creative Loading Skeleton Rows -->
+                            <template v-if="isLoading">
+                                <tr v-for="i in 3" :key="'loading-' + i">
+                                    <td v-for="header in roostaHeaders" :key="'skeleton-' + header.key">
+                                        <div class="skeleton-loader"></div>
+                                    </td>
+                                </tr>
+                            </template>
                         </tbody>
                     </v-table>
                 </v-infinite-scroll>
             </v-card-text>
+
             <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="primary" @click="saveRoostaData">ذخیره تغییرات</v-btn>
@@ -51,28 +69,44 @@ import { useIPStore } from '../stores/app';
 
 export default {
     props: {
-        modelValue: Boolean, // Use `modelValue` instead of `dialog`
+        modelValue: Boolean,
         roostaData: Array,
         roostaHeaders: Array,
         stickyHeaderBackgroundColor: String,
     },
     data() {
         return {
-            originalData: [], // Store the original data for comparison
-            visibleRoostaData: [], // Data currently visible in the table
-            pageSize: 70, // Number of records to load at a time
-            currentPage: 1, // Current page of data
-            isLoading: false, // Track loading state
+            originalData: [],
+            visibleRoostaData: [],
+            pageSize: 70,
+            currentPage: 1,
+            isLoading: false,
+            searchTerm: '', // Search term data property
         };
     },
     watch: {
         modelValue(newVal) {
             if (newVal) {
-                // When the dialog opens, create a deep copy of the original data
+                // Reset search term when the dialog opens
+                this.searchTerm = '';
+                // Load the initial data
                 this.originalData = JSON.parse(JSON.stringify(this.roostaData));
-                // Load the first page of data
                 this.loadInitialData();
             }
+        },
+    },
+    computed: {
+        filteredRoostaData() {
+            if (!this.searchTerm) {
+                return this.visibleRoostaData; // Return all data if no search term
+            }
+            const lowerCaseSearchTerm = this.searchTerm.toLowerCase();
+            return this.visibleRoostaData.filter(item => {
+                return (
+                    item.locationname.toLowerCase().includes(lowerCaseSearchTerm) ||
+                    item.population_point_id.toString().includes(lowerCaseSearchTerm)
+                );
+            });
         },
     },
     methods: {
@@ -102,7 +136,6 @@ export default {
             return booleanColumns.includes(key);
         },
         loadInitialData() {
-            // Load the first page of data
             this.visibleRoostaData = this.roostaData.slice(0, this.pageSize);
             this.currentPage = 1;
         },
@@ -111,29 +144,23 @@ export default {
 
             this.isLoading = true;
 
-            // Simulate an API call delay (replace with actual API call if needed)
             await new Promise(resolve => setTimeout(resolve, 500));
 
-            // Calculate the next page of data
             const start = this.currentPage * this.pageSize;
             const end = start + this.pageSize;
             const nextPageData = this.roostaData.slice(start, end);
 
-            // If there are no more records, mark the loading as complete
             if (nextPageData.length === 0) {
                 done('empty');
                 this.isLoading = false;
                 return;
             }
 
-            // Add the new data to the visible data
             this.visibleRoostaData.push(...nextPageData);
             this.currentPage++;
 
-            // Log that new records were loaded
             console.log(`Loaded ${nextPageData.length} new records. Current page: ${this.currentPage}`);
 
-            // Mark the loading as complete
             done('ok');
             this.isLoading = false;
         },
@@ -142,7 +169,6 @@ export default {
                 const ipStore = useIPStore();
                 const SERVER_HOST = ipStore.SERVER_HOST;
 
-                // Filter out only the modified records
                 const modifiedRecords = this.visibleRoostaData.filter((record, index) => {
                     return !this.isEqual(record, this.originalData[index]);
                 });
@@ -152,7 +178,6 @@ export default {
                     return;
                 }
 
-                // Send only the modified records to the server
                 const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/update-roosta`, {
                     method: 'POST',
                     headers: {
@@ -165,7 +190,6 @@ export default {
                     throw new Error('Failed to save roosta data');
                 }
 
-                // Update the original data to reflect the changes
                 this.originalData = JSON.parse(JSON.stringify(this.visibleRoostaData));
                 this.$emit('save-success', '<span dir="rtl">اطلاعات با موفقیت ذخیره شد!</span>');
             } catch (error) {
@@ -174,17 +198,46 @@ export default {
             }
         },
         closeDialog() {
-            this.$emit('update:modelValue', false); // Emit event to close the dialog
+            this.$emit('update:modelValue', false);
         },
         isEqual(obj1, obj2) {
-            // Helper function to compare two objects
             return JSON.stringify(obj1) === JSON.stringify(obj2);
         },
     },
 };
 </script>
-
 <style scoped>
+.search-bar {
+    width: 25%;
+    /* Set width to 1/4 of the available space */
+    max-width: 300px;
+    /* Optional: Set a maximum width */
+}
+
+/* Ensure the text inside the search bar is right-aligned */
+.v-text-field input {
+    text-align: right;
+}
+
+/* Other existing styles */
+.skeleton-loader {
+    height: 20px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
 .full-width-dialog {
     width: 100% !important;
     max-width: 100% !important;
@@ -197,17 +250,19 @@ export default {
 }
 
 .sticky-header-table {
-    overflow: auto;
-    height: 80vh;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
 .sticky-header-table thead {
     position: sticky;
     top: 0;
     z-index: 1;
+    background-color: var(--sticky-header-bg);
 }
 
-.sticky-header {
+.sticky-header-table th {
     position: sticky;
     top: 0;
     background-color: var(--sticky-header-bg);

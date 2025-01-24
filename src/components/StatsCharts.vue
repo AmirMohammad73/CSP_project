@@ -84,7 +84,12 @@ export default {
     const options = ref(["پایش عملیات روستایی", "BSC", "Option 3"]);
     const activeTab = ref(0);
     const tableData = ref([]);
-    const chartOptions = ref({});
+    const chartOptions = ref({
+      theme: {
+        mode: AppStore.isDarkTheme ? "dark" : "light", // Initialize the theme based on current page theme
+      },
+      colors: AppStore.isDarkTheme ? ["#00E396"] : ["#008FFB"], // Set initial colors
+    });
     const chartKey = ref(0);
 
     // Load the appropriate module based on dropdown selection
@@ -99,29 +104,22 @@ export default {
       }
     };
 
-    // ==============  WATCH FOR THEME CHANGES  ==============
+    // Watch for theme changes
     watch(
       () => AppStore.isDarkTheme,
       (newVal) => {
-        // If your chartOptions already has .theme and .colors, adjust them
-        // Make sure these keys exist in your chart options structure.
         if (chartOptions.value.theme) {
           chartOptions.value.theme.mode = newVal ? "dark" : "light";
         } else {
-          // If not defined, define it
           chartOptions.value.theme = { mode: newVal ? "dark" : "light" };
         }
-        console.log(newVal);
         chartOptions.value.colors = newVal ? ["#00E396"] : ["#008FFB"];
-
-        // Force re-render
-        chartKey.value++;
-        // If you have updateChart from the composable, call it here
-        // but only if your composable returns that function
+        chartKey.value++; // Force re-render
       },
-      { immediate: true }
+      { immediate: true } // Ensure this runs during the initial setup
     );
 
+    // Handle selectedOption changes
     watch(selectedOption, (newValue) => {
       activeTab.value = 0;
       const { tabs: modTabs, headers, tabEndpoints } = loadModule() || {
@@ -130,25 +128,33 @@ export default {
         tabEndpoints: {},
       };
       tabs.value = modTabs.value;
-      // Retrieve the data/computed from useDataFetching
+
       const {
         tableData: newTableData,
         chartOptions: newChartOptions,
         chartKey: newChartKey,
         fetchData,
-        // updateChart: newUpdateChart, // if needed
       } = useDataFetching(activeTab, headers, modTabs, tabEndpoints, selectedOption);
 
       // Update local refs
       tableData.value = newTableData.value;
       chartOptions.value = newChartOptions.value;
-      chartKey.value = newChartKey.value;
+
+      // Adapt chart theme to current theme
+      chartOptions.value.theme = {
+        mode: AppStore.isDarkTheme ? "dark" : "light",
+      };
+      chartOptions.value.colors = AppStore.isDarkTheme ? ["#00E396"] : ["#008FFB"];
+
+      // Force re-render
+      chartKey.value = newChartKey.value + 1;
 
       // Fetch the new data so that the chart/table refresh
       fetchData();
     });
 
-    // ============== INITIALIZE WITH DEFAULT MODULE ==============
+
+    // Initialize with the default module
     const { tabs, headers, tabEndpoints } = loadModule() || {
       tabs: [],
       headers: [],
@@ -159,7 +165,6 @@ export default {
       chartOptions: initialChartOptions,
       chartKey: initialChartKey,
       fetchData: initialFetchData,
-      updateChart: initialUpdateChart,
     } = useDataFetching(activeTab, headers, tabs, tabEndpoints, selectedOption);
 
     tableData.value = initialTableData.value;
@@ -169,6 +174,11 @@ export default {
     // Fetch data on mount
     onMounted(() => {
       initialFetchData();
+
+      // Ensure chart theme is set correctly during initial load
+      chartOptions.value.theme.mode = AppStore.isDarkTheme ? "dark" : "light";
+      chartOptions.value.colors = AppStore.isDarkTheme ? ["#00E396"] : ["#008FFB"];
+      chartKey.value++; // Force re-render to apply theme
     });
 
     // Whenever the tab changes, fetch new data
@@ -176,7 +186,7 @@ export default {
       initialFetchData();
     });
 
-    // ============== EXPORT EXCEL HANDLER ==============
+    // Export to Excel handler
     const exportToExcel = () => {
       const currentHeaders = headers.value[activeTab.value];
       const currentData = tableData.value[activeTab.value];
@@ -211,6 +221,7 @@ export default {
       exportToExcel,
     };
   },
+
 };
 </script>
 <style scoped>
