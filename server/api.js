@@ -526,6 +526,96 @@ const getBSCTab5Data = async () => {
     (SELECT * FROM section1_summary ORDER BY ostantitle);`;
   return await query(sql);
 };
+const getPostalCodeRequest = async () => {
+  const sql = `WITH calculated_columns AS (
+  SELECT
+    ostantitle,
+    under72,
+    over72,
+    monthbalance,
+    sixmonthbalance,
+    currentmontharch,
+    sixmontharch,
+    -- Calculate column_H
+    (over72 + under72 + monthbalance) AS column_H,
+    -- Calculate new_column (I5)
+    ((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS new_column,
+    -- Formula 1: =IF(I5<50%;0;IF(I5>97%;3;(I5-50%)*6/383))
+    CASE
+      WHEN ((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) < 50 THEN 0
+      WHEN ((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) > 97 THEN 3
+      ELSE ((((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) - 50) * 6.383) / 100
+    END AS formula_1,
+    -- Formula 2: =(C5+B5+F5)/H5
+    ((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS formula_2,
+    -- Formula 3: =IF(K5<80%;0;IF(K5>100%;2;(K5-80%)10))
+    CASE
+      WHEN ((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) < 80 THEN 0
+      WHEN ((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) > 100 THEN 2
+      ELSE ((((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) - 80) * 10)/100
+    END AS formula_3,
+    -- Formula 4: =(D5-F5)/H5
+    ((monthbalance - currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS formula_4,
+    -- Formula 6: =(E5-G5)/H5
+    ((sixmonthbalance - sixmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS formula_6
+  FROM
+    public.postalcode_request
+),
+final_calculations AS (
+  SELECT
+    ostantitle,
+    under72,
+    over72,
+    monthbalance,
+    sixmonthbalance,
+    currentmontharch,
+    sixmontharch,
+    column_H,
+    new_column,
+    formula_1,
+    formula_2,
+    formula_3,
+    formula_4,
+    formula_6,
+    -- Formula 5: =IF(M5>5%;-1;M5(-0/2)100)
+    CASE
+      WHEN formula_4 > 5 THEN -1 
+      ELSE formula_4 * (-formula_4 / 2) * 100 
+    END AS formula_5,
+    -- Formula 7: =IF(O5>10%;-2;O5(-0/2)*100)
+    CASE
+      WHEN formula_6 > 10 THEN -2 
+      ELSE formula_6 * (-formula_6 / 2) * 100 
+    END AS formula_7
+  FROM
+    calculated_columns
+)
+SELECT
+  ostantitle,
+  under72,
+  over72,
+  monthbalance,
+  sixmonthbalance,
+  currentmontharch,
+  sixmontharch,
+  column_H,
+  ROUND(new_column, 2) AS new_column,
+  ROUND(formula_1, 2) AS formula_1,
+  ROUND(formula_2, 2) AS formula_2,
+  ROUND(formula_3, 2) AS formula_3,
+  ROUND(formula_4, 2) AS formula_4,
+  ROUND(formula_5, 2) AS formula_5,
+  ROUND(formula_6, 2) AS formula_6,
+  ROUND(formula_7, 2) AS formula_7,
+  -- Formula 8: =IF(SUM(J5;L5;N5;P5)<0;0;SUM(J5;L5;N5;P5))
+  CASE
+	WHEN ROUND(formula_1 + formula_3 + formula_5 + formula_7, 2) < 0 THEN 0 
+	ELSE ROUND(formula_1 + formula_3 + formula_5 + formula_7, 2) 
+  END AS formula_8
+FROM
+  final_calculations`;
+  return await query(sql);
+};
 // Update roosta data
 const updateRoostaData = async (modifiedRecords) => {
   const client = await pool.connect(); // Now pool is defined
@@ -575,4 +665,4 @@ const getOstanNames = async () => {
   const sql = `SELECT ostantitle FROM public.locations1 GROUP BY ostantitle ORDER BY ostantitle;`;
   return await query(sql);
 };
-module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, updateRoostaData};
+module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData};

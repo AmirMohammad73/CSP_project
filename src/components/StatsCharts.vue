@@ -23,7 +23,8 @@
                 <v-card-text>
                   <!-- Chart -->
                   <transition name="fade">
-                    <div class="chart-container">
+                    <div class="chart-container"
+                      :class="{ 'hide-chart': selectedOption === 'گزارش درخواستهای کد پستی' }">
                       <h4 class="text-h6 text-right mb-2">
                         {{ tabs[activeTab] }} Chart
                       </h4>
@@ -71,6 +72,7 @@ import { useAppStore } from "../stores/app";
 import { useDataFetching } from "./useDataFetching";
 import { useRuralOperationsMonitoring } from "./ruralOperationsMonitoring";
 import { useBSCIndices } from "./BSCIndices";
+import { usePostalCodeRequest } from "./postalCodeRequest";
 
 export default {
   components: {
@@ -81,7 +83,7 @@ export default {
 
     // Reactive references
     const selectedOption = ref("پایش عملیات روستایی");
-    const options = ref(["پایش عملیات روستایی", "BSC", "Option 3"]);
+    const options = ref(["پایش عملیات روستایی", "BSC", "گزارش درخواستهای کد پستی"]);
     const activeTab = ref(0);
     const tableData = ref([]);
     const chartOptions = ref({
@@ -99,6 +101,8 @@ export default {
           return useRuralOperationsMonitoring();
         case "BSC":
           return useBSCIndices();
+        case "گزارش درخواستهای کد پستی":
+          return usePostalCodeRequest();
         default:
           return null;
       }
@@ -122,12 +126,13 @@ export default {
     // Handle selectedOption changes
     watch(selectedOption, (newValue) => {
       activeTab.value = 0;
-      const { tabs: modTabs, headers, tabEndpoints } = loadModule() || {
+      const { tabs: modTabs, headers: modHeaders, tabEndpoints } = loadModule() || {
         tabs: [],
         headers: [],
         tabEndpoints: {},
       };
       tabs.value = modTabs.value;
+      headers.value = modHeaders.value;
 
       const {
         tableData: newTableData,
@@ -140,6 +145,9 @@ export default {
       tableData.value = newTableData.value;
       chartOptions.value = newChartOptions.value;
 
+      fetchData().then(() => {
+        chartKey.value++; // Force re-render after data is fetched
+      });
       // Adapt chart theme to current theme
       chartOptions.value.theme = {
         mode: AppStore.isDarkTheme ? "dark" : "light",
@@ -191,25 +199,35 @@ export default {
 
     // Export to Excel handler
     const exportToExcel = () => {
-      const currentHeaders = headers.value[activeTab.value];
-      const currentData = tableData.value[activeTab.value];
+      try {
+        const currentHeaders = headers.value[activeTab.value];
+        const currentData = tableData.value[activeTab.value];
 
-      const worksheetData = [currentHeaders.map((header) => header.text)];
-      currentData.forEach((row) => {
-        const rowData = currentHeaders.map((header) => row[header.value]);
-        worksheetData.push(rowData);
-      });
+        if (!currentHeaders || !currentData) {
+          console.error("No headers or data available for the current tab.");
+          return;
+        }
 
-      const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(
-        workbook,
-        worksheet,
-        tabs.value[activeTab.value]
-      );
+        const worksheetData = [currentHeaders.map((header) => header.text)];
+        currentData.forEach((row) => {
+          const rowData = currentHeaders.map((header) => row[header.value]);
+          worksheetData.push(rowData);
+        });
 
-      const excelFileName = `${tabs.value[activeTab.value]}-Table.xlsx`;
-      XLSX.writeFile(workbook, excelFileName);
+        const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+        const workbook = XLSX.utils.book_new();
+
+        // Use the full tab name for the sheet name (within 31 characters)
+        const sheetName = tabs.value[activeTab.value].substring(0, 31);
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+
+        // Truncate the file name to 30 characters
+        const fileName = tabs.value[activeTab.value].substring(0, 31);
+        const excelFileName = `${fileName}.xlsx`;
+        XLSX.writeFile(workbook, excelFileName);
+      } catch (error) {
+        console.error("Error exporting to Excel:", error);
+      }
     };
 
     return {
@@ -229,5 +247,9 @@ export default {
 <style scoped>
 .elevation-1 {
   direction: rtl;
+}
+
+.hide-chart {
+  display: none;
 }
 </style>

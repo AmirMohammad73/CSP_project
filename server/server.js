@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, updateRoostaData } = require('./api');
+const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, updateRoostaData, getPostalCodeRequest } = require('./api');
 require('dotenv').config();
 
 const app = express();
@@ -207,6 +207,16 @@ app.get('/api/license-plate', async (req, res) => {
 app.get('/api/national-id', async (req, res) => {
   try {
     const data = await getNationalIDStatusData();
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+// Data endpoint
+app.get('/api/postalcode-request', async (req, res) => {
+  try {
+    const data = await getPostalCodeRequest();
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
