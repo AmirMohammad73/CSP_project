@@ -40,6 +40,7 @@
 import { ref, onMounted } from 'vue'
 import * as XLSX from 'xlsx'
 import { useIPStore } from '../stores/app';
+import {useAuthStore} from '../stores/app';
 const items = ref([])
 const selectedItems = ref([])
 const loading = ref(false)
@@ -49,10 +50,16 @@ const error = ref('')
 const fetchItems = async () => {
     const ipStore = useIPStore();
     const SERVER_HOST = ipStore.SERVER_HOST;
+    const authStore = useAuthStore();
     loading.value = true
     error.value = ''
     try {
-        const response = await fetch(`http://${SERVER_HOST}:3001/ostans`)
+        const response = await fetch(`http://${SERVER_HOST}:3001/ostans`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${authStore.token}`,
+            },
+        });
         const data = await response.json()
         items.value = data.map((location, index) => ({
             id: index + 1,
@@ -73,9 +80,13 @@ const handleSelectionChange = () => {
 const exportToExcel = async () => {
     exporting.value = true
     try {
-        const response = await fetch('http://192.168.47.1:3001/query', {
+        const ipStore = useIPStore();
+        const SERVER_HOST = ipStore.SERVER_HOST;
+        const authStore = useAuthStore();
+        const response = await fetch(`http://${SERVER_HOST}:3001/query`, {
             method: 'POST',
             headers: {
+                Authorization: `Bearer ${authStore.token}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ selectedItems: selectedItems.value }),

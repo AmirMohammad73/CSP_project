@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
-const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, updateRoostaData, getPostalCodeRequest } = require('./api');
+const jwt = require('jsonwebtoken');
+const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, updateRoostaData, getPostalCodeRequest, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken } = require('./api');
+
+const JWT_SECRET = 'efd6401dca50843be8272263a61b1a97959fdfafb1f0bcedc6210269c7c84902';
 require('dotenv').config();
 
 const app = express();
@@ -16,7 +19,7 @@ app.get('/health', (req, res) => {
 });
 
 // Data endpoint
-app.get('/api/data', async (req, res) => {
+app.get('/api/data', authenticateToken, async (req, res) => {
   try {
     const data = await getMapStatusData();
     res.json(data);
@@ -27,7 +30,7 @@ app.get('/api/data', async (req, res) => {
 });
 
 // Data endpoint
-app.get('/api/locations', async (req, res) => {
+app.get('/api/locations', authenticateToken, async (req, res) => {
   try {
     const data = await getLocationsData();
     res.json(data);
@@ -38,7 +41,7 @@ app.get('/api/locations', async (req, res) => {
 });
 
 // Data endpoint
-app.get('/api/bsc/tab1', async (req, res) => {
+app.get('/api/bsc/tab1', authenticateToken, async (req, res) => {
   try {
     const data = await getBSCTab1Data();
     res.json(data);
@@ -49,7 +52,7 @@ app.get('/api/bsc/tab1', async (req, res) => {
 });
 
 // Data endpoint
-app.get('/api/bsc/tab2', async (req, res) => {
+app.get('/api/bsc/tab2', authenticateToken, async (req, res) => {
   try {
     const data = await getBSCTab2Data();
     res.json(data);
@@ -60,7 +63,7 @@ app.get('/api/bsc/tab2', async (req, res) => {
 });
 
 // Data endpoint
-app.get('/api/bsc/tab3', async (req, res) => {
+app.get('/api/bsc/tab3', authenticateToken, async (req, res) => {
   try {
     const data = await getBSCTab3Data();
     res.json(data);
@@ -71,7 +74,7 @@ app.get('/api/bsc/tab3', async (req, res) => {
 });
 
 // Data endpoint
-app.get('/api/bsc/tab4', async (req, res) => {
+app.get('/api/bsc/tab4', authenticateToken, async (req, res) => {
   try {
     const data = await getBSCTab4Data();
     res.json(data);
@@ -82,7 +85,7 @@ app.get('/api/bsc/tab4', async (req, res) => {
 });
 
 // Data endpoint
-app.get('/api/bsc/tab5', async (req, res) => {
+app.get('/api/bsc/tab5', authenticateToken, async (req, res) => {
   try {
     const data = await getBSCTab5Data();
     res.json(data);
@@ -93,7 +96,7 @@ app.get('/api/bsc/tab5', async (req, res) => {
 });
 
 // Endpoint to handle the query with dynamic WHERE conditions
-app.post('/query', async (req, res) => {
+app.post('/query', authenticateToken, async (req, res) => {
     try {
         const { selectedItems } = req.body; // Array of selected ostantitles
         const data = await getQueryData(selectedItems);
@@ -103,7 +106,7 @@ app.post('/query', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-app.get('/api/locations/detailed', async (req, res) => {
+app.get('/api/locations/detailed', authenticateToken, async (req, res) => {
   try {
     const data = await getDetailedLocationsData();
     res.json(data);
@@ -112,7 +115,7 @@ app.get('/api/locations/detailed', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-app.get('/api/locations/shahrestan', async (req, res) => {
+app.get('/api/locations/shahrestan', authenticateToken, async (req, res) => {
   const { ostantitle } = req.query;
   try {
     const data = await getShahrestanData(ostantitle);
@@ -122,7 +125,7 @@ app.get('/api/locations/shahrestan', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-app.get('/api/locations/zone', async (req, res) => {
+app.get('/api/locations/zone', authenticateToken, async (req, res) => {
   const { ostantitle, shahrestantitle } = req.query;
   try {
     const data = await getZoneData(ostantitle, shahrestantitle);
@@ -132,7 +135,7 @@ app.get('/api/locations/zone', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-app.get('/api/locations/dehestan', async (req, res) => {
+app.get('/api/locations/dehestan', authenticateToken, async (req, res) => {
   const { ostantitle, shahrestantitle, zonetitle } = req.query;
   try {
     const data = await getDehestanData(ostantitle, shahrestantitle, zonetitle);
@@ -142,7 +145,7 @@ app.get('/api/locations/dehestan', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-app.get('/api/locations/roosta', async (req, res) => {
+app.get('/api/locations/roosta', authenticateToken, async (req, res) => {
   const { ostantitle, shahrestantitle, zonetitle, dehestantitle } = req.query;
   try {
     const data = await getRoostaData(ostantitle, shahrestantitle, zonetitle, dehestantitle);
@@ -152,7 +155,7 @@ app.get('/api/locations/roosta', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-app.get('/dashboard/piemap', async (req, res) => {
+app.get('/dashboard/piemap', authenticateToken, async (req, res) => {
   try {
     const data = await getPieMap();
     res.json(data);
@@ -161,7 +164,7 @@ app.get('/dashboard/piemap', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-app.get('/ostans', async (req, res) => {
+app.get('/ostans', authenticateToken, async (req, res) => {
   try {
     const data = await getOstanNames();
     res.json(data);
@@ -171,7 +174,7 @@ app.get('/ostans', async (req, res) => {
   }
 });
 // Data endpoint
-app.get('/api/update', async (req, res) => {
+app.get('/api/update', authenticateToken, async (req, res) => {
   try {
     const data = await getUpdateStatusData();
     res.json(data);
@@ -182,7 +185,7 @@ app.get('/api/update', async (req, res) => {
 });
 
 // Data endpoint
-app.get('/api/geocode', async (req, res) => {
+app.get('/api/geocode', authenticateToken, async (req, res) => {
   try {
     const data = await getGeocodeStatusData();
     res.json(data);
@@ -193,7 +196,7 @@ app.get('/api/geocode', async (req, res) => {
 });
 
 // Data endpoint
-app.get('/api/license-plate', async (req, res) => {
+app.get('/api/license-plate', authenticateToken, async (req, res) => {
   try {
     const data = await getPlateStatusData();
     res.json(data);
@@ -204,7 +207,7 @@ app.get('/api/license-plate', async (req, res) => {
 });
 
 // Data endpoint
-app.get('/api/national-id', async (req, res) => {
+app.get('/api/national-id', authenticateToken, async (req, res) => {
   try {
     const data = await getNationalIDStatusData();
     res.json(data);
@@ -214,7 +217,7 @@ app.get('/api/national-id', async (req, res) => {
   }
 });
 // Data endpoint
-app.get('/api/postalcode-request', async (req, res) => {
+app.get('/api/postalcode-request', authenticateToken, async (req, res) => {
   try {
     const data = await getPostalCodeRequest();
 	console.log(data);
@@ -233,7 +236,7 @@ app.use((err, req, res, next) => {
 
 // Endpoint to update roosta data
 // POST /api/locations/update-roosta
-app.post('/api/locations/update-roosta', async (req, res) => {
+app.post('/api/locations/update-roosta', authenticateToken, async (req, res) => {
   const modifiedRecords = req.body;
 
   if (!Array.isArray(modifiedRecords) || modifiedRecords.length === 0) {
@@ -248,6 +251,47 @@ app.post('/api/locations/update-roosta', async (req, res) => {
     res.status(500).json({ error: 'Failed to update roosta data' });
   }
 });
+// Login endpoint
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await authenticateUser(username, password);
+    const token = generateToken(user);
+    await storeToken(token, user.user_id);
+
+    res.json({ token });
+  } catch (err) {
+    console.error('Login error:', err);
+    if (err.message === 'Invalid username or password') {
+      res.status(401).json({ error: err.message });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+});
+
+// Logout endpoint (optional)
+app.post('/api/logout', authenticateToken, async (req, res) => {
+  try {
+    // Extract the token from the Authorization header
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    console.log('Token:', token);
+
+    if (token) {
+      await blacklistToken(token);
+      res.json({ message: 'Logged out successfully' });
+    } else {
+      res.status(401).json({ error: 'No token provided' });
+    }
+  } catch (err) {
+    console.error('Logout error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server running at http://172.16.8.33:${port}`);

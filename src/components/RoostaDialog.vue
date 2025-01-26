@@ -1,3 +1,4 @@
+<!-- roostadialog.vue -->
 <template>
     <v-dialog :model-value="modelValue" @update:modelValue="$emit('update:modelValue', $event)" max-width="none"
         content-class="full-width-dialog">
@@ -34,8 +35,9 @@
                                     </template>
                                     <template v-else-if="isBooleanColumn(header.key)">
                                         <v-checkbox v-model="item[header.key]" :true-value="true" :false-value="false"
-                                            :disabled="!isEditableCheckbox(header.key)" hide-details
+                                            :disabled="!isEditableCheckbox(header.key, item)" hide-details
                                             density="compact"></v-checkbox>
+
                                     </template>
                                     <template v-else>
                                         {{ item[header.key] }}
@@ -66,7 +68,7 @@
 
 <script>
 import { useIPStore } from '../stores/app';
-
+import { useAuthStore } from '../stores/app';
 export default {
     props: {
         modelValue: Boolean,
@@ -82,19 +84,20 @@ export default {
             currentPage: 1,
             isLoading: false,
             searchTerm: '', // Search term data property
+            initialCheckboxStates: {},
         };
     },
     watch: {
         modelValue(newVal) {
             if (newVal) {
-                // Reset search term when the dialog opens
                 this.searchTerm = '';
-                // Load the initial data
                 this.originalData = JSON.parse(JSON.stringify(this.roostaData));
                 this.loadInitialData();
+                this.setInitialCheckboxStates(); // Add this line
             }
         },
     },
+
     computed: {
         filteredRoostaData() {
             if (!this.searchTerm) {
@@ -110,14 +113,36 @@ export default {
         },
     },
     methods: {
-        isEditableCheckbox(key) {
+        setInitialCheckboxStates() {
+            this.initialCheckboxStates = this.roostaData.reduce((acc, item) => {
+                acc[item.population_point_id] = {
+                    amaliate_meydani: item.amaliate_meydani,
+                    dadeh_amaei: item.dadeh_amaei,
+                    pelak_talfighi: item.pelak_talfighi,
+                };
+                return acc;
+            }, {});
+        },
+        isEditableCheckbox(key, item) {
             const editableColumns = [
                 'amaliate_meydani',
                 'dadeh_amaei',
                 'geocode',
+                'eslah_naghsheh',
                 'pelak_talfighi',
             ];
-            return editableColumns.includes(key);
+
+            if (!editableColumns.includes(key)) {
+                return false;
+            }
+
+            // Check if the checkbox was initially checked
+            const initialState = this.initialCheckboxStates[item.population_point_id];
+            if (initialState && (key === 'amaliate_meydani' || key === 'dadeh_amaei' || key === 'pelak_talfighi')) {
+                return !initialState[key];
+            }
+
+            return true;
         },
         isBooleanColumn(key) {
             const booleanColumns = [
@@ -127,7 +152,7 @@ export default {
                 'amaliate_meydani',
                 'dadeh_amaei',
                 'geocode',
-                'adam_tayid',
+                'eslah_naghsheh',
                 'mokhtasat_rousta',
                 'mahdoudeh_rousta',
                 'tolid_qr',
@@ -167,6 +192,7 @@ export default {
         async saveRoostaData() {
             try {
                 const ipStore = useIPStore();
+                const authStore = useAuthStore();
                 const SERVER_HOST = ipStore.SERVER_HOST;
 
                 const modifiedRecords = this.visibleRoostaData.filter((record, index) => {
@@ -181,6 +207,7 @@ export default {
                 const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/update-roosta`, {
                     method: 'POST',
                     headers: {
+                        Authorization: `Bearer ${authStore.token}`,
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(modifiedRecords),

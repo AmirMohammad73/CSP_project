@@ -65,7 +65,7 @@ import { useAppStore } from "../stores/app";
 import { useIPStore } from '../stores/app';
 import LocationsTable from './LocationsTable.vue';
 import RoostaDialog from './RoostaDialog.vue';
-
+import { useAuthStore } from '../stores/app';
 export default {
   components: {
     LocationsTable,
@@ -117,7 +117,7 @@ export default {
         { title: 'عملیات میدانی', key: 'amaliate_meydani' },
         { title: 'داده آمائی', key: 'dadeh_amaei' },
         { title: 'ژئوکد', key: 'geocode' },
-        { title: 'عدم تایید', key: 'adam_tayid' },
+        { title: 'اصلاح نقشه', key: 'eslah_naghsheh' },
         { title: 'مختصات روستا', key: 'mokhtasat_rousta' },
         { title: 'حریم روستا', key: 'mahdoudeh_rousta' },
         { title: 'تولید QR', key: 'tolid_qr' },
@@ -181,9 +181,15 @@ export default {
       this.loading = true;
       this.error = false;
       const ipStore = useIPStore();
+      const authStore = useAuthStore();
       const SERVER_HOST = ipStore.SERVER_HOST;
       try {
-        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/detailed`);
+        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/detailed`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch detailed locations data');
         }
@@ -198,12 +204,18 @@ export default {
     },
     async fetchShahrestanData(ostantitle) {
       const ipStore = useIPStore();
+      const authStore = useAuthStore();
       const SERVER_HOST = ipStore.SERVER_HOST;
       this.loading = true;
       this.error = false;
 
       try {
-        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`);
+        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch shahrestan data');
         }
@@ -218,12 +230,18 @@ export default {
     },
     async fetchZoneData(ostantitle, shahrestantitle) {
       const ipStore = useIPStore();
+      const authStore = useAuthStore();
       const SERVER_HOST = ipStore.SERVER_HOST;
       this.loading = true;
       this.error = false;
 
       try {
-        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`);
+        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch zone data');
         }
@@ -238,11 +256,17 @@ export default {
     },
     async fetchDehestanData(ostantitle, shahrestantitle, zonetitle) {
       const ipStore = useIPStore();
+      const authStore = useAuthStore();
       const SERVER_HOST = ipStore.SERVER_HOST;
       this.loading = true;
       this.error = false;
       try {
-        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`);
+        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch dehestan data');
         }
@@ -257,13 +281,19 @@ export default {
     },
     async fetchRoostaData(ostantitle, shahrestantitle, zonetitle, dehestantitle) {
       const ipStore = useIPStore();
+      const authStore = useAuthStore();
       const SERVER_HOST = ipStore.SERVER_HOST;
       this.loading = true;
       this.error = false;
       try {
         const response = await fetch(
           `http://${SERVER_HOST}:3001/api/locations/roosta?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}&dehestantitle=${encodeURIComponent(dehestantitle)}`
-        );
+          , {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch roosta data');
         }
@@ -278,12 +308,18 @@ export default {
     },
     async fetchLocations() {
       const ipStore = useIPStore();
+      const authStore = useAuthStore();
       const SERVER_HOST = ipStore.SERVER_HOST;
       this.loading = true;
       this.error = false;
 
       try {
-        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations`);
+        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch locations data');
         }

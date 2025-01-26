@@ -1,4 +1,8 @@
 const { query, pool } = require('./db');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = 'efd6401dca50843be8272263a61b1a97959fdfafb1f0bcedc6210269c7c84902';
 
 const getMapStatusData = async () => {
   const sql = `
@@ -545,19 +549,19 @@ const getPostalCodeRequest = async () => {
       WHEN ((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) < 50 THEN 0
       WHEN ((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) > 97 THEN 3
       ELSE ((((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) - 50) * 6.383) / 100
-    END AS formula_1,
+    END AS f1,
     -- Formula 2: =(C5+B5+F5)/H5
-    ((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS formula_2,
+    ((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS f2,
     -- Formula 3: =IF(K5<80%;0;IF(K5>100%;2;(K5-80%)10))
     CASE
       WHEN ((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) < 80 THEN 0
       WHEN ((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) > 100 THEN 2
       ELSE ((((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) - 80) * 10)/100
-    END AS formula_3,
+    END AS f3,
     -- Formula 4: =(D5-F5)/H5
-    ((monthbalance - currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS formula_4,
+    ((monthbalance - currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS f4,
     -- Formula 6: =(E5-G5)/H5
-    ((sixmonthbalance - sixmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS formula_6
+    ((sixmonthbalance - sixmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS f6
   FROM
     public.postalcode_request
 ),
@@ -572,21 +576,21 @@ final_calculations AS (
     sixmontharch,
     column_H,
     new_column,
-    formula_1,
-    formula_2,
-    formula_3,
-    formula_4,
-    formula_6,
+    f1,
+    f2,
+    f3,
+    f4,
+    f6,
     -- Formula 5: =IF(M5>5%;-1;M5(-0/2)100)
     CASE
-      WHEN formula_4 > 5 THEN -1 
-      ELSE formula_4 * (-formula_4 / 2) * 100 
-    END AS formula_5,
+      WHEN f4 > 5 THEN -1 
+      ELSE f4 * (-f4 / 2) * 100 
+    END AS f5,
     -- Formula 7: =IF(O5>10%;-2;O5(-0/2)*100)
     CASE
-      WHEN formula_6 > 10 THEN -2 
-      ELSE formula_6 * (-formula_6 / 2) * 100 
-    END AS formula_7
+      WHEN f6 > 10 THEN -2 
+      ELSE f6 * (-f6 / 2) * 100 
+    END AS f7
   FROM
     calculated_columns
 )
@@ -600,17 +604,17 @@ SELECT
   sixmontharch,
   column_H,
   ROUND(new_column, 2) AS new_column,
-  ROUND(formula_1, 2) AS formula_1,
-  ROUND(formula_2, 2) AS formula_2,
-  ROUND(formula_3, 2) AS formula_3,
-  ROUND(formula_4, 2) AS formula_4,
-  ROUND(formula_5, 2) AS formula_5,
-  ROUND(formula_6, 2) AS formula_6,
-  ROUND(formula_7, 2) AS formula_7,
+  ROUND(f1, 2) AS f1,
+  ROUND(f2, 2) AS f2,
+  ROUND(f3, 2) AS f3,
+  ROUND(f4, 2) AS f4,
+  ROUND(f5, 2) AS f5,
+  ROUND(f6, 2) AS f6,
+  ROUND(f7, 2) AS f7,
   -- Formula 8: =IF(SUM(J5;L5;N5;P5)<0;0;SUM(J5;L5;N5;P5))
   CASE
-	WHEN ROUND(formula_1 + formula_3 + formula_5 + formula_7, 2) < 0 THEN 0 
-	ELSE ROUND(formula_1 + formula_3 + formula_5 + formula_7, 2) 
+	WHEN ROUND(f1 + f3 + f5 + f7, 2) < 0 THEN 0 
+	ELSE ROUND(f1 + f3 + f5 + f7, 2) 
   END AS formula_8
 FROM
   final_calculations`;
@@ -661,8 +665,103 @@ const updateRoostaData = async (modifiedRecords) => {
     client.release();
   }
 };
+// const authenticateUser = async (username, password) => {
+//   const client = await pool.connect();
+//   try {
+//     // Fetch user from the database
+//     const userQuery = await client.query('SELECT * FROM users1 WHERE username = $1', [username]);
+//     const user = userQuery.rows[0];
+// 	console.log(user);
+//     if (!user) {
+//       throw new Error('Invalid username or password');
+//     }
+
+//     // Compare hashed password
+//     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+//     if (!isPasswordValid) {
+//       throw new Error('Invalid username or password');
+//     }
+
+//     return user;
+//   } finally {
+//     client.release();
+//   }
+// };
+const authenticateUser = async (username, password) => {
+  const client = await pool.connect();
+  try {
+    // Fetch user from the database
+    const userQuery = await client.query('SELECT * FROM users1 WHERE username = $1', [username]);
+    const user = userQuery.rows[0];
+    
+    if (!user) {
+      throw new Error('No user found!');
+    }
+
+    // Compare plain text password
+    if (password !== user.password_hash) {
+      throw new Error('Invalid username or password');
+    }
+
+    return user;
+  } finally {
+    client.release();
+  }
+};
+
+const generateToken = (user) => {
+  return jwt.sign(
+    { sub: user.user_id, username: user.username, role: user.role },
+    JWT_SECRET,
+    { expiresIn: '15m' } // Token expires in 15 minutes
+  );
+};
+
+const storeToken = async (token, userId) => {
+  const client = await pool.connect();
+  try {
+    await client.query(
+      'INSERT INTO tokens (token_id, user_id, expires_at) VALUES ($1, $2, $3)',
+      [token, userId, new Date(Date.now() + 15 * 60 * 1000)] // 15 minutes from now
+    );
+  } finally {
+    client.release();
+  }
+};
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'Access denied. No token provided.' });
+  }
+
+  // Verify the token
+  jwt.verify(token, JWT_SECRET, async (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: 'Invalid or expired token' });
+    }
+
+    // Check if the token is blacklisted
+    const blacklistedToken = await pool.query('SELECT * FROM tokens WHERE token_id = $1 AND is_blacklisted = TRUE', [token]);
+    if (blacklistedToken.rows.length > 0) {
+      return res.status(403).json({ error: 'Token is blacklisted' });
+    }
+
+    req.user = user;
+    next();
+  });
+};
+const blacklistToken = async (token) => {
+  const client = await pool.connect();
+  try {
+    await client.query('UPDATE tokens SET is_blacklisted = TRUE WHERE token_id = $1', [token]);
+  } finally {
+    client.release();
+  }
+};
 const getOstanNames = async () => {
   const sql = `SELECT ostantitle FROM public.locations1 GROUP BY ostantitle ORDER BY ostantitle;`;
   return await query(sql);
 };
-module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData};
+module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken };

@@ -14,7 +14,7 @@ import { defineComponent, ref, onMounted, watch } from 'vue';
 import ApexCharts from 'vue3-apexcharts';
 import { useAppStore } from '../stores/app';
 import { useIPStore } from '../stores/app';
-
+import { useAuthStore } from '../stores/app';
 export default defineComponent({
   components: {
     apexchart: ApexCharts,
@@ -22,6 +22,7 @@ export default defineComponent({
   setup() {
     const AppStore = useAppStore();
     const IPStore = useIPStore();
+    const authStore = useAuthStore();
     const SERVER_HOST = IPStore.SERVER_HOST;
     const series = ref([]);
     const chartOptions = ref({
@@ -81,7 +82,12 @@ export default defineComponent({
       loading.value = true;
       error.value = null;
       try {
-        const response = await fetch(`http://${SERVER_HOST}:3001/dashboard/piemap`);
+        const response = await fetch(`http://${SERVER_HOST}:3001/dashboard/piemap`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
+        });
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -135,7 +141,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style scoped>
-/* You can add any custom styles here */
-</style>

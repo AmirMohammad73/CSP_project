@@ -1,5 +1,6 @@
+//usedatafetching.js
 import { ref, watch } from "vue";
-
+import { useAuthStore } from '../stores/app';
 export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selectedOption) {
     const tableData = ref([]); // Initialize as an empty array
 
@@ -50,7 +51,13 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
     const fetchData = async () => {
         try {
             const endpoint = tabEndpoints[activeTab.value];
-            const response = await fetch(endpoint);
+            const authStore = useAuthStore();
+            const response = await fetch(endpoint, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${authStore.token}`,
+                },
+            });
             const data = await response.json();
 
             // Update tableData for the current tab
@@ -67,7 +74,6 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
     const updateChart = () => {
         const currentHeaders = headers.value[activeTab.value];
         const currentData = tableData.value[activeTab.value];
-
         if (currentData && currentData.length > 0) {
             // Use the first column (ostantitle) as x-axis categories
             const categories = currentData.map((row) => row[currentHeaders[0].value]);

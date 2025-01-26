@@ -37,6 +37,7 @@ import LogIn from '../components/Login/icons/login.vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/app';
 
+
 // Get router and store instances
 const router = useRouter();
 const authStore = useAuthStore();
@@ -49,21 +50,18 @@ const error = ref(false);
 
 // Handle login logic
 const handleLogin = async () => {
-    loading.value = true; // Show loading state
-    error.value = false; // Reset error state
+    loading.value = true;
+    error.value = false;
 
-    // Call the login action from the store
-    const success = authStore.login(username.value, password.value);
+    const success = await authStore.login(username.value, password.value);
 
     if (success) {
-        // Redirect to the dashboard on successful login
         await router.push('/dashboard');
     } else {
-        // Show an error message if login fails
         error.value = true;
     }
 
-    loading.value = false; // Reset loading state
+    loading.value = false;
 };
 </script>
 
@@ -73,7 +71,8 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'B Traffic', sans-serif;
-    direction: rtl; /* Set direction to RTL for the entire page */
+    direction: rtl;
+    /* Set direction to RTL for the entire page */
 }
 
 /* Login Page Background */
@@ -81,7 +80,8 @@ body {
     font-size: large;
     font-weight: bolder;
     font-family: 'B Traffic';
-    direction: rtl; /* Ensure RTL direction */
+    direction: rtl;
+    /* Ensure RTL direction */
     height: 100vh;
     width: 100vw;
     display: flex;
@@ -134,7 +134,8 @@ h2 {
 /* Input Group */
 .input-group {
     margin-bottom: 20px;
-    text-align: right; /* Align text to the right */
+    text-align: right;
+    /* Align text to the right */
 }
 
 label {
@@ -152,12 +153,14 @@ input {
     background: #333;
     color: white;
     font-size: 14px;
-    text-align: right; /* Align input text to the right */
+    text-align: right;
+    /* Align input text to the right */
 }
 
 input::placeholder {
     color: rgba(255, 255, 255, 0.6);
-    text-align: right; /* Align placeholder text to the right */
+    text-align: right;
+    /* Align placeholder text to the right */
 }
 
 input:focus {

@@ -2,7 +2,7 @@
   <v-main :class="AppStore.isDarkTheme ? 'dark-theme' : 'light-theme'">
     <v-container fluid fill-height>
       <v-row justify="center" align="center" class="fill-height">
-        <v-col cols="12" sm="8" md="6" lg="4">
+        <v-col cols="12" sm="8" md="6" lg="4" class="offset-card">
           <v-card class="elevation-12" :style="cardStyle">
             <v-toolbar :color="AppStore.isDarkTheme ? '#1e272e' : '#74b9ff'" dark>
               <v-toolbar-title class="toolbar-title">دسترسی غیر مجاز</v-toolbar-title>
@@ -12,12 +12,10 @@
                 <v-icon size="100" :color="AppStore.isDarkTheme ? '#e17055' : '#d63031'">mdi-lock</v-icon>
               </div>
               <h2 class="text-center mt-4" :style="textStyle">شما مجوز دسترسی به این صفحه را ندارید.</h2>
-              <p class="text-center mt-2" :style="subTextStyle">لطفا با مدیر سیستم تماس بگیرید اگر این یک اشتباه است.
-              </p>
+              <p class="text-center mt-2" :style="subTextStyle">لطفا با مدیر سیستم تماس بگیرید اگر این یک اشتباه است.</p>
             </v-card-text>
             <v-card-actions class="justify-center">
-              <v-btn :color="AppStore.isDarkTheme ? '#00cec9' : '#55efc4'" class="action-button"
-                @click="$router.back()">
+              <v-btn :color="AppStore.isDarkTheme ? '#00cec9' : '#55efc4'" class="action-button" @click="$router.back()">
                 بازگشت
               </v-btn>
             </v-card-actions>
@@ -94,12 +92,16 @@ export default {
 }
 
 .dark-theme {
-  background-color: #1e272e;
+  /* background-color: #1e272e; */
   color: #dcdde1;
 }
 
 .light-theme {
-  background-color: #f5f6fa;
+  /* background-color: #f5f6fa; */
   color: #2f3640;
+}
+
+.offset-card {
+  margin-left: 15vw; /* Offset the card by 20% of the viewport width */
 }
 </style>

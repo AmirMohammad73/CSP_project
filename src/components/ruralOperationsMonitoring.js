@@ -18,10 +18,10 @@ export function useRuralOperationsMonitoring() {
 
     const headers = ref([
         [
-            { text: "Ostantitle", value: "ostantitle" },
-            { text: "Bonyad Maskan", value: "bonyad_maskan" },
-            { text: "Sayer Manabe", value: "sayer_manabe" },
-            { text: "Tarsim", value: "tarsim" },
+            { text: "استان", value: "ostantitle" },
+            { text: "بنیاد مسکن", value: "bonyad_maskan" },
+            { text: "سایر منابع", value: "sayer_manabe" },
+            { text: "ترسیم", value: "tarsim" },
         ],
         [
             { text: "Ostantitle", value: "ostantitle" },

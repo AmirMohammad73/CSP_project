@@ -26,13 +26,13 @@ export function usePostalCodeRequest () {
       { text: 'آرشیو 6 ماه', value: 'sixmontharch' },
       { text: 'ستون H', value: 'column_h' },
       { text: 'ستون جدید', value: 'new_column' },
-      { text: 'فرمول 1', value: 'formula_1' },
-      { text: 'فرمول 2', value: 'formula_2' },
-      { text: 'فرمول 3', value: 'formula_3' },
-      { text: 'فرمول 4', value: 'formula_4' },
-      { text: 'فرمول 5', value: 'formula_5' },
-      { text: 'فرمول 6', value: 'formula_6' },
-      { text: 'فرمول 7', value: 'formula_7' },
+      { text: 'فرمول 1', value: 'f1' },
+      { text: 'فرمول 2', value: 'f2' },
+      { text: 'فرمول 3', value: 'f3' },
+      { text: 'فرمول 4', value: 'f4' },
+      { text: 'فرمول 5', value: 'f5' },
+      { text: 'فرمول 6', value: 'f6' },
+      { text: 'فرمول 7', value: 'f7' },
       { text: 'فرمول 8', value: 'formula_8' }
     ]
   ])
