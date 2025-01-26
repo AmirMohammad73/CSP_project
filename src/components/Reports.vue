@@ -23,10 +23,13 @@
                             </v-list-item>
                         </template>
                     </v-select>
-                    <v-btn color="primary" @click="exportToExcel" class="mt-4" :loading="exporting"
-                        :disabled="selectedItems.length === 0">
-                        Export to Excel
-                    </v-btn>
+                    <v-card-actions class="mt-4">
+                        <v-spacer></v-spacer>
+                        <v-btn color="success" class="text-white rounded-pill elevation-2" @click="exportToExcel">
+                            <v-icon left>mdi-file-excel</v-icon>
+                            Export to Excel
+                        </v-btn>
+                    </v-card-actions>
                 </v-card>
             </v-col>
         </v-row>
@@ -36,7 +39,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import * as XLSX from 'xlsx'
-import {useIPStore} from '../stores/app';
+import { useIPStore } from '../stores/app';
 const items = ref([])
 const selectedItems = ref([])
 const loading = ref(false)

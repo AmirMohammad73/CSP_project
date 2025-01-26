@@ -217,6 +217,7 @@ app.get('/api/national-id', async (req, res) => {
 app.get('/api/postalcode-request', async (req, res) => {
   try {
     const data = await getPostalCodeRequest();
+	console.log(data);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);

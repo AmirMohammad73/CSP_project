@@ -1,4 +1,3 @@
-//usedatafetching.js
 import { ref, watch } from "vue";
 
 export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selectedOption) {
@@ -57,8 +56,6 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
             // Update tableData for the current tab
             tableData.value[activeTab.value] = data;
 
-            // Update headers for the current tab
-            headers.value[activeTab.value] = headers.value[activeTab.value];
             // Update the chart with the new data
             updateChart();
         } catch (error) {
@@ -70,9 +67,11 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
     const updateChart = () => {
         const currentHeaders = headers.value[activeTab.value];
         const currentData = tableData.value[activeTab.value];
+
         if (currentData && currentData.length > 0) {
             // Use the first column (ostantitle) as x-axis categories
             const categories = currentData.map((row) => row[currentHeaders[0].value]);
+
             let series = [];
 
             // Handle data for پایش عملیات روستایی
@@ -190,102 +189,13 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                     },
                 ];
             }
-            else if (selectedOption.value === "پایش عملیات روستایی") {
-                // Only one tab for postalcode_request
-                if (activeTab.value === 0) {
-                    // Define the series for the postalcode_request data
-                    series = [
-                        {
-                            name: "Under 72",
-                            data: currentData.map((row) => Number(row["under72"])),
-                            color: "#FF4560", // Red
-                        },
-                        {
-                            name: "Over 72",
-                            data: currentData.map((row) => Number(row["over72"])),
-                            color: "#FEB019", // Yellow
-                        },
-                        {
-                            name: "Monthly Balance",
-                            data: currentData.map((row) => Number(row["monthbalance"])),
-                            color: "#00E396", // Green
-                        },
-                        {
-                            name: "Six Month Balance",
-                            data: currentData.map((row) => Number(row["sixmonthbalance"])),
-                            color: "#008FFB", // Blue
-                        },
-                        {
-                            name: "Current Month Archive",
-                            data: currentData.map((row) => Number(row["currentmontharch"])),
-                            color: "#775DD0", // Purple
-                        },
-                        {
-                            name: "Six Month Archive",
-                            data: currentData.map((row) => Number(row["sixmontharch"])),
-                            color: "#FF6699", // Pink
-                        },
-                        {
-                            name: "Column H",
-                            data: currentData.map((row) => Number(row["column_H"])),
-                            color: "#D3D3D3", // Light gray
-                        },
-                        {
-                            name: "New Column",
-                            data: currentData.map((row) => Number(row["new_column"])),
-                            color: "#80FF00", // Lime green
-                        },
-                        {
-                            name: "Formula 1",
-                            data: currentData.map((row) => Number(row["formula_1"])),
-                            color: "#FF00FF", // Magenta
-                        },
-                        {
-                            name: "Formula 2",
-                            data: currentData.map((row) => Number(row["formula_2"])),
-                            color: "#00FFFF", // Cyan
-                        },
-                        {
-                            name: "Formula 3",
-                            data: currentData.map((row) => Number(row["formula_3"])),
-                            color: "#FFA500", // Orange
-                        },
-                        {
-                            name: "Formula 4",
-                            data: currentData.map((row) => Number(row["formula_4"])),
-                            color: "#800080", // Purple
-                        },
-                        {
-                            name: "Formula 5",
-                            data: currentData.map((row) => Number(row["formula_5"])),
-                            color: "#008000", // Dark green
-                        },
-                        {
-                            name: "Formula 6",
-                            data: currentData.map((row) => Number(row["formula_6"])),
-                            color: "#0000FF", // Blue
-                        },
-                        {
-                            name: "Formula 7",
-                            data: currentData.map((row) => Number(row["formula_7"])),
-                            color: "#FF0000", // Red
-                        },
-                        {
-                            name: "Formula 8",
-                            data: currentData.map((row) => Number(row["formula_8"])),
-                            color: "#000000", // Black
-                        },
-                    ];
-                }
-            }
+
             // Update the chart's options
             chartOptions.value.xaxis.categories = categories;
             chartOptions.value.series = series;
 
             // Force re-render of the chart
             chartKey.value++;
-        } else {
-            console.error("No data available for the current tab.");
         }
     };
 

@@ -14,7 +14,7 @@ export const useAppStore = defineStore('app', {
 });
 export const useIPStore = defineStore('address', {
   state: () => ({
-    SERVER_HOST: '172.16.8.33'
+    SERVER_HOST: '192.168.47.1'
     //
   }),
 });

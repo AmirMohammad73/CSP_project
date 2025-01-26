@@ -53,11 +53,13 @@
 
       <!-- Export to Excel Button -->
       <v-row v-if="selectedOption" class="mt-4">
-        <v-col cols="12" class="text-right">
-          <v-btn color="primary" @click="exportToExcel">
+        <v-card-actions class="mt-4">
+          <v-spacer></v-spacer>
+          <v-btn color="success" class="text-white rounded-pill elevation-2" @click="exportToExcel">
+            <v-icon left>mdi-file-excel</v-icon>
             Export to Excel
           </v-btn>
-        </v-col>
+        </v-card-actions>
       </v-row>
     </v-container>
   </v-app>
@@ -133,7 +135,9 @@ export default {
       };
       tabs.value = modTabs.value;
       headers.value = modHeaders.value;
-
+      if(selectedOption.value == "گزارش درخواستهای کد پستی"){
+        console.log(headers);
+      }
       const {
         tableData: newTableData,
         chartOptions: newChartOptions,
