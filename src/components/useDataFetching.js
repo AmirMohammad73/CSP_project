@@ -74,10 +74,12 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
     const updateChart = () => {
         const currentHeaders = headers.value[activeTab.value];
         const currentData = tableData.value[activeTab.value];
-        if (currentData && currentData.length > 0) {
-            // Use the first column (ostantitle) as x-axis categories
-            const categories = currentData.map((row) => row[currentHeaders[0].value]);
 
+        console.log("Current Headers:", currentHeaders);
+        console.log("Current Data:", currentData);
+        if (currentData && currentData.length > 0) {
+            const categories = currentData.map((row) => row[currentHeaders[0].value]);
+            console.log("Categories:", categories);
             let series = [];
 
             // Handle data for پایش عملیات روستایی
@@ -195,7 +197,7 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                     },
                 ];
             }
-
+            console.log("Series:", series);
             // Update the chart's options
             chartOptions.value.xaxis.categories = categories;
             chartOptions.value.series = series;

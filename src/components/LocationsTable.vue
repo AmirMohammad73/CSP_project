@@ -1,3 +1,4 @@
+<!-- locationsTable.vue -->
 <template>
     <v-data-table-virtual v-if="!loading && !error" :headers="headers" :items="filteredLocations" height="auto"
       item-value="row_number" class="elevation-1 rounded" fixed-header @click:row="handleRowClick">

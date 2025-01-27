@@ -89,6 +89,8 @@ export default defineComponent({
           },
         });
         if (!response.ok) {
+          this.authStore.logout();
+          this.router.push('/');
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();

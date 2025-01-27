@@ -33,8 +33,15 @@ app.get('/api/data', authenticateToken, async (req, res) => {
 // Data endpoint
 app.get('/api/locations', authenticateToken, async (req, res) => {
   try {
-    const data = await getLocationsData();
-    res.json(data);
+    const user = req.user; // User information is available from the authenticated token
+    if (user.role === '4') {
+      // For role 4, return an empty array or skip fetching data
+      res.json([]);
+    } else {
+      // For other roles, fetch and return the general locations data
+      const data = await getLocationsData();
+      res.json(data);
+    }
   } catch (err) {
     console.error('API error:', err);
     res.status(500).json({ error: 'Internal server error' });
@@ -109,7 +116,8 @@ app.post('/query', authenticateToken, async (req, res) => {
 });
 app.get('/api/locations/detailed', authenticateToken, async (req, res) => {
   try {
-    const data = await getDetailedLocationsData();
+    const user = req.user; // User information is available from the authenticated token
+    const data = await getDetailedLocationsData(user);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
@@ -168,7 +176,8 @@ app.get('/dashboard/piemap', authenticateToken, async (req, res) => {
 });
 app.get('/ostans', authenticateToken, async (req, res) => {
   try {
-    const data = await getOstanNames();
+	const user = req.user;
+    const data = await getOstanNames(user.role, user.permission);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
@@ -178,7 +187,8 @@ app.get('/ostans', authenticateToken, async (req, res) => {
 // Data endpoint
 app.get('/api/update', authenticateToken, async (req, res) => {
   try {
-    const data = await getUpdateStatusData();
+	const user = req.user;
+    const data = await getUpdateStatusData(user.role, user.permission);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
@@ -189,7 +199,8 @@ app.get('/api/update', authenticateToken, async (req, res) => {
 // Data endpoint
 app.get('/api/geocode', authenticateToken, async (req, res) => {
   try {
-    const data = await getGeocodeStatusData();
+	const user = req.user;
+    const data = await getGeocodeStatusData(user.role, user.permission);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
@@ -200,7 +211,8 @@ app.get('/api/geocode', authenticateToken, async (req, res) => {
 // Data endpoint
 app.get('/api/license-plate', authenticateToken, async (req, res) => {
   try {
-    const data = await getPlateStatusData();
+	const user = req.user;
+    const data = await getPlateStatusData(user.role, user.permission);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
@@ -211,7 +223,8 @@ app.get('/api/license-plate', authenticateToken, async (req, res) => {
 // Data endpoint
 app.get('/api/national-id', authenticateToken, async (req, res) => {
   try {
-    const data = await getNationalIDStatusData();
+	const user = req.user;
+    const data = await getNationalIDStatusData(user.role, user.permission);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);

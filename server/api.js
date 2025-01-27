@@ -17,7 +17,7 @@ const getMapStatusData = async (role, permission) => {
 
   const sql = `
     SELECT 
-      ${location},
+      ${location} AS place,
       COUNT(CASE WHEN adam_paziresh THEN 1 END) AS bonyad_maskan,
       COUNT(CASE WHEN niazmande_eslah THEN 1 END) AS sayer_manabe,
       COUNT(CASE WHEN arseh_ayan THEN 1 END) AS tarsim,
@@ -30,53 +30,82 @@ const getMapStatusData = async (role, permission) => {
     ORDER BY 
       ${location};
   `;
+  console.log(sql);
   return await query(sql);
 };
 
-const getUpdateStatusData = async () => {
+const getUpdateStatusData = async (role, permission) => {
+  let whereClause = '';
+  let location = 'ostantitle';
+  if (role === '4') {
+    // Convert the permission array into a list of SQL conditions
+    const conditions = permission.map((region) => `'${region}'`).join(', ');
+    whereClause = `WHERE ostantitle IN (${conditions})`;
+	location = 'shahrestantitle';
+  }
+
   const sql = `SELECT 
-      ostantitle,
+      ${location} AS place,
       COUNT(CASE WHEN amaliate_meydani THEN 1 END) AS amaliate_meydani,
       COUNT(CASE WHEN dadeh_amaei THEN 1 END) AS dadeh_amaei,
       COUNT(CASE WHEN eslah_naghsheh THEN 1 END) AS eslah_naghsheh,
       COUNT(*) AS total
     FROM 
       public.locations1
+	${whereClause}
     GROUP BY 
-      ostantitle
+      ${location}
     ORDER BY 
-      ostantitle;`;
+      ${location};`;
   return await query(sql);
 };
 
-const getGeocodeStatusData = async () => {
+const getGeocodeStatusData = async (role, permission) => {
+  let whereClause = '';
+  let location = 'ostantitle';
+  if (role === '4') {
+    // Convert the permission array into a list of SQL conditions
+    const conditions = permission.map((region) => `'${region}'`).join(', ');
+    whereClause = `WHERE ostantitle IN (${conditions})`;
+	location = 'shahrestantitle';
+  }
   const sql = `SELECT 
-      ostantitle,
+      ${location} AS place,
       COUNT(CASE WHEN eslah_naghsheh THEN 1 END) AS eslah_naghsheh,
       COUNT(CASE WHEN tayid_va_bargozari THEN 1 END) AS tayid_va_bargozari,
       COUNT(CASE WHEN daryafte_naghsheh THEN 1 END) AS daryafte_naghsheh,
       COUNT(*) AS total
     FROM 
       public.locations1
+	${whereClause}
     GROUP BY 
-      ostantitle
+      ${location}
     ORDER BY 
-      ostantitle;`;
+      ${location};`;
   return await query(sql);
 };
 
-const getPlateStatusData = async () => {
+const getPlateStatusData = async (role, permission) => {
+  let whereClause = '';
+  let location = 'ostantitle';
+  if (role === '4') {
+    // Convert the permission array into a list of SQL conditions
+    const conditions = permission.map((region) => `'${region}'`).join(', ');
+    whereClause = `WHERE ostantitle IN (${conditions})`;
+	location = 'shahrestantitle';
+  }
   const sql = `SELECT 
-      ostantitle,
+      ${location} AS place,
       COUNT(CASE WHEN tolid_qr THEN 1 END) AS tolid_qr,
       COUNT(CASE WHEN pelak_talfighi THEN 1 END) AS pelak_talfighi,
       COUNT(*) AS total
     FROM 
       public.locations1
+	${whereClause}
     GROUP BY 
-      ostantitle
+      ${location}
     ORDER BY 
-      ostantitle;`;
+      ${location};`;
   return await query(sql);
 };
 
@@ -104,7 +133,7 @@ const getPieMap = async (role, permission) => {
   return await query(sql);
 };
 // Function to construct and execute the SQL query
-const getQueryData = async (selectedItems) => {
+const getQueryData = async (selectedItems, role, permission) => {
     let whereCondition = '';
 
     // Add WHERE condition if selectedItems is provided
@@ -159,17 +188,26 @@ ORDER BY
 
     return await query(sql); // Execute the query and return the results
 };
-const getNationalIDStatusData = async () => {
+const getNationalIDStatusData = async (role, permission) => {
+  let whereClause = '';
+  let location = 'ostantitle';
+  if (role === '4') {
+    // Convert the permission array into a list of SQL conditions
+    const conditions = permission.map((region) => `'${region}'`).join(', ');
+    whereClause = `WHERE ostantitle IN (${conditions})`;
+	location = 'shahrestantitle';
+  }
   const sql = `SELECT 
-      ostantitle,
+      ${location} AS place,
       COUNT(shenaseh_melli) AS shenaseh_melli,
       COUNT(*) AS total
     FROM 
       public.locations1
+	  ${whereClause}
     GROUP BY 
-      ostantitle
+      ${location}
     ORDER BY 
-      ostantitle;`;
+      ${location};`;
   return await query(sql);
 };
 
@@ -205,7 +243,14 @@ FROM
   return await query(sql);
 };
 
-const getDetailedLocationsData = async () => {
+const getDetailedLocationsData = async (user) => {
+  let whereClause = '';
+  if (user.role === '4') {
+    // Add a WHERE clause for role 4 based on user permissions
+    const conditions = user.permission.map((region) => `'${region}'`).join(', ');
+    whereClause = `WHERE ostantitle IN (${conditions})`;
+  }
+
   const sql = `SELECT
     ROW_NUMBER() OVER (ORDER BY ostantitle) AS row_number,
     ostantitle AS locname,
@@ -235,6 +280,7 @@ const getDetailedLocationsData = async () => {
     SUM(CASE WHEN ersal_setad THEN 1 ELSE 0 END) AS Mahdoudeh_Roosta_count
 FROM 
     public.locations1 l2
+${whereClause}
 GROUP BY 
     ostantitle
 ORDER BY 
@@ -803,8 +849,15 @@ const blacklistToken = async (token) => {
   }
 };
 
-const getOstanNames = async () => {
-  const sql = `SELECT ostantitle FROM public.locations1 GROUP BY ostantitle ORDER BY ostantitle;`;
+const getOstanNames = async (role, permission) => {
+  let whereClause = '';
+  // Add a WHERE clause if the role is 4 or 1
+  if (role === '4') {
+    // Convert the permission array into a list of SQL conditions
+    const conditions = permission.map((region) => `'${region}'`).join(', ');
+    whereClause = `WHERE ostantitle IN (${conditions})`;
+  }
+const sql = `SELECT ostantitle FROM public.locations1 ${whereClause} GROUP BY ostantitle ORDER BY ostantitle;`;
   return await query(sql);
 };
 module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken };

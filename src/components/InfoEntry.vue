@@ -152,11 +152,13 @@ export default {
   methods: {
     async handleRowClick(item) {
       if (this.currentLevel === 'کشور') {
+        // For role 4, this will not happen since we start at ostantitle
         this.currentOstantitle = item.locname;
         this.breadcrumb.push({ text: item.locname, disabled: false });
         this.currentLevel = 'ostantitle';
         await this.fetchDetailedLocations(item.locname);
       } else if (this.currentLevel === 'ostantitle') {
+        this.currentOstantitle = item.locname;
         this.breadcrumb.push({ text: item.locname, disabled: false });
         this.currentLevel = 'shahrestantitle';
         this.selectedostan = item.locname;
@@ -289,11 +291,11 @@ export default {
         const response = await fetch(
           `http://${SERVER_HOST}:3001/api/locations/roosta?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}&dehestantitle=${encodeURIComponent(dehestantitle)}`
           , {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${authStore.token}`,
-          },
-        });
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${authStore.token}`,
+            },
+          });
         if (!response.ok) {
           throw new Error('Failed to fetch roosta data');
         }
@@ -324,7 +326,17 @@ export default {
           throw new Error('Failed to fetch locations data');
         }
         const data = await response.json();
-        this.locations = data;
+
+        if (data.length === 0) {
+          // If data is empty (role 4), fetch detailed locations directly
+          await this.fetchDetailedLocations();
+          // Update currentLevel and breadcrumb for role 4
+          this.currentLevel = 'ostantitle';
+          this.breadcrumb = [{ text: 'استان', disabled: false }];
+        } else {
+          // Otherwise, use the fetched data
+          this.locations = data;
+        }
       } catch (error) {
         console.error('Error fetching locations data:', error);
         this.error = true;
@@ -332,13 +344,49 @@ export default {
         this.loading = false;
       }
     },
+
+    async fetchDetailedLocations() {
+      this.loading = true;
+      this.error = false;
+      const ipStore = useIPStore();
+      const authStore = useAuthStore();
+      const SERVER_HOST = ipStore.SERVER_HOST;
+      try {
+        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/detailed`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch detailed locations data');
+        }
+        const data = await response.json();
+        this.locations = data;
+      } catch (error) {
+        console.error('Error fetching detailed locations data:', error);
+        this.error = true;
+      } finally {
+        this.loading = false;
+      }
+    },
     navigateBreadcrumb(item) {
+      console.log(item.text);
       if (item.text === 'کشور') {
+        // For role 4, reset to ostantitle level
         this.currentLevel = 'کشور';
         this.breadcrumb = [{ text: 'کشور', disabled: false }];
-        this.fetchLocations();
+        this.fetchDetailedLocations();
         this.roostaData = [];
-      } else if (this.breadcrumb.length > 1 && item.text === this.breadcrumb[1].text) {
+      } else if (item.text === 'استان'){
+        // For role 4, reset to ostantitle level
+        this.currentLevel = 'ostantitle';
+        this.breadcrumb = [{ text: 'استان', disabled: false }];
+        console.log(this.currentOstantitle);
+        this.fetchDetailedLocations(this.currentOstantitle);
+        this.roostaData = [];
+      }
+      else if (this.breadcrumb.length > 1 && item.text === this.breadcrumb[1].text) {
         this.currentLevel = 'ostantitle';
         this.breadcrumb = this.breadcrumb.slice(0, 2);
         this.fetchDetailedLocations(this.currentOstantitle);

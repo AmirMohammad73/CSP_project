@@ -18,33 +18,33 @@ export function useRuralOperationsMonitoring() {
 
     const headers = ref([
         [
-            { text: "استان", value: "ostantitle" },
+            { text: "استان", value: "place" },
             { text: "بنیاد مسکن", value: "bonyad_maskan" },
             { text: "سایر منابع", value: "sayer_manabe" },
             { text: "ترسیم", value: "tarsim" },
         ],
         [
-            { text: "Ostantitle", value: "ostantitle" },
+            { text: "place", value: "place" },
             { text: "Amaliate Meydani", value: "amaliate_meydani" },
             { text: "Dadeh Amaei", value: "dadeh_amaei" },
             { text: "Eslah Naghsheh", value: "eslah_naghsheh" },
             { text: "Total", value: "total" },
         ],
         [
-            { text: "Ostantitle", value: "ostantitle" },
+            { text: "place", value: "place" },
             { text: "Eslah Naghsheh", value: "eslah_naghsheh" },
             { text: "Tayid va Bargozari", value: "tayid_va_bargozari" },
             { text: "Daryafte Naghsheh", value: "daryafte_naghsheh" },
             { text: "Total", value: "total" },
         ],
         [
-            { text: "Ostantitle", value: "ostantitle" },
+            { text: "place", value: "place" },
             { text: "Tolid QR", value: "tolid_qr" },
             { text: "Pelak Talfighi", value: "pelak_talfighi" },
             { text: "Total", value: "total" },
         ],
         [
-            { text: "Ostantitle", value: "ostantitle" },
+            { text: "place", value: "place" },
             { text: "Shenaseh Melli", value: "shenaseh_melli" },
             { text: "Total", value: "total" },
         ],
