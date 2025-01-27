@@ -2,7 +2,7 @@
   <v-navigation-drawer app location="right" permanent @update:expanded="false">
     <!-- User Info -->
     <v-list-item lines="two" prepend-avatar="https://randomuser.me/api/portraits/women/81.jpg" subtitle="Logged in"
-      :title="username"></v-list-item>
+      :title="fullName"></v-list-item>
     <v-divider></v-divider>
 
     <!-- Navigation Items -->
@@ -28,10 +28,10 @@ export default {
   emits: ['change-component'],
   setup() {
     const authStore = useAuthStore(); // Access the auth store
-    const username = authStore.username; // Retrieve the logged-in username
+    const fullName = authStore.fullName; // Retrieve the logged-in fullname
 
     return {
-      username, // Pass the username to the template
+      fullName, // Pass the fullname to the template
     };
   },
 };

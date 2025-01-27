@@ -4,20 +4,31 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = 'efd6401dca50843be8272263a61b1a97959fdfafb1f0bcedc6210269c7c84902';
 
-const getMapStatusData = async () => {
+const getMapStatusData = async (role, permission) => {
+	  let whereClause = '';
+	  let location = 'ostantitle';
+  // Add a WHERE clause if the role is 4 or 1
+  if (role === '4') {
+    // Convert the permission array into a list of SQL conditions
+    const conditions = permission.map((region) => `'${region}'`).join(', ');
+    whereClause = `WHERE ostantitle IN (${conditions})`;
+	location = 'shahrestantitle';
+  }
+
   const sql = `
     SELECT 
-      ostantitle,
+      ${location},
       COUNT(CASE WHEN adam_paziresh THEN 1 END) AS bonyad_maskan,
       COUNT(CASE WHEN niazmande_eslah THEN 1 END) AS sayer_manabe,
       COUNT(CASE WHEN arseh_ayan THEN 1 END) AS tarsim,
       COUNT(*) AS total
     FROM 
       public.locations1
+	${whereClause}
     GROUP BY 
-      ostantitle
+      ${location}
     ORDER BY 
-      ostantitle;
+      ${location};
   `;
   return await query(sql);
 };
@@ -69,15 +80,27 @@ const getPlateStatusData = async () => {
   return await query(sql);
 };
 
-const getPieMap = async () => {
-  const sql = `SELECT
-    SUM(CASE WHEN adam_paziresh THEN 1 ELSE 0 END) AS bonyad_maskan,
-    SUM(CASE WHEN arseh_ayan THEN 1 ELSE 0 END) AS tarsim,
-    SUM(CASE WHEN niazmande_eslah THEN 1 ELSE 0 END) AS sayer_manabe,
-    COUNT(*) - SUM(CASE WHEN adam_paziresh THEN 1 ELSE 0 END) - 
-               SUM(CASE WHEN arseh_ayan THEN 1 ELSE 0 END) - 
-               SUM(CASE WHEN niazmande_eslah THEN 1 ELSE 0 END) AS remaining_count
-FROM public.locations1;`;
+const getPieMap = async (role, permission) => {
+  let whereClause = '';
+  // Add a WHERE clause if the role is 4 or 1
+  if (role === '4' || role === '1') {
+    // Convert the permission array into a list of SQL conditions
+    const conditions = permission.map((region) => `'${region}'`).join(', ');
+    whereClause = `WHERE ostantitle IN (${conditions})`;
+  }
+
+  // Updated SQL query with dynamic WHERE clause
+  const sql = `
+    SELECT
+      SUM(CASE WHEN adam_paziresh THEN 1 ELSE 0 END) AS bonyad_maskan,
+      SUM(CASE WHEN arseh_ayan THEN 1 ELSE 0 END) AS tarsim,
+      SUM(CASE WHEN niazmande_eslah THEN 1 ELSE 0 END) AS sayer_manabe,
+      COUNT(*) - SUM(CASE WHEN adam_paziresh THEN 1 ELSE 0 END) - 
+                 SUM(CASE WHEN arseh_ayan THEN 1 ELSE 0 END) - 
+                 SUM(CASE WHEN niazmande_eslah THEN 1 ELSE 0 END) AS remaining_count
+    FROM public.locations1
+    ${whereClause};`;
+
   return await query(sql);
 };
 // Function to construct and execute the SQL query
@@ -711,11 +734,17 @@ const authenticateUser = async (username, password) => {
 
 const generateToken = (user) => {
   return jwt.sign(
-    { sub: user.user_id, username: user.username, role: user.role },
+    {
+      sub: user.user_id,
+      username: user.username,
+      role: user.role,
+      permission: user.permission, // Include permission in the token
+    },
     JWT_SECRET,
     { expiresIn: '15m' } // Token expires in 15 minutes
   );
 };
+
 
 const storeToken = async (token, userId) => {
   const client = await pool.connect();
@@ -728,7 +757,7 @@ const storeToken = async (token, userId) => {
     client.release();
   }
 };
-function authenticateToken(req, res, next) {
+const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -736,30 +765,44 @@ function authenticateToken(req, res, next) {
     return res.status(401).json({ error: 'Access denied. No token provided.' });
   }
 
-  // Verify the token
-  jwt.verify(token, JWT_SECRET, async (err, user) => {
-    if (err) {
-      return res.status(403).json({ error: 'Invalid or expired token' });
-    }
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+	console.log(decoded.role, decoded.permission);
+    // Attach user information to the request object
+    req.user = {
+      userId: decoded.user_id,
+      role: decoded.role,
+      permission: decoded.permission,
+    };
 
     // Check if the token is blacklisted
-    const blacklistedToken = await pool.query('SELECT * FROM tokens WHERE token_id = $1 AND is_blacklisted = TRUE', [token]);
+    const blacklistedToken = await pool.query(
+      'SELECT * FROM tokens WHERE token_id = $1 AND is_blacklisted = TRUE',
+      [token]
+    );
+
     if (blacklistedToken.rows.length > 0) {
       return res.status(403).json({ error: 'Token is blacklisted' });
     }
 
-    req.user = user;
     next();
-  });
+  } catch (err) {
+    console.error('Authentication error:', err);
+    res.status(403).json({ error: 'Invalid token' });
+  }
 };
 const blacklistToken = async (token) => {
   const client = await pool.connect();
   try {
     await client.query('UPDATE tokens SET is_blacklisted = TRUE WHERE token_id = $1', [token]);
+  } catch (err) {
+    console.error('Error blacklisting token:', err);
+    throw err;
   } finally {
     client.release();
   }
 };
+
 const getOstanNames = async () => {
   const sql = `SELECT ostantitle FROM public.locations1 GROUP BY ostantitle ORDER BY ostantitle;`;
   return await query(sql);

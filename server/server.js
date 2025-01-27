@@ -21,7 +21,8 @@ app.get('/health', (req, res) => {
 // Data endpoint
 app.get('/api/data', authenticateToken, async (req, res) => {
   try {
-    const data = await getMapStatusData();
+	const user = req.user;
+    const data = await getMapStatusData(user.role, user.permission);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
@@ -157,7 +158,8 @@ app.get('/api/locations/roosta', authenticateToken, async (req, res) => {
 });
 app.get('/dashboard/piemap', authenticateToken, async (req, res) => {
   try {
-    const data = await getPieMap();
+    const user = req.user; // Assuming `authenticateToken` adds the user's info to `req.user`
+    const data = await getPieMap(user.role, user.permission);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
@@ -220,7 +222,6 @@ app.get('/api/national-id', authenticateToken, async (req, res) => {
 app.get('/api/postalcode-request', authenticateToken, async (req, res) => {
   try {
     const data = await getPostalCodeRequest();
-	console.log(data);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
@@ -251,16 +252,17 @@ app.post('/api/locations/update-roosta', authenticateToken, async (req, res) => 
     res.status(500).json({ error: 'Failed to update roosta data' });
   }
 });
-// Login endpoint
+
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
 
   try {
     const user = await authenticateUser(username, password);
+    console.log(user);
     const token = generateToken(user);
     await storeToken(token, user.user_id);
 
-    res.json({ token });
+    res.json({ token, fullName: user.fullname }); // Include fullName in the response
   } catch (err) {
     console.error('Login error:', err);
     if (err.message === 'Invalid username or password') {
@@ -271,6 +273,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+
 // Logout endpoint (optional)
 app.post('/api/logout', authenticateToken, async (req, res) => {
   try {
@@ -278,10 +281,8 @@ app.post('/api/logout', authenticateToken, async (req, res) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
-    console.log('Token:', token);
-
     if (token) {
-      await blacklistToken(token);
+      await blacklistToken(token); // Call the function to blacklist the token
       res.json({ message: 'Logged out successfully' });
     } else {
       res.status(401).json({ error: 'No token provided' });
