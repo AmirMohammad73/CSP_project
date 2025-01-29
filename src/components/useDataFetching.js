@@ -7,7 +7,7 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
     const chartOptions = ref({
         chart: {
             type: "bar",
-            stacked: false,
+            stacked: selectedOption.value === "BSC", // Enable stacking
             toolbar: {
                 show: false,
             },
@@ -75,12 +75,16 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
         const currentHeaders = headers.value[activeTab.value];
         const currentData = tableData.value[activeTab.value];
 
-        console.log("Current Headers:", currentHeaders);
-        console.log("Current Data:", currentData);
         if (currentData && currentData.length > 0) {
-            const categories = currentData.map((row) => row[currentHeaders[0].value]);
-            console.log("Categories:", categories);
+            // Filter out rows where ostantitle is "Country Total" for the chart
+            const filteredData = currentData.filter((row) => row["ostantitle"] !== "جمع کشوری");
+
+            // Use filteredData for the chart and currentData for the table
+            const categories = filteredData.map((row) => row[currentHeaders[0].value]);
             let series = [];
+
+            // Dynamically set stacking based on selectedOption
+            chartOptions.value.chart.stacked = selectedOption.value === "BSC";
 
             // Handle data for پایش عملیات روستایی
             if (selectedOption.value === "پایش عملیات روستایی") {
@@ -89,17 +93,17 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                     series = [
                         {
                             name: "Bonyad Maskan",
-                            data: currentData.map((row) => Number(row["bonyad_maskan"])),
+                            data: filteredData.map((row) => Number(row["bonyad_maskan"])),
                             color: "#FF4560", // Red
                         },
                         {
                             name: "Sayer Manabe",
-                            data: currentData.map((row) => Number(row["sayer_manabe"])),
+                            data: filteredData.map((row) => Number(row["sayer_manabe"])),
                             color: "#FEB019", // Yellow
                         },
                         {
                             name: "Tarsim",
-                            data: currentData.map((row) => Number(row["tarsim"])),
+                            data: filteredData.map((row) => Number(row["tarsim"])),
                             color: "#FF6699", // Pink
                         },
                     ];
@@ -108,26 +112,26 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                     series = [
                         {
                             name: "Total",
-                            data: currentData.map((row) => Number(row["total"])),
+                            data: filteredData.map((row) => Number(row["total"])),
                             color: "#D3D3D3", // Light gray for background
                             columnWidth: "90%", // Make the "Total" column thicker
                             zIndex: -1, // Ensure it's behind the other columns
                         },
                         {
                             name: "Amaliate Meydani",
-                            data: currentData.map((row) => Number(row["amaliate_meydani"])),
+                            data: filteredData.map((row) => Number(row["amaliate_meydani"])),
                             color: "#00E396", // Green
                             columnWidth: "30%", // Make the grouped columns thinner
                         },
                         {
                             name: "Dadeh Amaei",
-                            data: currentData.map((row) => Number(row["dadeh_amaei"])),
+                            data: filteredData.map((row) => Number(row["dadeh_amaei"])),
                             color: "#008FFB", // Blue
                             columnWidth: "30%", // Make the grouped columns thinner
                         },
                         {
                             name: "Eslah Naghsheh",
-                            data: currentData.map((row) => Number(row["eslah_naghsheh"])),
+                            data: filteredData.map((row) => Number(row["eslah_naghsheh"])),
                             color: "#775DD0", // Purple
                             columnWidth: "30%", // Make the grouped columns thinner
                         },
@@ -137,17 +141,17 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                     series = [
                         {
                             name: "Eslah Naghsheh",
-                            data: currentData.map((row) => Number(row["eslah_naghsheh"])),
+                            data: filteredData.map((row) => Number(row["eslah_naghsheh"])),
                             color: "#FF4560", // Red
                         },
                         {
                             name: "Tayid va Bargozari",
-                            data: currentData.map((row) => Number(row["tayid_va_bargozari"])),
+                            data: filteredData.map((row) => Number(row["tayid_va_bargozari"])),
                             color: "#FEB019", // Yellow
                         },
                         {
                             name: "Daryafte Naghsheh",
-                            data: currentData.map((row) => Number(row["daryafte_naghsheh"])),
+                            data: filteredData.map((row) => Number(row["daryafte_naghsheh"])),
                             color: "#FF6699", // Pink
                         },
                     ];
@@ -156,12 +160,12 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                     series = [
                         {
                             name: "Tolid QR",
-                            data: currentData.map((row) => Number(row["tolid_qr"])),
+                            data: filteredData.map((row) => Number(row["tolid_qr"])),
                             color: "#FF4560", // Red
                         },
                         {
                             name: "Pelak Talfighi",
-                            data: currentData.map((row) => Number(row["pelak_talfighi"])),
+                            data: filteredData.map((row) => Number(row["pelak_talfighi"])),
                             color: "#FEB019", // Yellow
                         },
                     ];
@@ -170,34 +174,64 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                     series = [
                         {
                             name: "Shenaseh Melli",
-                            data: currentData.map((row) => Number(row["shenaseh_melli"])),
+                            data: filteredData.map((row) => Number(row["shenaseh_melli"])),
                             color: "#00E396", // Green
                         },
                     ];
                 }
             }
 
-            // Handle data for Option 2
+            // Handle data for Option 2 (BSC)
             else if (selectedOption.value === "BSC") {
                 series = [
                     {
                         name: "Amalkard",
-                        data: currentData.map((row) => Number(row["amalkard"])),
-                        color: "#FF4560", // Red
+                        data: filteredData.map((row) => Number(row["amalkard"])),
+                        color: "#00E396", // Green
                     },
                     {
                         name: "Dirkard",
-                        data: currentData.map((row) => Number(row["dirkard"])),
-                        color: "#FEB019", // Yellow
+                        data: filteredData.map((row) => Number(row["dirkard"])),
+                        color: "#FF4560", // Red
                     },
                     {
                         name: "Barnameh Diff",
-                        data: currentData.map((row) => Number(row["barnameh_diff"])),
-                        color: "#00E396", // Green
+                        data: filteredData.map((row) => Number(row["barnameh_diff"])),
+                        color: "#FEB019", // Yellow
                     },
                 ];
             }
-            console.log("Series:", series);
+            // Handle data for شاخص سفارشی GNAF
+            else if (selectedOption.value === "شاخص سفارشی GNAF") {
+                chartOptions.value.chart.type = "bar";
+                // chartOptions.value.chart.stacked = true;
+                // chartOptions.value.plotOptions.bar.columnWidth = "45%";
+                // chartOptions.value.plotOptions.bar.dataLabels = {
+                //     position: 'top',
+                // };
+                series = [
+                    {
+                        name: "P Roosta Diff",
+                        data: filteredData.map((row) => Number(row["p_roosta_diff"])),
+                        color: "#00E396", // Green
+                    },
+                    {
+                        name: "T Roosta",
+                        data: filteredData.map((row) => Number(row["t_roosta"])),
+                        color: "#FF4560", // Red
+                    },
+                    {
+                        name: "P Shahr Diff",
+                        data: filteredData.map((row) => Number(row["p_shahr_diff"])),
+                        color: "primary", // Green
+                    },
+                    {
+                        name: "T Shahr",
+                        data: filteredData.map((row) => Number(row["t_shahr"])),
+                        color: "red", // Red
+                    },
+                ];
+            }
             // Update the chart's options
             chartOptions.value.xaxis.categories = categories;
             chartOptions.value.series = series;

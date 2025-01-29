@@ -75,7 +75,7 @@ import { useDataFetching } from "./useDataFetching";
 import { useRuralOperationsMonitoring } from "./ruralOperationsMonitoring";
 import { useBSCIndices } from "./BSCIndices";
 import { usePostalCodeRequest } from "./postalCodeRequest";
-
+import { useGNAFCustomIndex } from "./gnafCustomIndex";
 export default {
   components: {
     apexchart: VueApexCharts,
@@ -85,7 +85,12 @@ export default {
 
     // Reactive references
     const selectedOption = ref("پایش عملیات روستایی");
-    const options = ref(["پایش عملیات روستایی", "BSC", "گزارش درخواستهای کد پستی"]);
+    const options = ref([
+      "پایش عملیات روستایی",
+      "BSC",
+      "گزارش درخواستهای کد پستی",
+      "شاخص سفارشی GNAF"
+    ]);
     const activeTab = ref(0);
     const tableData = ref([]);
     const chartOptions = ref({
@@ -97,6 +102,7 @@ export default {
     const chartKey = ref(0);
 
     // Load the appropriate module based on dropdown selection
+    // Load the appropriate module based on dropdown selection
     const loadModule = () => {
       switch (selectedOption.value) {
         case "پایش عملیات روستایی":
@@ -105,6 +111,8 @@ export default {
           return useBSCIndices();
         case "گزارش درخواستهای کد پستی":
           return usePostalCodeRequest();
+        case "شاخص سفارشی GNAF":
+          return useGNAFCustomIndex();
         default:
           return null;
       }
@@ -135,9 +143,6 @@ export default {
       };
       tabs.value = modTabs.value;
       headers.value = modHeaders.value;
-      if(selectedOption.value == "گزارش درخواستهای کد پستی"){
-        console.log(headers);
-      }
       const {
         tableData: newTableData,
         chartOptions: newChartOptions,

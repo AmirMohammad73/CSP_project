@@ -34,6 +34,15 @@ const getMapStatusData = async (role, permission) => {
   return await query(sql);
 };
 
+const getGnafIndexData = async (role, permission) => {
+	  let whereClause = '';
+	  let location = 'ostantitle';
+  // Add a WHERE clause if the role is 4 or 1
+  const sql = `SELECT 'جمع کشوری'AS ostantitle, SUM(((shahr_percent).pishbini - (shahr_percent).tahaghogh)) AS p_shahr_diff, SUM((shahr_percent).tahaghogh) AS t_shahr, SUM(((roosta_percent).pishbini - (roosta_percent).tahaghogh)) AS p_roosta_diff, SUM((roosta_percent).tahaghogh) AS t_roosta FROM public.loc_gnaf UNION ALL (SELECT ostantitle, ((shahr_percent).pishbini - (shahr_percent).tahaghogh) AS p_shahr_diff, (shahr_percent).tahaghogh AS t_shahr, ((roosta_percent).pishbini - (roosta_percent).tahaghogh) AS p_roosta_diff, (roosta_percent).tahaghogh AS t_roosta FROM public.loc_gnaf order by ostantitle);`;
+  console.log(sql);
+  return await query(sql);
+};
+
 const getUpdateStatusData = async (role, permission) => {
   let whereClause = '';
   let location = 'ostantitle';
@@ -860,4 +869,4 @@ const getOstanNames = async (role, permission) => {
 const sql = `SELECT ostantitle FROM public.locations1 ${whereClause} GROUP BY ostantitle ORDER BY ostantitle;`;
   return await query(sql);
 };
-module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken };
+module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData };

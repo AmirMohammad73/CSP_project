@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, updateRoostaData, getPostalCodeRequest, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken } = require('./api');
+const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, updateRoostaData, getPostalCodeRequest, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData } = require('./api');
 
 const JWT_SECRET = 'efd6401dca50843be8272263a61b1a97959fdfafb1f0bcedc6210269c7c84902';
 require('dotenv').config();
@@ -249,7 +249,6 @@ app.use((err, req, res, next) => {
 });
 
 // Endpoint to update roosta data
-// POST /api/locations/update-roosta
 app.post('/api/locations/update-roosta', authenticateToken, async (req, res) => {
   const modifiedRecords = req.body;
 
@@ -263,6 +262,18 @@ app.post('/api/locations/update-roosta', authenticateToken, async (req, res) => 
   } catch (error) {
     console.error('Error updating roosta data:', error);
     res.status(500).json({ error: 'Failed to update roosta data' });
+  }
+});
+
+// Data endpoint
+app.get('/api/gnafindex', authenticateToken, async (req, res) => {
+  try {
+	const user = req.user;
+    const data = await getGnafIndexData(user.role, user.permission);
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
