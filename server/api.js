@@ -8,11 +8,11 @@ const getMapStatusData = async (role, permission) => {
 	  let whereClause = '';
 	  let location = 'ostantitle';
   // Add a WHERE clause if the role is 4 or 1
-  if (role === '4') {
+  if (role === '4' || role === '1') {
     // Convert the permission array into a list of SQL conditions
     const conditions = permission.map((region) => `'${region}'`).join(', ');
     whereClause = `WHERE ostantitle IN (${conditions})`;
-	location = 'shahrestantitle';
+	location = role === '4' ? 'shahrestantitle' : (role === '1' ? 'ostantitle' : undefined);
   }
 
   const sql = `
@@ -30,7 +30,6 @@ const getMapStatusData = async (role, permission) => {
     ORDER BY 
       ${location};
   `;
-  console.log(sql);
   return await query(sql);
 };
 
@@ -46,11 +45,11 @@ const getGnafIndexData = async (role, permission) => {
 const getUpdateStatusData = async (role, permission) => {
   let whereClause = '';
   let location = 'ostantitle';
-  if (role === '4') {
+  if (role === '4' || role === '1') {
     // Convert the permission array into a list of SQL conditions
     const conditions = permission.map((region) => `'${region}'`).join(', ');
     whereClause = `WHERE ostantitle IN (${conditions})`;
-	location = 'shahrestantitle';
+	location = role === '4' ? 'shahrestantitle' : (role === '1' ? 'ostantitle' : undefined);
   }
 
   const sql = `SELECT 
@@ -72,11 +71,11 @@ const getUpdateStatusData = async (role, permission) => {
 const getGeocodeStatusData = async (role, permission) => {
   let whereClause = '';
   let location = 'ostantitle';
-  if (role === '4') {
+  if (role === '4' || role === '1') {
     // Convert the permission array into a list of SQL conditions
     const conditions = permission.map((region) => `'${region}'`).join(', ');
     whereClause = `WHERE ostantitle IN (${conditions})`;
-	location = 'shahrestantitle';
+	location = role === '4' ? 'shahrestantitle' : (role === '1' ? 'ostantitle' : undefined);
   }
   const sql = `SELECT 
       ${location} AS place,
@@ -97,11 +96,11 @@ const getGeocodeStatusData = async (role, permission) => {
 const getPlateStatusData = async (role, permission) => {
   let whereClause = '';
   let location = 'ostantitle';
-  if (role === '4') {
+  if (role === '4' || role === '1') {
     // Convert the permission array into a list of SQL conditions
     const conditions = permission.map((region) => `'${region}'`).join(', ');
     whereClause = `WHERE ostantitle IN (${conditions})`;
-	location = 'shahrestantitle';
+	location = role === '4' ? 'shahrestantitle' : (role === '1' ? 'ostantitle' : undefined);
   }
   const sql = `SELECT 
       ${location} AS place,
@@ -200,11 +199,11 @@ ORDER BY
 const getNationalIDStatusData = async (role, permission) => {
   let whereClause = '';
   let location = 'ostantitle';
-  if (role === '4') {
+  if (role === '4' || role === '1') {
     // Convert the permission array into a list of SQL conditions
     const conditions = permission.map((region) => `'${region}'`).join(', ');
     whereClause = `WHERE ostantitle IN (${conditions})`;
-	location = 'shahrestantitle';
+	location = role === '4' ? 'shahrestantitle' : (role === '1' ? 'ostantitle' : undefined);
   }
   const sql = `SELECT 
       ${location} AS place,
@@ -254,7 +253,7 @@ FROM
 
 const getDetailedLocationsData = async (user) => {
   let whereClause = '';
-  if (user.role === '4') {
+  if (user.role === '4' || user.role === '1') {
     // Add a WHERE clause for role 4 based on user permissions
     const conditions = user.permission.map((region) => `'${region}'`).join(', ');
     whereClause = `WHERE ostantitle IN (${conditions})`;
@@ -822,7 +821,6 @@ const authenticateToken = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-	console.log(decoded.role, decoded.permission);
     // Attach user information to the request object
     req.user = {
       userId: decoded.user_id,
@@ -861,7 +859,7 @@ const blacklistToken = async (token) => {
 const getOstanNames = async (role, permission) => {
   let whereClause = '';
   // Add a WHERE clause if the role is 4 or 1
-  if (role === '4') {
+  if (role === '4' || role === '1' || role === '1') {
     // Convert the permission array into a list of SQL conditions
     const conditions = permission.map((region) => `'${region}'`).join(', ');
     whereClause = `WHERE ostantitle IN (${conditions})`;

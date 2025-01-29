@@ -34,7 +34,7 @@ app.get('/api/data', authenticateToken, async (req, res) => {
 app.get('/api/locations', authenticateToken, async (req, res) => {
   try {
     const user = req.user; // User information is available from the authenticated token
-    if (user.role === '4') {
+    if (user.role === '4' || user.role === '1') {
       // For role 4, return an empty array or skip fetching data
       res.json([]);
     } else {
@@ -282,7 +282,6 @@ app.post('/api/login', async (req, res) => {
 
   try {
     const user = await authenticateUser(username, password);
-    console.log(user);
     const token = generateToken(user);
     await storeToken(token, user.user_id);
 

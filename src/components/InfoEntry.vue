@@ -131,6 +131,7 @@ export default {
       breadcrumb: [{ text: 'کشور', disabled: false }],
       currentLevel: 'کشور',
       currentOstantitle: '',
+      isRole4 : false,
       filterOptions: [
         { label: 'Checked', value: 'checked', icon: 'mdi-checkbox-marked', color: 'primary' },
         { label: 'Unchecked', value: 'unchecked', icon: 'mdi-checkbox-blank-outline', color: 'secondary' },
@@ -328,12 +329,14 @@ export default {
         const data = await response.json();
 
         if (data.length === 0) {
+          this.isRole4 = true;
           // If data is empty (role 4), fetch detailed locations directly
           await this.fetchDetailedLocations();
           // Update currentLevel and breadcrumb for role 4
           this.currentLevel = 'ostantitle';
           this.breadcrumb = [{ text: 'استان', disabled: false }];
         } else {
+          this.isRole4 = false;
           // Otherwise, use the fetched data
           this.locations = data;
         }
@@ -371,7 +374,6 @@ export default {
       }
     },
     navigateBreadcrumb(item) {
-      console.log(item.text);
       if (item.text === 'کشور') {
         // For role 4, reset to ostantitle level
         this.currentLevel = 'کشور';
@@ -387,19 +389,25 @@ export default {
         this.roostaData = [];
       }
       else if (this.breadcrumb.length > 1 && item.text === this.breadcrumb[1].text) {
-        this.currentLevel = 'ostantitle';
+        this.isRole4 ? this.currentLevel = 'shahrestantitle' : this.currentLevel = 'ostantitle';
+        // this.currentLevel = 'ostantitle';
         this.breadcrumb = this.breadcrumb.slice(0, 2);
-        this.fetchDetailedLocations(this.currentOstantitle);
+        this.isRole4 ? this.fetchShahrestanData(this.selectedostan) : this.fetchDetailedLocations(this.currentOstantitle);
+        // this.fetchDetailedLocations(this.currentOstantitle);
         this.roostaData = [];
       } else if (this.breadcrumb.length > 2 && item.text === this.breadcrumb[2].text) {
-        this.currentLevel = 'shahrestantitle';
+        this.isRole4 ? this.currentLevel = 'zonetitle' : this.currentLevel = 'shahrestantitle';
+        // this.currentLevel = 'shahrestantitle';
         this.breadcrumb = this.breadcrumb.slice(0, 3);
-        this.fetchShahrestanData(this.selectedostan);
+        this.isRole4 ? this.fetchZoneData(this.selectedostan, this.selectedshahrestan) : this.fetchShahrestanData(this.selectedostan);
+        // this.fetchShahrestanData(this.selectedostan);
         this.roostaData = [];
       } else if (this.breadcrumb.length > 3 && item.text === this.breadcrumb[3].text) {
-        this.currentLevel = 'zonetitle';
+        this.isRole4 ? this.currentLevel = 'dehestantitle' : this.currentLevel = 'zonetitle';
+        // this.currentLevel = 'zonetitle';
         this.breadcrumb = this.breadcrumb.slice(0, 4);
-        this.fetchZoneData(this.selectedostan, this.selectedshahrestan);
+        this.isRole4 ? this.fetchDehestanData(this.selectedostan, this.selectedshahrestan, this.selectedzonetitle) : this.fetchZoneData(this.selectedostan, this.selectedshahrestan);
+        // this.fetchZoneData(this.selectedostan, this.selectedshahrestan);
         this.roostaData = [];
       }
     },
