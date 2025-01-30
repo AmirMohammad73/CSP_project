@@ -147,12 +147,38 @@ export default {
     closeChangePasswordDialog() {
       this.changePasswordDialog = false;
     },
-    confirmChangePassword() {
-      if (this.newPassword === this.repeatNewPassword) {
-        alert('Password changed successfully!');
-        this.closeChangePasswordDialog();
-      } else {
+    async confirmChangePassword() {
+      if (this.newPassword !== this.repeatNewPassword) {
         alert('New passwords do not match!');
+        return;
+      }
+
+      try {
+        console.log(localStorage.getItem('token'))
+        const response = await fetch('http://192.168.47.1:3001/api/change-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming you store the JWT token in localStorage
+          },
+          body: JSON.stringify({
+            currentPassword: this.currentPassword,
+            newPassword: this.newPassword,
+            repeatNewPassword: this.repeatNewPassword
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          alert('Password changed successfully!');
+          this.closeChangePasswordDialog();
+        } else {
+          alert(result.error || 'Failed to change password');
+        }
+      } catch (error) {
+        console.error('Error changing password:', error);
+        alert('An error occurred while changing the password');
       }
     },
     openLogoutDialog() {

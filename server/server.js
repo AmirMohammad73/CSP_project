@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, updateRoostaData, getPostalCodeRequest, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData } = require('./api');
+const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, updateRoostaData, getPostalCodeRequest, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword } = require('./api');
 
 const JWT_SECRET = 'efd6401dca50843be8272263a61b1a97959fdfafb1f0bcedc6210269c7c84902';
 require('dotenv').config();
@@ -315,7 +315,28 @@ app.post('/api/logout', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+// Endpoint to change password
+app.post('/api/change-password', authenticateToken, async (req, res) => {
+  const { currentPassword, newPassword, repeatNewPassword } = req.body;
+  const userId = req.user.userId;
 
+  try {
+    const result = await changePassword(userId, currentPassword, newPassword, repeatNewPassword);
+    res.json(result);
+  } catch (err) {
+    console.error('Error changing password:', err);
+
+    // Handle specific errors
+    if (err.message === 'User not found') {
+      return res.status(404).json({ error: err.message });
+    }
+    if (err.message === 'Current password is incorrect' || err.message === 'New passwords do not match') {
+      return res.status(400).json({ error: err.message });
+    }
+
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 // Start the server
 app.listen(port, () => {
   console.log(`Server running at http://172.16.8.33:${port}`);

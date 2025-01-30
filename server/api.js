@@ -32,7 +32,33 @@ const getMapStatusData = async (role, permission) => {
   `;
   return await query(sql);
 };
+const changePassword = async (userId, currentPassword, newPassword, repeatNewPassword) => {
+  // Fetch the user from the database
+  const userQuery = 'SELECT password_hash FROM public.users1 WHERE user_id = $1';
+  const userResult = await pool.query(userQuery, [userId]);
 
+  if (userResult.rows.length === 0) {
+    throw new Error('User not found');
+  }
+
+  const user = userResult.rows[0];
+
+  // Verify the current password
+  if (currentPassword !== user.password_hash) {
+    throw new Error('Current password is incorrect');
+  }
+
+  // Check if new passwords match
+  if (newPassword !== repeatNewPassword) {
+    throw new Error('New passwords do not match');
+  }
+
+  // Update the password in the database
+  const updateQuery = 'UPDATE public.users1 SET password_hash = $1 WHERE user_id = $2';
+  await pool.query(updateQuery, [newPassword, userId]);
+
+  return { message: 'Password changed successfully' };
+};
 const getGnafIndexData = async (role, permission) => {
 	  let whereClause = '';
 	  let location = 'ostantitle';
@@ -821,9 +847,10 @@ const authenticateToken = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
+
     // Attach user information to the request object
     req.user = {
-      userId: decoded.user_id,
+      userId: decoded.sub, // Use `sub` instead of `user_id`
       role: decoded.role,
       permission: decoded.permission,
     };
@@ -859,7 +886,7 @@ const blacklistToken = async (token) => {
 const getOstanNames = async (role, permission) => {
   let whereClause = '';
   // Add a WHERE clause if the role is 4 or 1
-  if (role === '4' || role === '1' || role === '1') {
+  if (role === '4' || role === '1') {
     // Convert the permission array into a list of SQL conditions
     const conditions = permission.map((region) => `'${region}'`).join(', ');
     whereClause = `WHERE ostantitle IN (${conditions})`;
@@ -867,4 +894,4 @@ const getOstanNames = async (role, permission) => {
 const sql = `SELECT ostantitle FROM public.locations1 ${whereClause} GROUP BY ostantitle ORDER BY ostantitle;`;
   return await query(sql);
 };
-module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData };
+module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword };
