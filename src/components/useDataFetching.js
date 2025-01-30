@@ -204,34 +204,54 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
             // Handle data for شاخص سفارشی GNAF
             else if (selectedOption.value === "شاخص سفارشی GNAF") {
                 chartOptions.value.chart.type = "bar";
-                // chartOptions.value.chart.stacked = true;
-                // chartOptions.value.plotOptions.bar.columnWidth = "45%";
-                // chartOptions.value.plotOptions.bar.dataLabels = {
-                //     position: 'top',
-                // };
+                chartOptions.value.chart.stacked = true; // Ensure stacking is enabled
+
                 series = [
                     {
-                        name: "P Roosta Diff",
-                        data: filteredData.map((row) => Number(row["p_roosta_diff"])),
-                        color: "#00E396", // Green
-                    },
-                    {
                         name: "T Roosta",
+                        group: 'roosta', // Group for Roosta
                         data: filteredData.map((row) => Number(row["t_roosta"])),
                         color: "#FF4560", // Red
                     },
                     {
-                        name: "P Shahr Diff",
-                        data: filteredData.map((row) => Number(row["p_shahr_diff"])),
-                        color: "primary", // Green
+                        name: "P Roosta Diff",
+                        group: 'roosta', // Group for Roosta
+                        data: filteredData.map((row) => Number(row["p_roosta_diff"])),
+                        color: "#00E396", // Green
                     },
                     {
                         name: "T Shahr",
+                        group: 'shahr', // Group for Shahr
                         data: filteredData.map((row) => Number(row["t_shahr"])),
-                        color: "red", // Red
+                        color: "#008FFB", // Blue
+                    },
+                    {
+                        name: "P Shahr Diff",
+                        group: 'shahr', // Group for Shahr
+                        data: filteredData.map((row) => Number(row["p_shahr_diff"])),
+                        color: "#80c7fd", // Light Blue
                     },
                 ];
+
+                // Add or update the yaxis configuration
+                chartOptions.value.yaxis = {
+                    labels: {
+                        formatter: function (val) {
+                            return val.toFixed(2); // Display 2 decimal places
+                        }
+                    }
+                };
+
+                // Update tooltip to show decimal places
+                chartOptions.value.tooltip = {
+                    y: {
+                        formatter: function (val) {
+                            return val.toFixed(2); // Display 2 decimal places in tooltip
+                        }
+                    }
+                };
             }
+
             // Update the chart's options
             chartOptions.value.xaxis.categories = categories;
             chartOptions.value.series = series;

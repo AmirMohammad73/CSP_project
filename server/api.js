@@ -633,7 +633,17 @@ const getBSCTab5Data = async () => {
     (SELECT * FROM section1_summary ORDER BY ostantitle);`;
   return await query(sql);
 };
-const getPostalCodeRequest = async () => {
+const getPostalCodeRequest = async (role, permission) => {
+  let whereClause = '';
+  let location = 'ostantitle';
+  // Add a WHERE clause if the role is 4 or 1
+  if (role === '4' || role === '1') {
+    // Convert the permission array into a list of SQL conditions
+    const conditions = permission.map((region) => `'${region}'`).join(', ');
+    whereClause = `WHERE ostantitle IN (${conditions})`;
+	location = role === '4' ? 'shahrestantitle' : (role === '1' ? 'ostantitle' : undefined);
+  }
+
   const sql = `WITH calculated_columns AS (
   SELECT
     ostantitle,
@@ -720,7 +730,8 @@ SELECT
 	ELSE ROUND(f1 + f3 + f5 + f7, 2) 
   END AS formula_8
 FROM
-  final_calculations`;
+  final_calculations
+  ${whereClause}`;
   return await query(sql);
 };
 // Update roosta data

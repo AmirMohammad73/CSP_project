@@ -234,7 +234,8 @@ app.get('/api/national-id', authenticateToken, async (req, res) => {
 // Data endpoint
 app.get('/api/postalcode-request', authenticateToken, async (req, res) => {
   try {
-    const data = await getPostalCodeRequest();
+	const user = req.user;
+    const data = await getPostalCodeRequest(user.role, user.permission);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
