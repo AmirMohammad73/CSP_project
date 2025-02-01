@@ -75,6 +75,7 @@ export default {
         roostaData: Array,
         roostaHeaders: Array,
         stickyHeaderBackgroundColor: String,
+        dataFirstItem: Object
     },
     data() {
         return {
@@ -124,13 +125,17 @@ export default {
             }, {});
         },
         isEditableCheckbox(key, item) {
-            const editableColumns = [
-                'amaliate_meydani',
-                'dadeh_amaei',
-                'geocode',
-                'eslah_naghsheh',
-                'pelak_talfighi',
-            ];
+            console.log(this.dataFirstItem);
+            var editableColumns = [];
+            if (this.dataFirstItem != 'setad' && this.dataFirstItem != 'manager') {
+                editableColumns = [
+                    'amaliate_meydani',
+                    'dadeh_amaei',
+                    'geocode',
+                    'eslah_naghsheh',
+                    'pelak_talfighi',
+                ];
+            }
 
             if (!editableColumns.includes(key)) {
                 return false;

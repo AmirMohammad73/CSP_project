@@ -234,11 +234,11 @@ export default {
 }
 
 .notification-item.seen {
-  background-color: var(--notification-seen-bg);
+  background-color: var(--notification-seen-bg, #f0f0f0); /* Default light mode color */
 }
 
 .notification-item:hover {
-  background-color: var(--notification-hover-bg);
+  background-color: var(--notification-hover-bg, #e0e0e0); /* Default light mode color */
 }
 
 .notification-content-wrapper {
@@ -284,19 +284,16 @@ export default {
 }
 
 .v-theme--dark .notification-item.seen {
-  background-color: #000;
-  /* Completely black for seen notifications */
+  background-color: var(--notification-seen-bg, #000); /* Dark mode color */
 }
 
 .v-theme--dark .notification-item:not(.seen) {
-  background-color: #1a1a1a;
-  /* Slightly lighter black for unseen notifications */
+  background-color: var(--notification-hover-bg, #1a1a1a); /* Dark mode color */
 }
 
 .v-theme--dark .notification-date,
 .v-theme--dark .notification-content {
-  color: #fff;
-  /* White text for dark mode */
+  color: #fff; /* White text for dark mode */
 }
 
 @keyframes spin {

@@ -34,10 +34,12 @@ app.get('/api/data', authenticateToken, async (req, res) => {
 app.get('/api/locations', authenticateToken, async (req, res) => {
   try {
     const user = req.user; // User information is available from the authenticated token
-    if (user.role === '4' || user.role === '1') {
+    if (user.role === '4') {
       // For role 4, return an empty array or skip fetching data
-      res.json([]);
-    } else {
+      res.json(['ostan']);
+    } else if (user.role === '1'){
+		res.json(['setad']);
+	}		else {
       // For other roles, fetch and return the general locations data
       const data = await getLocationsData();
       res.json(data);

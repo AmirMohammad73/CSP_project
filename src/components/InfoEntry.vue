@@ -42,8 +42,8 @@
       <div>
         <!-- Dialog for Roosta Data -->
         <RoostaDialog v-model="dialog" :roosta-data="roostaData" :roosta-headers="roostaHeaders"
-          :sticky-header-background-color="stickyHeaderBackgroundColor" @save-success="handleSaveSuccess"
-          @save-error="handleSaveError" />
+          :sticky-header-background-color="stickyHeaderBackgroundColor" :data-first-item="dataFirstItem"
+          @save-success="handleSaveSuccess" @save-error="handleSaveError" />
 
         <!-- Snackbar -->
         <v-snackbar v-model="snackbar" :timeout="3000" :top="true" :color="snackbarColor" class="rounded elevation-2">
@@ -131,12 +131,13 @@ export default {
       breadcrumb: [{ text: 'کشور', disabled: false }],
       currentLevel: 'کشور',
       currentOstantitle: '',
-      isRole4 : false,
+      isRole4: false,
       filterOptions: [
         { label: 'Checked', value: 'checked', icon: 'mdi-checkbox-marked', color: 'primary' },
         { label: 'Unchecked', value: 'unchecked', icon: 'mdi-checkbox-blank-outline', color: 'secondary' },
         { label: 'All', value: 'all', icon: 'mdi-filter', color: 'success' },
       ],
+      dataFirstItem: null,
     };
   },
 
@@ -317,6 +318,7 @@ export default {
       this.error = false;
 
       try {
+        console.log("AAA");
         const response = await fetch(`http://${SERVER_HOST}:3001/api/locations`, {
           method: 'GET',
           headers: {
@@ -327,8 +329,9 @@ export default {
           throw new Error('Failed to fetch locations data');
         }
         const data = await response.json();
-
-        if (data.length === 0) {
+        console.log(data[0]);
+        this.dataFirstItem = data[0];
+        if (data[0] === 'ostan' || data[0] === 'setad') {
           this.isRole4 = true;
           // If data is empty (role 4), fetch detailed locations directly
           await this.fetchDetailedLocations();
@@ -380,7 +383,7 @@ export default {
         this.breadcrumb = [{ text: 'کشور', disabled: false }];
         this.fetchDetailedLocations();
         this.roostaData = [];
-      } else if (item.text === 'استان'){
+      } else if (item.text === 'استان') {
         // For role 4, reset to ostantitle level
         this.currentLevel = 'ostantitle';
         this.breadcrumb = [{ text: 'استان', disabled: false }];
