@@ -1,6 +1,6 @@
-//usedatafetching.js
 import { ref, watch } from "vue";
 import { useAuthStore } from '../stores/app';
+
 export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selectedOption) {
     const tableData = ref([]); // Initialize as an empty array
 
@@ -62,7 +62,6 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
 
             // Update tableData for the current tab
             tableData.value[activeTab.value] = data;
-
             // Update the chart with the new data
             updateChart();
         } catch (error) {
@@ -251,7 +250,40 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                     }
                 };
             }
+            else if (selectedOption.value === "Interoperability Task Force Program") {
+                console.log(filteredData);
+                const years = [...new Set(filteredData.map(item => item.year))];
+                const amaliatCategories = [...new Set(filteredData.map(item => item.amaliat))];
 
+                series = years.flatMap(year => [
+                    {
+                        name: `${year} - Amalkard`,
+                        data: amaliatCategories.map(amaliat => {
+                            const item = filteredData.find(d => d.year === year && d.amaliat === amaliat);
+                            return item ? Number(item.amalkard) : 0;
+                        }),
+                        stack: year,
+                    },
+                    {
+                        name: `${year} - Dirkard`,
+                        data: amaliatCategories.map(amaliat => {
+                            const item = filteredData.find(d => d.year === year && d.amaliat === amaliat);
+                            return item ? Number(item.dirkard) : 0;
+                        }),
+                        stack: year,
+                    },
+                    {
+                        name: `${year} - Barnameh Diff`,
+                        data: amaliatCategories.map(amaliat => {
+                            const item = filteredData.find(d => d.year === year && d.amaliat === amaliat);
+                            return item ? Number(item.barnameh_diff) : 0;
+                        }),
+                        stack: year,
+                    },
+                ]);
+
+
+            }
             // Update the chart's options
             chartOptions.value.xaxis.categories = categories;
             chartOptions.value.series = series;

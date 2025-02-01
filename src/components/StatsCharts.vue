@@ -76,6 +76,7 @@ import { useRuralOperationsMonitoring } from "./ruralOperationsMonitoring";
 import { useBSCIndices } from "./BSCIndices";
 import { usePostalCodeRequest } from "./postalCodeRequest";
 import { useGNAFCustomIndex } from "./gnafCustomIndex";
+import { useInteroperabilityTaskForce} from './interoperabilityTaskForce';
 export default {
   components: {
     apexchart: VueApexCharts,
@@ -89,7 +90,8 @@ export default {
       "پایش عملیات روستایی",
       "BSC",
       "گزارش درخواستهای کد پستی",
-      "شاخص سفارشی GNAF"
+      "شاخص سفارشی GNAF",
+      "Interoperability Task Force Program"
     ]);
     const activeTab = ref(0);
     const tableData = ref([]);
@@ -113,6 +115,8 @@ export default {
           return usePostalCodeRequest();
         case "شاخص سفارشی GNAF":
           return useGNAFCustomIndex();
+        case "Interoperability Task Force Program":
+          return useInteroperabilityTaskForce();
         default:
           return null;
       }
