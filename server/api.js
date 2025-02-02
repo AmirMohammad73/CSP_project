@@ -64,10 +64,32 @@ const getGnafIndexData = async (role, permission) => {
 	  let location = 'ostantitle';
   // Add a WHERE clause if the role is 4 or 1
   const sql = `SELECT 'جمع کشوری'AS ostantitle, SUM(((shahr_percent).pishbini - (shahr_percent).tahaghogh)) AS p_shahr_diff, SUM((shahr_percent).tahaghogh) AS t_shahr, SUM(((roosta_percent).pishbini - (roosta_percent).tahaghogh)) AS p_roosta_diff, SUM((roosta_percent).tahaghogh) AS t_roosta FROM public.loc_gnaf UNION ALL (SELECT ostantitle, ((shahr_percent).pishbini - (shahr_percent).tahaghogh) AS p_shahr_diff, (shahr_percent).tahaghogh AS t_shahr, ((roosta_percent).pishbini - (roosta_percent).tahaghogh) AS p_roosta_diff, (roosta_percent).tahaghogh AS t_roosta FROM public.loc_gnaf order by ostantitle);`;
-  console.log(sql);
   return await query(sql);
 };
+// Function to fetch username by userId
+const getUsernameById = async (userId) => {
+  const sql = `SELECT username FROM public.users1 WHERE user_id = $1;`;
+  const result = await query(sql, [userId]);
+  return result.length > 0 ? result[0].username : null;
+};
 
+// Function to fetch notifications dynamically
+const getNotifications = async (username, timestamp) => {
+  const sql = `
+    SELECT id, content, date, icon,
+       CASE WHEN date > $2::timestamp THEN 0 ELSE 1 END AS seen
+FROM (
+    SELECT id, content, date, icon
+    FROM public.notification
+    WHERE ('broadcast' = ANY(targets) OR $1 = ANY(targets))
+    ORDER BY date DESC
+    LIMIT 10
+) subquery
+ORDER BY date DESC;
+  `;
+  console.log(sql);
+  return await query(sql, [username, timestamp]);
+};
 const getUpdateStatusData = async (role, permission) => {
   let whereClause = '';
   let location = 'ostantitle';
@@ -645,7 +667,6 @@ const getPostalCodeRequest = async (role, permission) => {
     // Convert the permission array into a list of SQL conditions
     const conditions = permission.map((region) => `'${region}'`).join(', ');
     whereClause = `WHERE ostantitle IN (${conditions})`;
-	console.log(whereClause);
 	location = role === '4' ? 'shahrestantitle' : (role === '1' ? 'ostantitle' : undefined);
   }
 
@@ -784,28 +805,6 @@ const updateRoostaData = async (modifiedRecords) => {
     client.release();
   }
 };
-// const authenticateUser = async (username, password) => {
-//   const client = await pool.connect();
-//   try {
-//     // Fetch user from the database
-//     const userQuery = await client.query('SELECT * FROM users1 WHERE username = $1', [username]);
-//     const user = userQuery.rows[0];
-// 	console.log(user);
-//     if (!user) {
-//       throw new Error('Invalid username or password');
-//     }
-
-//     // Compare hashed password
-//     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-//     if (!isPasswordValid) {
-//       throw new Error('Invalid username or password');
-//     }
-
-//     return user;
-//   } finally {
-//     client.release();
-//   }
-// };
 const authenticateUser = async (username, password) => {
   const client = await pool.connect();
   try {
@@ -844,17 +843,26 @@ const authenticateUser = async (username, password) => {
   }
 };
 const generateToken = (user) => {
+  // Convert the timestamp to a local date string without time zone info
+  const localTimestamp = new Date(user.timestamp).toLocaleString('en-US', { timeZone: 'UTC' });
+  
   return jwt.sign(
     {
       sub: user.user_id,
       username: user.username,
       role: user.role,
-      permission: user.permission, // Include permission in the token
+      permission: user.permission,
+      timestamp: user.timestamp,
     },
     JWT_SECRET,
-    { expiresIn: '15m' } // Token expires in 15 minutes
+    { expiresIn: '15m' }
   );
 };
+const SetTimestamp = async (username) => {
+	const sql = `UPDATE public.users1 SET timestamp = NOW() WHERE username = '${username}';`;
+	console.log(sql);
+	return await query(sql);
+}
 
 
 const storeToken = async (token, userId) => {
@@ -882,8 +890,10 @@ const authenticateToken = async (req, res, next) => {
     // Attach user information to the request object
     req.user = {
       userId: decoded.sub, // Use `sub` instead of `user_id`
+	  username: decoded.username,
       role: decoded.role,
       permission: decoded.permission,
+	  timestamp: decoded.timestamp,
     };
 
     // Check if the token is blacklisted
@@ -925,4 +935,4 @@ const getOstanNames = async (role, permission) => {
 const sql = `SELECT ostantitle FROM public.locations1 ${whereClause} GROUP BY ostantitle ORDER BY ostantitle;`;
   return await query(sql);
 };
-module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability };
+module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp };

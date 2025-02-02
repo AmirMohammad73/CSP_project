@@ -37,14 +37,14 @@
     <!-- Notification Menu -->
     <v-menu location="bottom end" offset-y transition="slide-y-transition">
       <template v-slot:activator="{ props }">
-        <v-btn icon v-bind="props" class="notification-btn">
+        <v-btn icon v-bind="props" class="notification-btn" @click="onBellIconClick">
           <v-badge v-if="unseenNotificationsCount" color="error" :content="unseenNotificationsCount">
             <v-icon icon="mdi-bell" size="28"></v-icon>
           </v-badge>
           <v-icon v-else icon="mdi-bell" size="28"></v-icon>
         </v-btn>
       </template>
-      <v-list class="notification-menu">
+      <v-list class="notification-menu" dir="rtl">
         <v-list-item v-for="(notification, index) in notifications" :key="index"
           :class="['notification-item', { 'seen': notification.seen }]" @click="markAsSeen(index)">
           <v-list-item-content>
@@ -119,11 +119,7 @@ export default {
       currentPassword: '',
       newPassword: '',
       repeatNewPassword: '',
-      notifications: [
-        { date: '2023-10-01', content: 'You have a new message', icon: 'mdi-email', seen: false },
-        { date: '2023-10-02', content: 'System update available', icon: 'mdi-alert', seen: true },
-        { date: '2023-10-03', content: 'New friend request', icon: 'mdi-account-plus', seen: false },
-      ],
+      notifications: [], // Initially empty, populated from the server
       isThemeToggling: false,
     };
   },
@@ -133,6 +129,34 @@ export default {
     },
   },
   methods: {
+    async fetchNotifications() {
+      try {
+        const response = await fetch('http://172.16.8.33:3001/api/notifications', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch notifications');
+        }
+
+        const data = await response.json();
+        console.log(data);
+        // Map the fetched data to the structure expected by your component
+        this.notifications = data.map(notification => ({
+          date: notification.date.slice(0, 10), // Map created_at to date
+          content: notification.content, // Map text to content
+          icon: notification.icon || 'mdi-bell', // Map emoji to icon, default to 'mdi-bell' if not provided
+          seen: false // Assuming all fetched notifications are initially unseen
+        }));
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+        alert('An error occurred while fetching notifications');
+      }
+    },
     toggleTheme() {
       this.isThemeToggling = true;
       setTimeout(() => {
@@ -154,12 +178,11 @@ export default {
       }
 
       try {
-        console.log(localStorage.getItem('token'))
-        const response = await fetch('http://192.168.47.1:3001/api/change-password', {
+        const response = await fetch('http://172.16.8.33:3001/api/change-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming you store the JWT token in localStorage
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
           },
           body: JSON.stringify({
             currentPassword: this.currentPassword,
@@ -195,7 +218,39 @@ export default {
     markAsSeen(index) {
       this.notifications[index].seen = true;
     },
+    onBellIconClick() {
+      console.log('Bell icon clicked');
+      this.onNotificationMenuOpen();
+    },
+    async onNotificationMenuOpen() {
+      try {
+        const response = await fetch('http://172.16.8.33:3001/api/update-timestamp', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            // Add any data you want to send in the request body
+            timestamp: new Date().toISOString(), // Example: Send the current timestamp
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update timestamp');
+        }
+
+        const result = await response.json();
+        console.log('Timestamp updated successfully:', result);
+      } catch (error) {
+        console.error('Error updating timestamp:', error);
+        alert('An error occurred while updating the timestamp');
+      }
+    },
   },
+  mounted() {
+    this.fetchNotifications();
+  }
 };
 </script>
 
@@ -231,27 +286,39 @@ export default {
 .notification-item {
   padding: 12px;
   transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
 }
 
 .notification-item.seen {
-  background-color: var(--notification-seen-bg, #f0f0f0); /* Default light mode color */
+  background-color: var(--notification-seen-bg, #f0f0f0);
+  /* Default light mode color */
 }
 
 .notification-item:hover {
-  background-color: var(--notification-hover-bg, #e0e0e0); /* Default light mode color */
+  background-color: var(--notification-hover-bg, #e0e0e0);
+  /* Default light mode color */
 }
 
 .notification-content-wrapper {
   display: flex;
   align-items: center;
+  flex-direction: row-reverse;
+  /* Reverse the order of items for RTL */
 }
 
 .notification-avatar {
   background-color: transparent;
+  margin-left: 12px;
+  /* Change margin from right to left */
+  margin-right: 0;
+  /* Reset right margin */
 }
 
 .notification-details {
-  margin-left: 12px;
+  flex: 1;
+  text-align: right;
+  /* Align text to the right */
 }
 
 .notification-date {
@@ -262,6 +329,8 @@ export default {
 .notification-content {
   font-size: 14px;
   color: #333;
+  font-family: 'B Traffic', sans-serif;
+  /* Apply B Traffic font */
 }
 
 .dialog-card {
@@ -284,16 +353,19 @@ export default {
 }
 
 .v-theme--dark .notification-item.seen {
-  background-color: var(--notification-seen-bg, #000); /* Dark mode color */
+  background-color: var(--notification-seen-bg, #000);
+  /* Dark mode color */
 }
 
 .v-theme--dark .notification-item:not(.seen) {
-  background-color: var(--notification-hover-bg, #1a1a1a); /* Dark mode color */
+  background-color: var(--notification-hover-bg, #1a1a1a);
+  /* Dark mode color */
 }
 
 .v-theme--dark .notification-date,
 .v-theme--dark .notification-content {
-  color: #fff; /* White text for dark mode */
+  color: #fff;
+  /* White text for dark mode */
 }
 
 @keyframes spin {
