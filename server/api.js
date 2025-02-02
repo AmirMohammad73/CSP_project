@@ -809,12 +809,18 @@ const updateRoostaData = async (modifiedRecords) => {
 const authenticateUser = async (username, password) => {
   const client = await pool.connect();
   try {
+    // Start the transaction
+    await client.query('BEGIN');
+
     // Fetch user from the database
-    const userQuery = await client.query('SELECT * FROM users1 WHERE username = $1', [username]);
+    const userQuery = await client.query(
+      'SELECT * FROM users1 WHERE username = $1 AND is_blacklisted = false', // Check if user is not blacklisted
+      [username]
+    );
     const user = userQuery.rows[0];
-    
+
     if (!user) {
-      throw new Error('No user found!');
+      throw new Error('No user found or user is blacklisted!');
     }
 
     // Compare plain text password
@@ -822,12 +828,21 @@ const authenticateUser = async (username, password) => {
       throw new Error('Invalid username or password');
     }
 
+    // Update the last_login timestamp for the user
+    await client.query('UPDATE users1 SET last_login = NOW() WHERE username = $1', [username]);
+
+    // Commit the transaction
+    await client.query('COMMIT');
+
     return user;
+  } catch (error) {
+    // Rollback the transaction in case of any error
+    await client.query('ROLLBACK');
+    throw error; // Re-throw the error to handle it elsewhere
   } finally {
     client.release();
   }
 };
-
 const generateToken = (user) => {
   return jwt.sign(
     {

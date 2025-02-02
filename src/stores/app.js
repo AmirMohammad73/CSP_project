@@ -14,7 +14,7 @@ export const useAppStore = defineStore('app', {
 })
 export const useIPStore = defineStore('address', {
   state: () => ({
-    SERVER_HOST: '172.16.8.33'
+    SERVER_HOST: '192.168.47.1'
     //
   })
 })
@@ -28,7 +28,7 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login (username, password) {
       try {
-        const response = await fetch(`http://172.16.8.33:3001/api/login`, {
+        const response = await fetch(`http://192.168.47.1:3001/api/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })
@@ -60,7 +60,7 @@ export const useAuthStore = defineStore('auth', {
     },
     logout () {
       // Optionally, call the logout API to blacklist the token
-      fetch(`http://172.16.8.33:3001/api/logout`, {
+      fetch(`http://192.168.47.1:3001/api/logout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
