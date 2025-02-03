@@ -77,18 +77,18 @@ const getUsernameById = async (userId) => {
 const getNotifications = async (username, timestamp) => {
   const sql = `
     SELECT id, content, date, icon,
-       CASE WHEN date > $2::timestamp THEN 0 ELSE 1 END AS seen
+       CASE WHEN date > '${timestamp}'::timestamp THEN false ELSE true END AS seen
 FROM (
     SELECT id, content, date, icon
     FROM public.notification
-    WHERE ('broadcast' = ANY(targets) OR $1 = ANY(targets))
+    WHERE ('broadcast' = ANY(targets) OR '${username}' = ANY(targets))
     ORDER BY date DESC
     LIMIT 10
 ) subquery
 ORDER BY date DESC;
   `;
   console.log(sql);
-  return await query(sql, [username, timestamp]);
+  return await query(sql);
 };
 const getUpdateStatusData = async (role, permission) => {
   let whereClause = '';
@@ -808,12 +808,9 @@ const updateRoostaData = async (modifiedRecords) => {
 const authenticateUser = async (username, password) => {
   const client = await pool.connect();
   try {
-    // Start the transaction
     await client.query('BEGIN');
-
-    // Fetch user from the database
     const userQuery = await client.query(
-      'SELECT * FROM users1 WHERE username = $1 AND is_blacklisted = false', // Check if user is not blacklisted
+      'SELECT * FROM users1 WHERE username = $1 AND is_blacklisted = false',
       [username]
     );
     const user = userQuery.rows[0];
@@ -822,30 +819,26 @@ const authenticateUser = async (username, password) => {
       throw new Error('No user found or user is blacklisted!');
     }
 
-    // Compare plain text password
     if (password !== user.password_hash) {
       throw new Error('Invalid username or password');
     }
 
-    // Update the last_login timestamp for the user
     await client.query('UPDATE users1 SET last_login = NOW() WHERE username = $1', [username]);
-
-    // Commit the transaction
     await client.query('COMMIT');
+
+    // Convert the timestamp to Tehran time zone
+    const tehranTime = new Date(user.timestamp).toLocaleString('en-US', { timeZone: 'Asia/Tehran' });
+    user.timestamp = tehranTime;
 
     return user;
   } catch (error) {
-    // Rollback the transaction in case of any error
     await client.query('ROLLBACK');
-    throw error; // Re-throw the error to handle it elsewhere
+    throw error;
   } finally {
     client.release();
   }
 };
 const generateToken = (user) => {
-  // Convert the timestamp to a local date string without time zone info
-  const localTimestamp = new Date(user.timestamp).toLocaleString('en-US', { timeZone: 'UTC' });
-  
   return jwt.sign(
     {
       sub: user.user_id,
@@ -855,7 +848,7 @@ const generateToken = (user) => {
       timestamp: user.timestamp,
     },
     JWT_SECRET,
-    { expiresIn: '15m' }
+    { expiresIn: '30m' }
   );
 };
 const SetTimestamp = async (username) => {
@@ -870,7 +863,7 @@ const storeToken = async (token, userId) => {
   try {
     await client.query(
       'INSERT INTO tokens (token_id, user_id, expires_at) VALUES ($1, $2, $3)',
-      [token, userId, new Date(Date.now() + 15 * 60 * 1000)] // 15 minutes from now
+      [token, userId, new Date(Date.now() + 30 * 60 * 1000)] // 30 minutes from now
     );
   } finally {
     client.release();

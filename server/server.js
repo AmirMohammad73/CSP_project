@@ -247,8 +247,9 @@ app.get('/api/postalcode-request', authenticateToken, async (req, res) => {
 // Data endpoint
 app.get('/api/notifications', authenticateToken, async (req, res) => {
   try {
-    const user = req.user; // Assuming `req.user` contains { userId: 2, role: '4', permission: ['Hamdan'] }
+    const user = req.user;
     const username = await user.username; // Fetch username from users1 table
+	console.log(req.user);
     const timestamp = await user.timestamp;
     
     if (!username) {
@@ -256,9 +257,10 @@ app.get('/api/notifications', authenticateToken, async (req, res) => {
     }
     
     // Convert the timestamp to a PostgreSQL-compatible format
-    const pgTimestamp = new Date(timestamp).toISOString();
+    //const pgTimestamp = new Date(timestamp).toISOString();
     
-    const data = await getNotifications(username, pgTimestamp); // Pass the formatted timestamp
+    const data = await getNotifications(username, timestamp);
+	console.log("263:", data);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
@@ -326,7 +328,7 @@ app.post('/api/login', async (req, res) => {
     const token = generateToken(user);
     await storeToken(token, user.user_id);
 
-    res.json({ token, fullName: user.fullname }); // Include fullName in the response
+    res.json({ token, fullName: user.fullname });
   } catch (err) {
     console.error('Login error:', err);
     if (err.message === 'Invalid username or password') {

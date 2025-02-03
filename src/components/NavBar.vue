@@ -46,7 +46,7 @@
       </template>
       <v-list class="notification-menu" dir="rtl">
         <v-list-item v-for="(notification, index) in notifications" :key="index"
-          :class="['notification-item', { 'seen': notification.seen }]" @click="markAsSeen(index)">
+          :class="['notification-item', { 'seen': notification.seen }]">
           <v-list-item-content>
             <div class="notification-content-wrapper">
               <v-avatar size="40" class="notification-avatar">
@@ -125,13 +125,14 @@ export default {
   },
   computed: {
     unseenNotificationsCount() {
+      console.log(this.notifications);
       return this.notifications.filter((n) => !n.seen).length;
     },
   },
   methods: {
     async fetchNotifications() {
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/notifications', {
+        const response = await fetch('http://192.168.47.1:3001/api/notifications', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -150,7 +151,7 @@ export default {
           date: notification.date.slice(0, 10), // Map created_at to date
           content: notification.content, // Map text to content
           icon: notification.icon || 'mdi-bell', // Map emoji to icon, default to 'mdi-bell' if not provided
-          seen: false // Assuming all fetched notifications are initially unseen
+          seen: notification.seen // Assuming all fetched notifications are initially unseen
         }));
       } catch (error) {
         console.error('Error fetching notifications:', error);
@@ -178,7 +179,7 @@ export default {
       }
 
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/change-password', {
+        const response = await fetch('http://192.168.47.1:3001/api/change-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -219,12 +220,11 @@ export default {
       this.notifications[index].seen = true;
     },
     onBellIconClick() {
-      console.log('Bell icon clicked');
       this.onNotificationMenuOpen();
     },
     async onNotificationMenuOpen() {
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/update-timestamp', {
+        const response = await fetch('http://192.168.47.1:3001/api/update-timestamp', {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
