@@ -73,23 +73,37 @@ const getUsernameById = async (userId) => {
   return result.length > 0 ? result[0].username : null;
 };
 
+// Function to format timestamp
+const formatTimestamp = (timestamp) => {
+  const date = new Date(timestamp);
+  return date.toISOString().slice(0, 19).replace('T', ' ');
+};
+const getTimestampByUsername = async (username) => {
+  const sql = `SELECT timestamp FROM public.users1 WHERE username = $1;`;
+  const result = await query(sql, [username]);
+  return result.length > 0 ? result[0].timestamp : null;
+};
+
 // Function to fetch notifications dynamically
 const getNotifications = async (username, timestamp) => {
+  const userTimestamp = await getTimestampByUsername(username);
+  const formattedTimestamp = formatTimestamp(timestamp || userTimestamp);
   const sql = `
     SELECT id, content, date, icon,
-       CASE WHEN date > '${timestamp}'::timestamp THEN false ELSE true END AS seen
-FROM (
-    SELECT id, content, date, icon
-    FROM public.notification
-    WHERE ('broadcast' = ANY(targets) OR '${username}' = ANY(targets))
-    ORDER BY date DESC
-    LIMIT 10
-) subquery
-ORDER BY date DESC;
+       CASE WHEN date > $1::timestamp THEN false ELSE true END AS seen
+    FROM (
+        SELECT id, content, date, icon
+        FROM public.notification
+        WHERE ('broadcast' = ANY(targets) OR $2 = ANY(targets))
+        ORDER BY date DESC
+        LIMIT 10
+    ) subquery
+    ORDER BY date DESC;
   `;
-  console.log(sql);
-  return await query(sql);
+  return await query(sql, [userTimestamp, username]);
 };
+
+
 const getUpdateStatusData = async (role, permission) => {
   let whereClause = '';
   let location = 'ostantitle';
@@ -656,7 +670,7 @@ const getBSCTab5Data = async () => {
   return await query(sql);
 };
 const getInteroperability = async (eghdamat) => {
-  const sql = `SELECT kargrouh_barnameh1.year, kargrouh_barnameh1.amaliat, kargrouh_barnameh1.eghdamat, kargrouh_barnameh1.amalkard, kargrouh_barnameh1.tahaghog, kargrouh_barnameh1.vahede_sanjesh, kargrouh_barnameh1.motevali, kargrouh_barnameh1.dastgah, GREATEST((SELECT month_cal(12, kargrouh_barnameh1.id)) - kargrouh_barnameh1.amalkard, 0) AS dirkard, ((farvardin + ordibehesht + khordad + tir + mordad + shahrivar + mehr + aban + azar + dey + bahman + esfand) - GREATEST((SELECT month_cal(12, kargrouh_barnameh1.id)) - kargrouh_barnameh1.amalkard, 0) - kargrouh_barnameh1.amalkard) AS barnameh_diff FROM kargrouh_barnameh1 WHERE eghdamat LIKE '${eghdamat}' ORDER BY priority;`;
+  const sql = `SELECT kargrouh_barnameh1.year, kargrouh_barnameh1.amaliat, kargrouh_barnameh1.eghdamat, kargrouh_barnameh1.amalkard, kargrouh_barnameh1.tahaghog, kargrouh_barnameh1.vahede_sanjesh, kargrouh_barnameh1.motevali, kargrouh_barnameh1.dastgah, GREATEST((SELECT month_cal(13, kargrouh_barnameh1.id)) - kargrouh_barnameh1.amalkard, 0) AS dirkard, ((farvardin + ordibehesht + khordad + tir + mordad + shahrivar + mehr + aban + azar + dey + bahman + esfand) - GREATEST((SELECT month_cal(13, kargrouh_barnameh1.id)) - kargrouh_barnameh1.amalkard, 0) - kargrouh_barnameh1.amalkard) AS barnameh_diff FROM kargrouh_barnameh1 WHERE eghdamat LIKE '${eghdamat}' ORDER BY priority;`;
   return await query(sql);
 };
 const getPostalCodeRequest = async (role, permission) => {
@@ -672,14 +686,7 @@ const getPostalCodeRequest = async (role, permission) => {
 
   const sql = `WITH calculated_columns AS (
   SELECT
-    ostantitle,
-    under72,
-    over72,
-    monthbalance,
-    sixmonthbalance,
-    currentmontharch,
-    sixmontharch,
-    -- Calculate column_H
+    ostantitle, under72, over72, monthbalance, sixmonthbalance, currentmontharch, sixmontharch, -- Calculate column_H
     (over72 + under72 + monthbalance) AS column_H,
     -- Calculate new_column (I5)
     ((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS new_column,
@@ -706,21 +713,7 @@ const getPostalCodeRequest = async (role, permission) => {
 ),
 final_calculations AS (
   SELECT
-    ostantitle,
-    under72,
-    over72,
-    monthbalance,
-    sixmonthbalance,
-    currentmontharch,
-    sixmontharch,
-    column_H,
-    new_column,
-    f1,
-    f2,
-    f3,
-    f4,
-    f6,
-    -- Formula 5: =IF(M5>5%;-1;M5(-0/2)100)
+    ostantitle, under72, over72, monthbalance, sixmonthbalance, currentmontharch, sixmontharch, column_H, new_column, f1, f2, f3, f4, f6, -- Formula 5: =IF(M5>5%;-1;M5(-0/2)100)
     CASE
       WHEN f4 > 5 THEN -1 
       ELSE f4 * (-f4 / 2) * 100 
@@ -734,19 +727,7 @@ final_calculations AS (
     calculated_columns
 )
 SELECT
-  ostantitle,
-  under72,
-  over72,
-  monthbalance,
-  sixmonthbalance,
-  currentmontharch,
-  sixmontharch,
-  column_H,
-  ROUND(new_column, 2) AS new_column,
-  ROUND(f1, 2) AS f1,
-  ROUND(f2, 2) AS f2,
-  ROUND(f3, 2) AS f3,
-  ROUND(f4, 2) AS f4,
+  ostantitle, under72, over72, monthbalance, sixmonthbalance, currentmontharch, sixmontharch, column_H, ROUND(new_column, 2) AS new_column, ROUND(f1, 2) AS f1, ROUND(f2, 2) AS f2, ROUND(f3, 2) AS f3, ROUND(f4, 2) AS f4,
   ROUND(f5, 2) AS f5,
   ROUND(f6, 2) AS f6,
   ROUND(f7, 2) AS f7,
@@ -853,7 +834,6 @@ const generateToken = (user) => {
 };
 const SetTimestamp = async (username) => {
 	const sql = `UPDATE public.users1 SET timestamp = NOW() WHERE username = '${username}';`;
-	console.log(sql);
 	return await query(sql);
 }
 
@@ -862,7 +842,7 @@ const storeToken = async (token, userId) => {
   const client = await pool.connect();
   try {
     await client.query(
-      'INSERT INTO tokens (token_id, user_id, expires_at) VALUES ($1, $2, $3)',
+      `INSERT INTO tokens (token_id, user_id, expires_at) VALUES ($1, $2, $3)`,
       [token, userId, new Date(Date.now() + 30 * 60 * 1000)] // 30 minutes from now
     );
   } finally {
@@ -891,7 +871,7 @@ const authenticateToken = async (req, res, next) => {
 
     // Check if the token is blacklisted
     const blacklistedToken = await pool.query(
-      'SELECT * FROM tokens WHERE token_id = $1 AND is_blacklisted = TRUE',
+      `SELECT * FROM tokens WHERE token_id = $1 AND is_blacklisted = TRUE`,
       [token]
     );
 
@@ -908,7 +888,7 @@ const authenticateToken = async (req, res, next) => {
 const blacklistToken = async (token) => {
   const client = await pool.connect();
   try {
-    await client.query('UPDATE tokens SET is_blacklisted = TRUE WHERE token_id = $1', [token]);
+    await client.query(`UPDATE tokens SET is_blacklisted = TRUE WHERE token_id = $1`, [token]);
   } catch (err) {
     console.error('Error blacklisting token:', err);
     throw err;

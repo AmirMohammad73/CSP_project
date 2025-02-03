@@ -249,7 +249,6 @@ app.get('/api/notifications', authenticateToken, async (req, res) => {
   try {
     const user = req.user;
     const username = await user.username; // Fetch username from users1 table
-	console.log(req.user);
     const timestamp = await user.timestamp;
     
     if (!username) {
@@ -260,7 +259,6 @@ app.get('/api/notifications', authenticateToken, async (req, res) => {
     //const pgTimestamp = new Date(timestamp).toISOString();
     
     const data = await getNotifications(username, timestamp);
-	console.log("263:", data);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
@@ -278,7 +276,25 @@ app.get('/api/interoperability-task-force/dc', authenticateToken, async (req, re
 });
 app.get('/api/interoperability-task-force/dqi', authenticateToken, async (req, res) => {
   try {
-    const data = await getInteroperability('تکمیل داده ها');
+    const data = await getInteroperability('بهبود کیفیت داده ها');
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+app.get('/api/interoperability-task-force/dbd', authenticateToken, async (req, res) => {
+  try {
+    const data = await getInteroperability('توسعه پایگاه داده');
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+app.get('/api/interoperability-task-force/dapi', authenticateToken, async (req, res) => {
+  try {
+    const data = await getInteroperability('دریافت API از سایر دستگاهها');
     res.json(data);
   } catch (err) {
     console.error('API error:', err);

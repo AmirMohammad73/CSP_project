@@ -255,34 +255,76 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                 const years = [...new Set(filteredData.map(item => item.year))];
                 const amaliatCategories = [...new Set(filteredData.map(item => item.amaliat))];
 
-                series = years.flatMap(year => [
+                chartOptions.value.chart.type = "bar";
+                chartOptions.value.chart.stacked = true;
+
+                // Calculate percentages for each category
+                const calculatePercentages = (year, amaliat) => {
+                    const item = filteredData.find(d => d.year === year && d.amaliat === amaliat);
+                    if (!item) return { amalkard: 0, dirkard: 0, barnameh_diff: 0 };
+
+                    const total = Number(item.amalkard) + Number(item.dirkard) + Number(item.barnameh_diff);
+                    return {
+                        amalkard: total === 0 ? 0 : (Number(item.amalkard) / total) * 100,
+                        dirkard: total === 0 ? 0 : (Number(item.dirkard) / total) * 100,
+                        barnameh_diff: total === 0 ? 0 : (Number(item.barnameh_diff) / total) * 100
+                    };
+                };
+
+                series = years.map(year => [
                     {
                         name: `${year} - Amalkard`,
-                        data: amaliatCategories.map(amaliat => {
-                            const item = filteredData.find(d => d.year === year && d.amaliat === amaliat);
-                            return item ? Number(item.amalkard) : 0;
-                        }),
+                        data: amaliatCategories.map(amaliat => calculatePercentages(year, amaliat).amalkard),
                         stack: year,
+                        color: "#00E396", // Green
                     },
                     {
                         name: `${year} - Dirkard`,
-                        data: amaliatCategories.map(amaliat => {
-                            const item = filteredData.find(d => d.year === year && d.amaliat === amaliat);
-                            return item ? Number(item.dirkard) : 0;
-                        }),
+                        data: amaliatCategories.map(amaliat => calculatePercentages(year, amaliat).dirkard),
                         stack: year,
+                        color: "#FF4560", // Red
                     },
                     {
                         name: `${year} - Barnameh Diff`,
-                        data: amaliatCategories.map(amaliat => {
-                            const item = filteredData.find(d => d.year === year && d.amaliat === amaliat);
-                            return item ? Number(item.barnameh_diff) : 0;
-                        }),
+                        data: amaliatCategories.map(amaliat => calculatePercentages(year, amaliat).barnameh_diff),
                         stack: year,
-                    },
-                ]);
+                        color: "#4682B4", // Steel Blue
+                    }
+                ]).flat();
 
+                chartOptions.value.xaxis.categories = amaliatCategories;
+                chartOptions.value.plotOptions.bar.columnWidth = "80%";
 
+                // Remove data labels
+                chartOptions.value.dataLabels = {
+                    enabled: false
+                };
+
+                // Update y-axis to show percentages
+                chartOptions.value.yaxis = {
+                    max: 100,
+                    labels: {
+                        formatter: function (val) {
+                            return val.toFixed(0) + '%';
+                        }
+                    }
+                };
+
+                // Update tooltip to show original values
+                chartOptions.value.tooltip = {
+                    y: {
+                        formatter: function (val, { seriesIndex, dataPointIndex, w }) {
+                            const year = w.globals.seriesNames[seriesIndex].split(' - ')[0];
+                            const amaliat = w.globals.categoryLabels[dataPointIndex];
+                            const item = filteredData.find(d => d.year === year && d.amaliat === amaliat);
+                            if (item) {
+                                const type = w.globals.seriesNames[seriesIndex].split(' - ')[1].toLowerCase();
+                                return `${item[type]} (${val.toFixed(2)}%)`;
+                            }
+                            return val.toFixed(2) + '%';
+                        }
+                    }
+                };
             }
             // Update the chart's options
             chartOptions.value.xaxis.categories = categories;
