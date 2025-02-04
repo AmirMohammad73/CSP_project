@@ -49,9 +49,11 @@
           :class="['notification-item', { 'seen': notification.seen }]">
           <v-list-item-content>
             <div class="notification-content-wrapper">
+              <!-- Move the avatar (icon) to the far left -->
               <v-avatar size="40" class="notification-avatar">
                 <v-icon :icon="notification.icon" size="24"></v-icon>
               </v-avatar>
+              <!-- Move the details to the right of the icon -->
               <div class="notification-details">
                 <div class="notification-date">{{ notification.date }}</div>
                 <div class="notification-content">{{ notification.content }}</div>
@@ -131,7 +133,7 @@ export default {
   methods: {
     async fetchNotifications() {
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/notifications', {
+        const response = await fetch('http://192.168.47.1:3001/api/notifications', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -178,7 +180,7 @@ export default {
       }
 
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/change-password', {
+        const response = await fetch('http://192.168.47.1:3001/api/change-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -223,7 +225,7 @@ export default {
     },
     async onNotificationMenuOpen() {
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/update-timestamp', {
+        const response = await fetch('http://192.168.47.1:3001/api/update-timestamp', {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -302,24 +304,21 @@ export default {
 .notification-content-wrapper {
   display: flex;
   align-items: center;
-  flex-direction: row-reverse;
-  /* Reverse the order of items for RTL */
+  flex-direction: row; /* Ensure horizontal layout */
+  justify-content: flex-start; /* Align items to the start (left) */
 }
 
 .notification-avatar {
   background-color: transparent;
-  margin-left: 12px;
-  /* Change margin from right to left */
-  margin-right: 0;
-  /* Reset right margin */
+  margin-right: 12px; /* Add some spacing between the icon and the details */
+  order: 0; /* Ensure the icon is first in the flex order */
 }
 
 .notification-details {
-  flex: 1;
-  text-align: right;
-  /* Align text to the right */
+  flex: 1; /* Allow the details to take up the remaining space */
+  text-align: right; /* Align the text to the right */
+  order: 1; /* Ensure the details are after the icon */
 }
-
 .notification-date {
   font-size: 12px;
   color: #666;
@@ -375,5 +374,8 @@ export default {
   to {
     transform: rotate(360deg);
   }
+}
+.v-list-item--density-default:not(.v-list-item--nav).v-list-item--one-line{
+  padding-inline: 0px !important;
 }
 </style>
