@@ -259,6 +259,7 @@ app.get('/api/notifications', authenticateToken, async (req, res) => {
     //const pgTimestamp = new Date(timestamp).toISOString();
     
     const data = await getNotifications(username, timestamp);
+	console.log(data);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);

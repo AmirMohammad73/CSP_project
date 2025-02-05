@@ -48,6 +48,8 @@ export default {
   overflow-y: auto; /* Enables scrolling if content exceeds the viewport height */
   background-color: #212631;
 }
-
+.v-list-item {
+  direction: rtl;
+}
 /* Add any custom styles here */
 </style>

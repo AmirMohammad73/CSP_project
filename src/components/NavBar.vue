@@ -133,7 +133,7 @@ export default {
   methods: {
     async fetchNotifications() {
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/notifications', {
+        const response = await fetch('http://192.168.47.1:3001/api/notifications', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -180,7 +180,7 @@ export default {
       }
 
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/change-password', {
+        const response = await fetch('http://192.168.47.1:3001/api/change-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -225,7 +225,7 @@ export default {
     },
     async onNotificationMenuOpen() {
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/update-timestamp', {
+        const response = await fetch('http://192.168.47.1:3001/api/update-timestamp', {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -377,5 +377,8 @@ export default {
 }
 .v-list-item--density-default:not(.v-list-item--nav).v-list-item--one-line{
   padding-inline: 0px !important;
+}
+.title {
+  margin-right: 1%;
 }
 </style>

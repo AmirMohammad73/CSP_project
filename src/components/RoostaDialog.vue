@@ -127,7 +127,14 @@ export default {
         isEditableCheckbox(key, item) {
             console.log(this.dataFirstItem);
             var editableColumns = [];
-            if (this.dataFirstItem != 'setad' && this.dataFirstItem != 'manager') {
+            if (this.dataFirstItem == 'setad') {
+                editableColumns = [
+                    'bonyad_maskan',
+                    'sayer_manabe',
+                    'tarsim',
+                ]
+            }
+            else if (this.dataFirstItem != 'manager') {
                 editableColumns = [
                     'amaliate_meydani',
                     'dadeh_amaei',
