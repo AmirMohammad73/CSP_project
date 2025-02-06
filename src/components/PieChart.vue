@@ -15,6 +15,7 @@ import ApexCharts from 'vue3-apexcharts';
 import { useAppStore } from '../stores/app';
 import { useIPStore } from '../stores/app';
 import { useAuthStore } from '../stores/app';
+import { useRouter } from 'vue-router';
 export default defineComponent({
   components: {
     apexchart: ApexCharts,
@@ -25,6 +26,7 @@ export default defineComponent({
     const authStore = useAuthStore();
     const SERVER_HOST = IPStore.SERVER_HOST;
     const series = ref([]);
+    const router = useRouter();
     const chartOptions = ref({
       chart: {
         type: 'donut', // Changed chart type to donut
@@ -89,8 +91,8 @@ export default defineComponent({
           },
         });
         if (!response.ok) {
-          this.authStore.logout();
-          this.router.push('/');
+          authStore.logout();
+          router.push('/');
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();

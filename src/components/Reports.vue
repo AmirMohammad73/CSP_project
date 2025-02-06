@@ -41,6 +41,7 @@ import { ref, onMounted } from 'vue'
 import * as XLSX from 'xlsx'
 import { useIPStore } from '../stores/app';
 import {useAuthStore} from '../stores/app';
+import { useRouter } from 'vue-router';
 const items = ref([])
 const selectedItems = ref([])
 const loading = ref(false)
@@ -51,6 +52,7 @@ const fetchItems = async () => {
     const ipStore = useIPStore();
     const SERVER_HOST = ipStore.SERVER_HOST;
     const authStore = useAuthStore();
+    const router = useRouter();
     loading.value = true
     error.value = ''
     try {
@@ -60,6 +62,10 @@ const fetchItems = async () => {
                 Authorization: `Bearer ${authStore.token}`,
             },
         });
+        if(!response.ok){
+            authStore.logout();
+            router.push('/');
+        }
         const data = await response.json()
         items.value = data.map((location, index) => ({
             id: index + 1,

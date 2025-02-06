@@ -829,7 +829,7 @@ const generateToken = (user) => {
       timestamp: user.timestamp,
     },
     JWT_SECRET,
-    { expiresIn: '30m' }
+    { expiresIn: '1m' }
   );
 };
 const SetTimestamp = async (username) => {
@@ -843,7 +843,7 @@ const storeToken = async (token, userId) => {
   try {
     await client.query(
       `INSERT INTO tokens (token_id, user_id, expires_at) VALUES ($1, $2, $3)`,
-      [token, userId, new Date(Date.now() + 30 * 60 * 1000)] // 30 minutes from now
+      [token, userId, new Date(Date.now() + 1 * 60 * 1000)] // 30 minutes from now
     );
   } finally {
     client.release();

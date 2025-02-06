@@ -66,6 +66,7 @@ import { useIPStore } from '../stores/app';
 import LocationsTable from './LocationsTable.vue';
 import RoostaDialog from './RoostaDialog.vue';
 import { useAuthStore } from '../stores/app';
+import { useRouter } from 'vue-router';
 export default {
   components: {
     LocationsTable,
@@ -313,12 +314,12 @@ export default {
     async fetchLocations() {
       const ipStore = useIPStore();
       const authStore = useAuthStore();
+      const router = useRouter();
       const SERVER_HOST = ipStore.SERVER_HOST;
       this.loading = true;
       this.error = false;
 
       try {
-        console.log("AAA");
         const response = await fetch(`http://${SERVER_HOST}:3001/api/locations`, {
           method: 'GET',
           headers: {
@@ -326,10 +327,11 @@ export default {
           },
         });
         if (!response.ok) {
+          authStore.logout();
+          
           throw new Error('Failed to fetch locations data');
         }
         const data = await response.json();
-        console.log(data[0]);
         this.dataFirstItem = data[0];
         if (data[0] === 'ostan' || data[0] === 'setad') {
           this.isRole4 = true;
@@ -346,32 +348,8 @@ export default {
       } catch (error) {
         console.error('Error fetching locations data:', error);
         this.error = true;
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async fetchDetailedLocations() {
-      this.loading = true;
-      this.error = false;
-      const ipStore = useIPStore();
-      const authStore = useAuthStore();
-      const SERVER_HOST = ipStore.SERVER_HOST;
-      try {
-        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/detailed`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${authStore.token}`,
-          },
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch detailed locations data');
-        }
-        const data = await response.json();
-        this.locations = data;
-      } catch (error) {
-        console.error('Error fetching detailed locations data:', error);
-        this.error = true;
+        authStore.logout();
+        router.push('/');
       } finally {
         this.loading = false;
       }

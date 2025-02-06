@@ -5,7 +5,8 @@
       <!-- Dropdown -->
       <v-row>
         <v-col cols="12" sm="6" md="4" lg="3">
-          <v-select v-model="selectedOption" :items="options" label="Select an option" outlined dense></v-select>
+          <v-select v-model="selectedOption" :items="options" label="Select an option" outlined dense
+            class="custom-select"></v-select>
         </v-col>
       </v-row>
 
@@ -26,7 +27,7 @@
                     <div class="chart-container"
                       :class="{ 'hide-chart': selectedOption === 'گزارش درخواستهای کد پستی' }">
                       <h4 class="text-h6 text-right mb-2">
-                        {{ tabs[activeTab] }} Chart
+                        نمودار {{ tabs[activeTab] }}
                       </h4>
                       <v-row>
                         <v-col cols="12">
@@ -40,7 +41,7 @@
                   <!-- Table -->
                   <div class="table-container mt-8">
                     <h4 class="text-h6 text-right mb-2">
-                      {{ tabs[activeTab] }} Table
+                      جدول {{ tabs[activeTab] }}
                     </h4>
                     <v-data-table :items="tableData[activeTab]" class="elevation-1"></v-data-table>
                   </div>
@@ -76,7 +77,7 @@ import { useRuralOperationsMonitoring } from "./ruralOperationsMonitoring";
 import { useBSCIndices } from "./BSCIndices";
 import { usePostalCodeRequest } from "./postalCodeRequest";
 import { useGNAFCustomIndex } from "./gnafCustomIndex";
-import { useInteroperabilityTaskForce} from './interoperabilityTaskForce';
+import { useInteroperabilityTaskForce } from './interoperabilityTaskForce';
 export default {
   components: {
     apexchart: VueApexCharts,
@@ -90,8 +91,8 @@ export default {
       "پایش عملیات روستایی",
       "BSC",
       "گزارش درخواستهای کد پستی",
-      "شاخص سفارشی GNAF",
-      "Interoperability Task Force Program"
+      "شاخص اختصاصی GNAF",
+      "برنامه کارگروه تعامل پذیری"
     ]);
     const activeTab = ref(0);
     const tableData = ref([]);
@@ -113,9 +114,9 @@ export default {
           return useBSCIndices();
         case "گزارش درخواستهای کد پستی":
           return usePostalCodeRequest();
-        case "شاخص سفارشی GNAF":
+        case "شاخص اختصاصی GNAF":
           return useGNAFCustomIndex();
-        case "Interoperability Task Force Program":
+        case "برنامه کارگروه تعامل پذیری":
           return useInteroperabilityTaskForce();
         default:
           return null;
@@ -264,5 +265,8 @@ export default {
 
 .hide-chart {
   display: none;
+}
+.v-list-item-title, .text-h6 {
+  font-family: 'B Traffic', sans-serif !important;
 }
 </style>

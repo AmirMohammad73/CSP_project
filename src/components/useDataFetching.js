@@ -1,6 +1,6 @@
 import { ref, watch } from "vue";
 import { useAuthStore } from '../stores/app';
-
+import { useRouter } from "vue-router";
 export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selectedOption) {
     const tableData = ref([]); // Initialize as an empty array
 
@@ -50,14 +50,19 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
     // Fetch data from the server based on the active tab
     const fetchData = async () => {
         try {
-            const endpoint = tabEndpoints[activeTab.value];
             const authStore = useAuthStore();
+            const router = useRouter();
+            const endpoint = tabEndpoints[activeTab.value];
             const response = await fetch(endpoint, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${authStore.token}`,
                 },
             });
+            if (!response.ok) {
+                authStore.logout();
+                router.push('/');
+            }
             const data = await response.json();
 
             // Update tableData for the current tab
@@ -66,6 +71,7 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
             updateChart();
         } catch (error) {
             console.error("Error fetching data:", error);
+
         }
     };
 
@@ -91,17 +97,17 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                     // Map Status tab
                     series = [
                         {
-                            name: "Bonyad Maskan",
+                            name: "بنیاد مسکن",
                             data: filteredData.map((row) => Number(row["bonyad_maskan"])),
                             color: "#FF4560", // Red
                         },
                         {
-                            name: "Sayer Manabe",
+                            name: "سایر منابع",
                             data: filteredData.map((row) => Number(row["sayer_manabe"])),
                             color: "#FEB019", // Yellow
                         },
                         {
-                            name: "Tarsim",
+                            name: "ترسیم",
                             data: filteredData.map((row) => Number(row["tarsim"])),
                             color: "#FF6699", // Pink
                         },
@@ -110,26 +116,26 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                     // Update Status tab
                     series = [
                         {
-                            name: "Total",
+                            name: "مجموع",
                             data: filteredData.map((row) => Number(row["total"])),
                             color: "#D3D3D3", // Light gray for background
                             columnWidth: "90%", // Make the "Total" column thicker
                             zIndex: -1, // Ensure it's behind the other columns
                         },
                         {
-                            name: "Amaliate Meydani",
+                            name: "عملیات میدانی",
                             data: filteredData.map((row) => Number(row["amaliate_meydani"])),
                             color: "#00E396", // Green
                             columnWidth: "30%", // Make the grouped columns thinner
                         },
                         {
-                            name: "Dadeh Amaei",
+                            name: "داده آمائی",
                             data: filteredData.map((row) => Number(row["dadeh_amaei"])),
                             color: "#008FFB", // Blue
                             columnWidth: "30%", // Make the grouped columns thinner
                         },
                         {
-                            name: "Eslah Naghsheh",
+                            name: "اصلاح و ارسال",
                             data: filteredData.map((row) => Number(row["eslah_naghsheh"])),
                             color: "#775DD0", // Purple
                             columnWidth: "30%", // Make the grouped columns thinner
@@ -139,17 +145,17 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                     // Geocode Status tab
                     series = [
                         {
-                            name: "Eslah Naghsheh",
+                            name: "اصلاح و ارسال",
                             data: filteredData.map((row) => Number(row["eslah_naghsheh"])),
                             color: "#FF4560", // Red
                         },
                         {
-                            name: "Tayid va Bargozari",
+                            name: "تایید و بارگذاری",
                             data: filteredData.map((row) => Number(row["tayid_va_bargozari"])),
                             color: "#FEB019", // Yellow
                         },
                         {
-                            name: "Daryafte Naghsheh",
+                            name: "ژئوکد",
                             data: filteredData.map((row) => Number(row["daryafte_naghsheh"])),
                             color: "#FF6699", // Pink
                         },
@@ -158,12 +164,12 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                     // License Plate Status tab
                     series = [
                         {
-                            name: "Tolid QR",
+                            name: "QR تولید",
                             data: filteredData.map((row) => Number(row["tolid_qr"])),
                             color: "#FF4560", // Red
                         },
                         {
-                            name: "Pelak Talfighi",
+                            name: "نصب پلاک",
                             data: filteredData.map((row) => Number(row["pelak_talfighi"])),
                             color: "#FEB019", // Yellow
                         },
@@ -172,7 +178,7 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                     // National ID tab
                     series = [
                         {
-                            name: "Shenaseh Melli",
+                            name: "شناسه ملی",
                             data: filteredData.map((row) => Number(row["shenaseh_melli"])),
                             color: "#00E396", // Green
                         },
@@ -184,48 +190,48 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
             else if (selectedOption.value === "BSC") {
                 series = [
                     {
-                        name: "Amalkard",
+                        name: "عملکرد",
                         data: filteredData.map((row) => Number(row["amalkard"])),
                         color: "#00E396", // Green
                     },
                     {
-                        name: "Dirkard",
+                        name: "دیرکرد",
                         data: filteredData.map((row) => Number(row["dirkard"])),
                         color: "#FF4560", // Red
                     },
                     {
-                        name: "Barnameh Diff",
+                        name: "برنامه",
                         data: filteredData.map((row) => Number(row["barnameh_diff"])),
                         color: "#FEB019", // Yellow
                     },
                 ];
             }
-            // Handle data for شاخص سفارشی GNAF
-            else if (selectedOption.value === "شاخص سفارشی GNAF") {
+            // Handle data for شاخص اختصاصی GNAF
+            else if (selectedOption.value === "شاخص اختصاصی GNAF") {
                 chartOptions.value.chart.type = "bar";
                 chartOptions.value.chart.stacked = true; // Ensure stacking is enabled
 
                 series = [
                     {
-                        name: "T Roosta",
+                        name: "تحقق روستا",
                         group: 'roosta', // Group for Roosta
                         data: filteredData.map((row) => Number(row["t_roosta"])),
                         color: "#FF4560", // Red
                     },
                     {
-                        name: "P Roosta Diff",
+                        name: "پیشبینی روستایی",
                         group: 'roosta', // Group for Roosta
                         data: filteredData.map((row) => Number(row["p_roosta_diff"])),
                         color: "#00E396", // Green
                     },
                     {
-                        name: "T Shahr",
+                        name: "تحقق شهر",
                         group: 'shahr', // Group for Shahr
                         data: filteredData.map((row) => Number(row["t_shahr"])),
                         color: "#008FFB", // Blue
                     },
                     {
-                        name: "P Shahr Diff",
+                        name: "پیشبینی شهری",
                         group: 'shahr', // Group for Shahr
                         data: filteredData.map((row) => Number(row["p_shahr_diff"])),
                         color: "#80c7fd", // Light Blue
@@ -250,7 +256,7 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                     }
                 };
             }
-            else if (selectedOption.value === "Interoperability Task Force Program") {
+            else if (selectedOption.value === "برنامه کارگروه تعامل پذیری") {
                 console.log(filteredData);
                 const years = [...new Set(filteredData.map(item => item.year))];
                 const amaliatCategories = [...new Set(filteredData.map(item => item.amaliat))];
@@ -273,19 +279,19 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
 
                 series = years.map(year => [
                     {
-                        name: `${year} - Amalkard`,
+                        name: `${year} - عملکرد`,
                         data: amaliatCategories.map(amaliat => calculatePercentages(year, amaliat).amalkard),
                         stack: year,
                         color: "#00E396", // Green
                     },
                     {
-                        name: `${year} - Dirkard`,
+                        name: `${year} - دیرکرد`,
                         data: amaliatCategories.map(amaliat => calculatePercentages(year, amaliat).dirkard),
                         stack: year,
                         color: "#FF4560", // Red
                     },
                     {
-                        name: `${year} - Barnameh Diff`,
+                        name: `${year} - برنامه`,
                         data: amaliatCategories.map(amaliat => calculatePercentages(year, amaliat).barnameh_diff),
                         stack: year,
                         color: "#4682B4", // Steel Blue

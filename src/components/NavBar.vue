@@ -133,7 +133,7 @@ export default {
   methods: {
     async fetchNotifications() {
       try {
-        const response = await fetch('http://192.168.47.1:3001/api/notifications', {
+        const response = await fetch('http://172.16.8.33:3001/api/notifications', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -156,7 +156,7 @@ export default {
         }));
       } catch (error) {
         console.error('Error fetching notifications:', error);
-        alert('An error occurred while fetching notifications');
+        // alert('An error occurred while fetching notifications');
       }
     },
     toggleTheme() {
@@ -180,7 +180,7 @@ export default {
       }
 
       try {
-        const response = await fetch('http://192.168.47.1:3001/api/change-password', {
+        const response = await fetch('http://172.16.8.33:3001/api/change-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -225,7 +225,7 @@ export default {
     },
     async onNotificationMenuOpen() {
       try {
-        const response = await fetch('http://192.168.47.1:3001/api/update-timestamp', {
+        const response = await fetch('http://172.16.8.33:3001/api/update-timestamp', {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -267,6 +267,8 @@ export default {
 }
 
 .menu-item {
+  direction: rtl;
+  font-family: 'B Traffic';
   display: flex;
   align-items: center;
   padding: 8px 16px;
