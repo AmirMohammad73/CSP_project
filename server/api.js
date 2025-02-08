@@ -17,11 +17,11 @@ const getMapStatusData = async (role, permission) => {
 
   const sql = `
     SELECT 
-      ${location} AS place,
-      COUNT(CASE WHEN adam_paziresh THEN 1 END) AS bonyad_maskan,
-      COUNT(CASE WHEN niazmande_eslah THEN 1 END) AS sayer_manabe,
-      COUNT(CASE WHEN arseh_ayan THEN 1 END) AS tarsim,
-      COUNT(*) AS total
+      ${location} AS "استان",
+      COUNT(CASE WHEN adam_paziresh THEN 1 END) AS "بنیاد مسکن",
+      COUNT(CASE WHEN niazmande_eslah THEN 1 END) AS "سایر منابع",
+      COUNT(CASE WHEN arseh_ayan THEN 1 END) AS "ترسیم",
+      COUNT(*) AS "مجموع روستاها"
     FROM 
       public.locations1
 	${whereClause}
@@ -115,11 +115,11 @@ const getUpdateStatusData = async (role, permission) => {
   }
 
   const sql = `SELECT 
-      ${location} AS place,
-      COUNT(CASE WHEN amaliate_meydani THEN 1 END) AS amaliate_meydani,
-      COUNT(CASE WHEN dadeh_amaei THEN 1 END) AS dadeh_amaei,
-      COUNT(CASE WHEN eslah_naghsheh THEN 1 END) AS eslah_naghsheh,
-      COUNT(*) AS total
+      ${location} AS "استان",
+      COUNT(CASE WHEN amaliate_meydani THEN 1 END) AS "عملیات میدانی",
+      COUNT(CASE WHEN dadeh_amaei THEN 1 END) AS "داده آمائی",
+      COUNT(CASE WHEN eslah_naghsheh THEN 1 END) AS "اصلاح و ارسال",
+      COUNT(*) AS "مجموع روستاها"
     FROM 
       public.locations1
 	${whereClause}
@@ -140,11 +140,11 @@ const getGeocodeStatusData = async (role, permission) => {
 	location = role === '4' ? 'shahrestantitle' : (role === '1' ? 'ostantitle' : undefined);
   }
   const sql = `SELECT 
-      ${location} AS place,
-      COUNT(CASE WHEN eslah_naghsheh THEN 1 END) AS eslah_naghsheh,
-      COUNT(CASE WHEN tayid_va_bargozari THEN 1 END) AS tayid_va_bargozari,
-      COUNT(CASE WHEN daryafte_naghsheh THEN 1 END) AS daryafte_naghsheh,
-      COUNT(*) AS total
+      ${location} AS "استان",
+      COUNT(CASE WHEN eslah_naghsheh THEN 1 END) AS "اصلاح و ارسال",
+      COUNT(CASE WHEN tayid_va_bargozari THEN 1 END) AS "تایید و بارگذاری",
+      COUNT(CASE WHEN daryafte_naghsheh THEN 1 END) AS "ژئوکد",
+      COUNT(*) AS "مجموع روستاها"
     FROM 
       public.locations1
 	${whereClause}
@@ -165,10 +165,10 @@ const getPlateStatusData = async (role, permission) => {
 	location = role === '4' ? 'shahrestantitle' : (role === '1' ? 'ostantitle' : undefined);
   }
   const sql = `SELECT 
-      ${location} AS place,
-      COUNT(CASE WHEN tolid_qr THEN 1 END) AS tolid_qr,
-      COUNT(CASE WHEN pelak_talfighi THEN 1 END) AS pelak_talfighi,
-      COUNT(*) AS total
+      ${location} AS "استان",
+      COUNT(CASE WHEN tolid_qr THEN 1 END) AS "تولید QR",
+      COUNT(CASE WHEN pelak_talfighi THEN 1 END) AS "نصب پلاک",
+      COUNT(*) AS "مجموع روستاها"
     FROM 
       public.locations1
 	${whereClause}
@@ -268,9 +268,9 @@ const getNationalIDStatusData = async (role, permission) => {
 	location = role === '4' ? 'shahrestantitle' : (role === '1' ? 'ostantitle' : undefined);
   }
   const sql = `SELECT 
-      ${location} AS place,
-      COUNT(shenaseh_melli) AS shenaseh_melli,
-      COUNT(*) AS total
+      ${location} AS "استان",
+      COUNT(shenaseh_melli) AS "شناسه ملی",
+      COUNT(*) AS "مجموع روستاها"
     FROM 
       public.locations1
 	  ${whereClause}

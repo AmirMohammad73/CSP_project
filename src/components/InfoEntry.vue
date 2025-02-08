@@ -2,7 +2,7 @@
   <v-card flat elevation="2" dir="rtl" class="pa-6 rounded">
     <!-- Card Title -->
     <v-card-title class="text-h5 font-weight-bold mb-4 primary--text">
-      📍 Locations Management
+      📍 
     </v-card-title>
 
     <!-- Breadcrumb -->
