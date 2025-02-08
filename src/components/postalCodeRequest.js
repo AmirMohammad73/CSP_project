@@ -11,7 +11,7 @@ export function usePostalCodeRequest () {
 
   // Define the tabs (if needed)
   const tabs = ref([
-    'Postal Code Request Data' // Only one tab since we have a single table
+    'درخواستهای کدپستی' // Only one tab since we have a single table
   ])
 
   // Define the headers for the table based on the query

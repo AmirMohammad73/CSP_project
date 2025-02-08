@@ -43,7 +43,9 @@
                     <h4 class="text-h6 text-right mb-2">
                       جدول {{ tabs[activeTab] }}
                     </h4>
-                    <v-data-table :items="tableData[activeTab]" class="elevation-1"></v-data-table>
+                    <v-data-table :items="tableData[activeTab]" :headers="headers.values[0]" class="elevation-1"
+                      :class-name="getColumnClass"></v-data-table>
+
                   </div>
                 </v-card-text>
               </v-card>
@@ -78,11 +80,13 @@ import { useBSCIndices } from "./BSCIndices";
 import { usePostalCodeRequest } from "./postalCodeRequest";
 import { useGNAFCustomIndex } from "./gnafCustomIndex";
 import { useInteroperabilityTaskForce } from './interoperabilityTaskForce';
+import { computed } from 'vue';
 export default {
   components: {
     apexchart: VueApexCharts,
   },
   setup() {
+
     const AppStore = useAppStore();
 
     // Reactive references
@@ -103,9 +107,6 @@ export default {
       colors: AppStore.isDarkTheme ? ["#00E396"] : ["#008FFB"], // Set initial colors
     });
     const chartKey = ref(0);
-
-    // Load the appropriate module based on dropdown selection
-    // Load the appropriate module based on dropdown selection
     const loadModule = () => {
       switch (selectedOption.value) {
         case "پایش عملیات روستایی":
@@ -122,7 +123,6 @@ export default {
           return null;
       }
     };
-
     // Watch for theme changes
     watch(
       () => AppStore.isDarkTheme,
@@ -255,7 +255,8 @@ export default {
       chartKey,
       exportToExcel,
     };
-  },
+
+  }
 };
 </script>
 <style scoped>
@@ -266,7 +267,9 @@ export default {
 .hide-chart {
   display: none;
 }
-.v-list-item-title, .text-h6 {
+
+.v-list-item-title,
+.text-h6 {
   font-family: 'B Traffic', sans-serif !important;
 }
 </style>

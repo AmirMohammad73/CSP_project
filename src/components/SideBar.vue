@@ -1,7 +1,7 @@
 <template v-slot:prepend>
   <v-navigation-drawer app location="right" permanent @update:expanded="false">
     <!-- User Info -->
-    <v-list-item lines="two" prepend-avatar="https://randomuser.me/api/portraits/women/81.jpg" subtitle="Logged in"
+    <v-list-item lines="two" prepend-icon="mdi-account-circle" subtitle="Logged in"
       :title="fullName"></v-list-item>
     <v-divider></v-divider>
 

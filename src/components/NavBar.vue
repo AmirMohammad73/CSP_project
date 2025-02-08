@@ -4,7 +4,7 @@
     <v-menu location="bottom left" offset-y transition="slide-y-transition">
       <template v-slot:activator="{ props }">
         <v-btn icon v-bind="props" class="account-btn">
-          <v-icon icon="mdi-account-circle" size="28"></v-icon>
+          <v-icon icon="mdi-menu" size="28"></v-icon>
         </v-btn>
       </template>
       <v-list class="menu-list">
@@ -71,16 +71,16 @@
     <!-- Change Password Dialog -->
     <v-dialog v-model="changePasswordDialog" max-width="500px" transition="dialog-bottom-transition">
       <v-card class="dialog-card">
-        <v-card-title class="dialog-title">Change Password</v-card-title>
+        <v-card-title class="dialog-title">تغییر پسورد</v-card-title>
         <v-card-text>
-          <v-text-field v-model="currentPassword" label="Current Password" type="password" outlined></v-text-field>
-          <v-text-field v-model="newPassword" label="New Password" type="password" outlined></v-text-field>
-          <v-text-field v-model="repeatNewPassword" label="Repeat New Password" type="password" outlined></v-text-field>
+          <v-text-field v-model="currentPassword" label="پسورد فعلی" type="password" outlined class="password-field"></v-text-field>
+          <v-text-field v-model="newPassword" label="پسورد جدید" type="password" outlined class="password-field"></v-text-field>
+          <v-text-field v-model="repeatNewPassword" label="تکرار پسورد جدید" type="password" outlined class="password-field"></v-text-field>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" @click="confirmChangePassword">Confirm</v-btn>
-          <v-btn color="error" @click="closeChangePasswordDialog">Cancel</v-btn>
+          <v-btn color="primary" @click="confirmChangePassword">تایید</v-btn>
+          <v-btn color="error" @click="closeChangePasswordDialog">لغو</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -133,7 +133,7 @@ export default {
   methods: {
     async fetchNotifications() {
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/notifications', {
+        const response = await fetch('http://192.168.47.1:3001/api/notifications', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -180,7 +180,7 @@ export default {
       }
 
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/change-password', {
+        const response = await fetch('http://192.168.47.1:3001/api/change-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -225,7 +225,7 @@ export default {
     },
     async onNotificationMenuOpen() {
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/update-timestamp', {
+        const response = await fetch('http://192.168.47.1:3001/api/update-timestamp', {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -337,7 +337,9 @@ export default {
   border-radius: 12px;
 }
 
-.dialog-title {
+.dialog-title, .v-card-title, .v-card-text, .v-btn {
+  direction: rtl;
+  font-family: 'B Traffic', sans-serif;
   font-size: 18px;
   font-weight: bold;
 }
@@ -382,5 +384,8 @@ export default {
 }
 .title {
   margin-right: 1%;
+}
+.password-field {
+  font-family: 'B Traffic', sans-serif !important;
 }
 </style>
