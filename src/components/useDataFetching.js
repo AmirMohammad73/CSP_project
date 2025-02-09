@@ -215,25 +215,25 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                     {
                         name: "تحقق روستا",
                         group: 'roosta', // Group for Roosta
-                        data: filteredData.map((row) => Number(row["t_roosta"])),
+                        data: filteredData.map((row) => Number(row["تحقق روستایی"])),
                         color: "#FF4560", // Red
                     },
                     {
                         name: "پیشبینی روستایی",
                         group: 'roosta', // Group for Roosta
-                        data: filteredData.map((row) => Number(row["p_roosta_diff"])),
+                        data: filteredData.map((row) => Number(row["درصد پیشبینی روستایی"])),
                         color: "#00E396", // Green
                     },
                     {
                         name: "تحقق شهر",
                         group: 'shahr', // Group for Shahr
-                        data: filteredData.map((row) => Number(row["t_shahr"])),
+                        data: filteredData.map((row) => Number(row["تحقق شهری"])),
                         color: "#008FFB", // Blue
                     },
                     {
                         name: "پیشبینی شهری",
                         group: 'shahr', // Group for Shahr
-                        data: filteredData.map((row) => Number(row["p_shahr_diff"])),
+                        data: filteredData.map((row) => Number(row["درصد تحقق شهری"])),
                         color: "#80c7fd", // Light Blue
                     },
                 ];
@@ -257,7 +257,6 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                 };
             }
             else if (selectedOption.value === "برنامه کارگروه تعامل پذیری") {
-                console.log(filteredData);
                 const years = [...new Set(filteredData.map(item => item.year))];
                 const amaliatCategories = [...new Set(filteredData.map(item => item.amaliat))];
 

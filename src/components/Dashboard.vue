@@ -2,18 +2,21 @@
   <v-container>
     <v-row>
       <v-col>
-        <Card :number="4721" title="آمار عملیات میدانی" emoji="🛠️"
-          cardColor="linear-gradient(135deg, #ff9800, #f44336)" />
+        <Card url="updatecount" title="آمار عملیات میدانی" emoji="🛠️"
+          cardColor="linear-gradient(135deg, #ff9800, #ff5722)" />
       </v-col>
       <v-col>
-        <Card :number="5678" title="آمایش داده ها" emoji="📊" cardColor="linear-gradient(135deg, #4caf50, #388e3c)" />
+        <Card url="dadehcount" title="آمار داده آمائی" emoji="📊"
+          cardColor="linear-gradient(135deg, #4caf50, #388e3c)" />
       </v-col>
       <v-col>
-        <Card :number="9234" title="وضعیت نقشه" emoji="🗺️" cardColor="linear-gradient(135deg, #2196f3, #1565c0)" />
+        <Card url="mapcount" title="آمار نقشه" emoji="🗺️" cardColor="linear-gradient(135deg, #2196f3, #1565c0)" />
       </v-col>
       <v-col>
-        <Card :number="3142" title="ژئوکد" emoji="📍" cardColor="linear-gradient(135deg, #ff5722, #e64a19)" />
+        <Card url="geocount" title="آمار ژئوکد" emoji="📍"
+          cardColor="linear-gradient(135deg, #e91e63, #d81b60)" />
       </v-col>
+
     </v-row>
     <v-row>
       <v-col>

@@ -8,15 +8,15 @@ export function useGNAFCustomIndex() {
   // Use SERVER_HOST from the store
   const SERVER_HOST = ipStore.SERVER_HOST;
 
-  const tabs = ref(["شاخص سفارشی GNAF"]);
+  const tabs = ref(["شاخص اختصاصی GNAF"]);
 
   const headers = ref([
     [
-      { text: "Ostantitle", value: "ostantitle" },
-      { text: "P_Roosta_Diff", value: "p_roosta_diff" },
-      { text: "T_Roosta", value: "t_roosta" },
-      { text: "P_Shahr_Diff", value: "p_shahr_diff" },
-      { text: "T_Shahr", value: "t_shahr" },
+      { text: "استان", value: "استان" },
+      { text: "درصد پیشبینی روستایی", value: "درصد پیشبینی روستایی" },
+      { text: "تحقق روستایی", value: "تحقق روستایی" },
+      { text: "درصد پیشبینی شهری", value: "درصد پیشبینی شهری" },
+      { text: "تحقق شهری", value: "تحقق شهری" },
     ]
   ]);
 

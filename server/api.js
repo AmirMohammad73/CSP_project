@@ -63,7 +63,7 @@ const getGnafIndexData = async (role, permission) => {
 	  let whereClause = '';
 	  let location = 'ostantitle';
   // Add a WHERE clause if the role is 4 or 1
-  const sql = `SELECT 'جمع کشوری'AS ostantitle, SUM(((shahr_percent).pishbini - (shahr_percent).tahaghogh)) AS p_shahr_diff, SUM((shahr_percent).tahaghogh) AS t_shahr, SUM(((roosta_percent).pishbini - (roosta_percent).tahaghogh)) AS p_roosta_diff, SUM((roosta_percent).tahaghogh) AS t_roosta FROM public.loc_gnaf UNION ALL (SELECT ostantitle, ((shahr_percent).pishbini - (shahr_percent).tahaghogh) AS p_shahr_diff, (shahr_percent).tahaghogh AS t_shahr, ((roosta_percent).pishbini - (roosta_percent).tahaghogh) AS p_roosta_diff, (roosta_percent).tahaghogh AS t_roosta FROM public.loc_gnaf order by ostantitle);`;
+  const sql = `SELECT 'جمع کشوری'AS "استان", SUM(((shahr_percent).pishbini - (shahr_percent).tahaghogh)) AS "درصد پیشبینی شهری", SUM((shahr_percent).tahaghogh) AS "تحقق شهری", SUM(((roosta_percent).pishbini - (roosta_percent).tahaghogh)) AS "درصد پیشبینی روستایی", SUM((roosta_percent).tahaghogh) AS "تحقق روستایی" FROM public.loc_gnaf UNION ALL (SELECT ostantitle, ((shahr_percent).pishbini - (shahr_percent).tahaghogh) AS "درصد پیشبینی شهری", (shahr_percent).tahaghogh AS "تحقق شهری", ((roosta_percent).pishbini - (roosta_percent).tahaghogh) AS "درصد پیشبینی روستایی", (roosta_percent).tahaghogh AS "تحقق روستایی" FROM public.loc_gnaf order by ostantitle);`;
   return await query(sql);
 };
 // Function to fetch username by userId
@@ -312,7 +312,66 @@ FROM
     public.locations1 l2;`;
   return await query(sql);
 };
+const getMapCount = async (user) => {
+  let whereClause = '';
+  if (user.role === '4' || user.role === '1') {
+    // Add a WHERE clause for role 4 based on user permissions
+    const conditions = user.permission.map((region) => `'${region}'`).join(', ');
+    whereClause = `WHERE ostantitle IN (${conditions})`;
+  }
 
+  const sql = `SELECT
+    SUM(CASE WHEN adam_paziresh THEN 1 ELSE 0 END) + SUM(CASE WHEN niazmande_eslah THEN 1 ELSE 0 END) + SUM(CASE WHEN arseh_ayan THEN 1 ELSE 0 END) AS stats
+FROM 
+    public.locations1 l2
+	${whereClause};`;
+  return await query(sql);
+};
+const getUpdateCount = async (user) => {
+  let whereClause = '';
+  if (user.role === '4' || user.role === '1') {
+    // Add a WHERE clause for role 4 based on user permissions
+    const conditions = user.permission.map((region) => `'${region}'`).join(', ');
+    whereClause = `WHERE ostantitle IN (${conditions})`;
+  }
+
+  const sql = `SELECT
+    SUM(CASE WHEN amaliate_meydani THEN 1 ELSE 0 END) AS stats
+FROM 
+    public.locations1 l2
+	${whereClause};`;
+  return await query(sql);
+};
+const getDadehCount = async (user) => {
+  let whereClause = '';
+  if (user.role === '4' || user.role === '1') {
+    // Add a WHERE clause for role 4 based on user permissions
+    const conditions = user.permission.map((region) => `'${region}'`).join(', ');
+    whereClause = `WHERE ostantitle IN (${conditions})`;
+  }
+
+  const sql = `SELECT
+    SUM(CASE WHEN dadeh_amaei THEN 1 ELSE 0 END) AS stats
+FROM 
+    public.locations1 l2
+	${whereClause};`;
+  return await query(sql);
+};
+const getGeoCount = async (user) => {
+  let whereClause = '';
+  if (user.role === '4' || user.role === '1') {
+    // Add a WHERE clause for role 4 based on user permissions
+    const conditions = user.permission.map((region) => `'${region}'`).join(', ');
+    whereClause = `WHERE ostantitle IN (${conditions})`;
+  }
+
+  const sql = `SELECT
+    SUM(CASE WHEN daryafte_naghsheh THEN 1 ELSE 0 END) AS stats
+FROM 
+    public.locations1 l2
+	${whereClause};`;
+  return await query(sql);
+};
 const getDetailedLocationsData = async (user) => {
   let whereClause = '';
   if (user.role === '4' || user.role === '1') {
@@ -908,4 +967,4 @@ const getOstanNames = async (role, permission) => {
 const sql = `SELECT ostantitle FROM public.locations1 ${whereClause} GROUP BY ostantitle ORDER BY ostantitle;`;
   return await query(sql);
 };
-module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp };
+module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount };

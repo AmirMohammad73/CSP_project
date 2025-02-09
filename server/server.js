@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, updateRoostaData, getPostalCodeRequest, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp } = require('./api');
+const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, updateRoostaData, getPostalCodeRequest, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount } = require('./api');
 
 const JWT_SECRET = 'efd6401dca50843be8272263a61b1a97959fdfafb1f0bcedc6210269c7c84902';
 require('dotenv').config();
@@ -120,6 +120,46 @@ app.get('/api/locations/detailed', authenticateToken, async (req, res) => {
   try {
     const user = req.user; // User information is available from the authenticated token
     const data = await getDetailedLocationsData(user);
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+app.get('/api/mapcount', authenticateToken, async (req, res) => {
+  try {
+    const user = req.user; // User information is available from the authenticated token
+    const data = await getMapCount(user);
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+app.get('/api/updatecount', authenticateToken, async (req, res) => {
+  try {
+    const user = req.user; // User information is available from the authenticated token
+    const data = await getUpdateCount(user);
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+app.get('/api/dadehcount', authenticateToken, async (req, res) => {
+  try {
+    const user = req.user; // User information is available from the authenticated token
+    const data = await getDadehCount(user);
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+app.get('/api/geocount', authenticateToken, async (req, res) => {
+  try {
+    const user = req.user; // User information is available from the authenticated token
+    const data = await getGeoCount(user);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
@@ -259,7 +299,6 @@ app.get('/api/notifications', authenticateToken, async (req, res) => {
     //const pgTimestamp = new Date(timestamp).toISOString();
     
     const data = await getNotifications(username, timestamp);
-	console.log(data);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);

@@ -19,35 +19,35 @@ export function useBSCIndices() {
 
     const headers = ref([
         [
-            { text: "Ostantitle", value: "ostantitle" },
-            { text: "Amalkard", value: "amalkard" },
-            { text: "Dirkard", value: "dirkard" },
-            { text: "Barnameh Diff", value: "barnameh_diff" },
+            { text: "استان", value: "ostantitle" },
+            { text: "عملکرد", value: "amalkard" },
+            { text: "دیرکرد", value: "dirkard" },
+            { text: "برنامه", value: "barnameh_diff" },
         ],
         // Repeat for other tabs (same structure)
         [
-            { text: "Ostantitle", value: "ostantitle" },
-            { text: "Amalkard", value: "amalkard" },
-            { text: "Dirkard", value: "dirkard" },
-            { text: "Barnameh Diff", value: "barnameh_diff" },
+            { text: "استان", value: "ostantitle" },
+            { text: "عملکرد", value: "amalkard" },
+            { text: "دیرکرد", value: "dirkard" },
+            { text: "برنامه", value: "barnameh_diff" },
         ],
         [
-            { text: "Ostantitle", value: "ostantitle" },
-            { text: "Amalkard", value: "amalkard" },
-            { text: "Dirkard", value: "dirkard" },
-            { text: "Barnameh Diff", value: "barnameh_diff" },
+            { text: "استان", value: "ostantitle" },
+            { text: "عملکرد", value: "amalkard" },
+            { text: "دیرکرد", value: "dirkard" },
+            { text: "برنامه", value: "barnameh_diff" },
         ],
         [
-            { text: "Ostantitle", value: "ostantitle" },
-            { text: "Amalkard", value: "amalkard" },
-            { text: "Dirkard", value: "dirkard" },
-            { text: "Barnameh Diff", value: "barnameh_diff" },
+            { text: "استان", value: "ostantitle" },
+            { text: "عملکرد", value: "amalkard" },
+            { text: "دیرکرد", value: "dirkard" },
+            { text: "برنامه", value: "barnameh_diff" },
         ],
         [
-            { text: "Ostantitle", value: "ostantitle" },
-            { text: "Amalkard", value: "amalkard" },
-            { text: "Dirkard", value: "dirkard" },
-            { text: "Barnameh Diff", value: "barnameh_diff" },
+            { text: "استان", value: "ostantitle" },
+            { text: "عملکرد", value: "amalkard" },
+            { text: "دیرکرد", value: "dirkard" },
+            { text: "برنامه", value: "barnameh_diff" },
         ],
     ]);
 
