@@ -6,7 +6,7 @@
         <div v-if="loading">در حال بارگذاری...</div>
         <div v-else-if="error">خطا در دریافت داده‌ها: {{ error }}</div>
         <div v-else>
-          <apexchart :key="chartKey" type="radar" height="319" :options="chartOptions" :series="series"></apexchart>
+          <apexchart :key="chartKey" type="radar" height="329" :options="chartOptions" :series="series"></apexchart>
         </div>
       </v-card-text>
     </v-card>

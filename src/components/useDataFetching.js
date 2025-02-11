@@ -259,9 +259,8 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
             else if (selectedOption.value === "برنامه کارگروه تعامل پذیری") {
                 const years = [...new Set(filteredData.map(item => item.year))];
                 const amaliatCategories = [...new Set(filteredData.map(item => item.amaliat))];
-
                 chartOptions.value.chart.type = "bar";
-                chartOptions.value.chart.stacked = true;
+                chartOptions.value.chart.stacked = true; // Enable stacking
 
                 // Calculate percentages for each category
                 const calculatePercentages = (year, amaliat) => {
@@ -276,26 +275,33 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                     };
                 };
 
-                series = years.map(year => [
-                    {
-                        name: `${year} - عملکرد`,
-                        data: amaliatCategories.map(amaliat => calculatePercentages(year, amaliat).amalkard),
-                        stack: year,
-                        color: "#00E396", // Green
-                    },
-                    {
-                        name: `${year} - دیرکرد`,
-                        data: amaliatCategories.map(amaliat => calculatePercentages(year, amaliat).dirkard),
-                        stack: year,
-                        color: "#FF4560", // Red
-                    },
-                    {
-                        name: `${year} - برنامه`,
-                        data: amaliatCategories.map(amaliat => calculatePercentages(year, amaliat).barnameh_diff),
-                        stack: year,
-                        color: "#4682B4", // Steel Blue
-                    }
-                ]).flat();
+                // Build series with grouped stacks per year
+                series = [];
+                years.forEach(year => {
+                    const percentages = amaliatCategories.map(amaliat => calculatePercentages(year, amaliat));
+
+                    series.push({
+                        name: `عملکرد ${year}`,
+                        data: percentages.map(p => p.amalkard),
+                        group: year.toString(), // Group by year
+                        stack: 'stack',
+                        color: "#00E396",
+                    });
+                    series.push({
+                        name: `دیرکرد ${year}`,
+                        data: percentages.map(p => p.dirkard),
+                        group: year.toString(),
+                        stack: 'stack',
+                        color: "#FF4560",
+                    });
+                    series.push({
+                        name: `برنامه ${year}`,
+                        data: percentages.map(p => p.barnameh_diff),
+                        group: year.toString(),
+                        stack: 'stack',
+                        color: "#4682B4",
+                    });
+                });
 
                 chartOptions.value.xaxis.categories = amaliatCategories;
                 chartOptions.value.plotOptions.bar.columnWidth = "80%";
@@ -315,16 +321,32 @@ export function useDataFetching(activeTab, headers, tabs, tabEndpoints, selected
                     }
                 };
 
-                // Update tooltip to show original values
+                // Update tooltip to show original values and percentages
                 chartOptions.value.tooltip = {
                     y: {
                         formatter: function (val, { seriesIndex, dataPointIndex, w }) {
-                            const year = w.globals.seriesNames[seriesIndex].split(' - ')[0];
+                            const seriesName = w.globals.seriesNames[seriesIndex];
+                            const [typeName, year] = seriesName.split(' ');
                             const amaliat = w.globals.categoryLabels[dataPointIndex];
                             const item = filteredData.find(d => d.year === year && d.amaliat === amaliat);
+
                             if (item) {
-                                const type = w.globals.seriesNames[seriesIndex].split(' - ')[1].toLowerCase();
-                                return `${item[type]} (${val.toFixed(2)}%)`;
+                                let typeKey;
+                                switch (typeName) {
+                                    case 'عملکرد':
+                                        typeKey = 'amalkard';
+                                        break;
+                                    case 'دیرکرد':
+                                        typeKey = 'dirkard';
+                                        break;
+                                    case 'برنامه':
+                                        typeKey = 'barnameh_diff';
+                                        break;
+                                    default:
+                                        typeKey = '';
+                                }
+                                const originalValue = item[typeKey];
+                                return `${originalValue} (${val.toFixed(2)}%)`;
                             }
                             return val.toFixed(2) + '%';
                         }
