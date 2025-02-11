@@ -27,7 +27,7 @@
       </v-col>
     </v-row>
     <v-row>
-      <!-- Additional content here -->
+      <LineChart />
     </v-row>
   </v-container>
 </template>
@@ -36,10 +36,10 @@
 import ColumnChart from './ColumnChart.vue'; // Import the ColumnChart component
 import PieChart from './PieChart.vue'; // Import the ColumnChart component
 import Card from './Card.vue';
-
+import LineChart from './LineChart.vue';
 // Define the component
 defineComponent({
   name: 'DashboardPage',
-  components: { ColumnChart, PieChart, Card } // Add ColumnChart to the components object
+  components: { ColumnChart, PieChart, Card, LineChart } // Add ColumnChart to the components object
 });
 </script>

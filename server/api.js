@@ -372,6 +372,26 @@ FROM
 	${whereClause};`;
   return await query(sql);
 };
+const getRadarData = async (user) => {
+  let whereClause = '';
+  if (user.role === '4' || user.role === '1') {
+    // Add a WHERE clause for role 4 based on user permissions
+    const conditions = user.permission.map((region) => `'${region}'`).join(', ');
+    whereClause = `WHERE ostantitle IN (${conditions})`;
+  }
+
+  const sql = `SELECT
+    COUNT(*) AS total_count,
+    SUM(CASE WHEN adam_paziresh THEN 1 ELSE 0 END) + SUM(CASE WHEN niazmande_eslah THEN 1 ELSE 0 END) + SUM(CASE WHEN arseh_ayan THEN 1 ELSE 0 END) AS total_naghsheh_count,
+    SUM(CASE WHEN amaliate_meydani THEN 1 ELSE 0 END) AS amaliate_meydani_count,
+    SUM(CASE WHEN dadeh_amaei THEN 1 ELSE 0 END) AS dadeh_amaei_count,
+    SUM(CASE WHEN daryafte_naghsheh THEN 1 ELSE 0 END) AS GeoCode_count
+FROM 
+    public.locations1 l2
+	${whereClause};`;
+  return await query(sql);
+};
+
 const getDetailedLocationsData = async (user) => {
   let whereClause = '';
   if (user.role === '4' || user.role === '1') {
@@ -967,4 +987,4 @@ const getOstanNames = async (role, permission) => {
 const sql = `SELECT ostantitle FROM public.locations1 ${whereClause} GROUP BY ostantitle ORDER BY ostantitle;`;
   return await query(sql);
 };
-module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount };
+module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData };
