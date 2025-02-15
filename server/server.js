@@ -262,6 +262,17 @@ app.get('/api/radardata', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+// Data endpoint
+app.get('/api/weeklydata', authenticateToken, async (req, res) => {
+  try {
+	const user = req.user;
+    const data = await getWeeklyData(user);
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // Data endpoint
 app.get('/api/license-plate', authenticateToken, async (req, res) => {

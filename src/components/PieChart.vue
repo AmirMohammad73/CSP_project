@@ -148,7 +148,7 @@ export default {
     };
 
     onMounted(() => {
-      fetchData();
+      // fetchData();
     });
 
     watch(

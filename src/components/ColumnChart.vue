@@ -42,7 +42,7 @@ export default {
         type: "radar",
       },
       xaxis: {
-        categories: ["پیشرفت نقشه", "پیشرفت ژئوکد", "پیشرفت عملیات میدانی", "پیشرفت داده‌آمایی"],
+        categories: ["پیشرفت نقشه", "پیشرفت ژئوکد", "پیشرفت عملیات میدانی", "پیشرفت داده‌آمایی", "پیشرفت مختصات روستا", "پیشرفت محدوده روستا"],
       },
       yaxis: {
         min: 0,
@@ -90,10 +90,13 @@ export default {
           const geoCodeRatio = (serverData.geocode_count || 0) / totalCount * 100;
           const amaliateMeydaniRatio = (serverData.amaliate_meydani_count || 0) / totalCount * 100;
           const dadehAmaeiRatio = (serverData.dadeh_amaei_count || 0) / totalCount * 100;
+          const mokhtasatRoustaRatio = (serverData.mokhtasat_rousta_count || 0) / totalCount * 100;
+          const mahdoudehRoustaRatio = (serverData.mahdoudeh_rousta_count || 0) / totalCount * 100;
+          console.log(serverData);
           series.value = [
             {
               name: "درصد پیشرفت",
-              data: [naghshehRatio, geoCodeRatio, amaliateMeydaniRatio, dadehAmaeiRatio],
+              data: [naghshehRatio, geoCodeRatio, amaliateMeydaniRatio, dadehAmaeiRatio, mokhtasatRoustaRatio, mahdoudehRoustaRatio],
             },
           ];
         }

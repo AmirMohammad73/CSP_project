@@ -385,7 +385,9 @@ const getRadarData = async (user) => {
     SUM(CASE WHEN adam_paziresh THEN 1 ELSE 0 END) + SUM(CASE WHEN niazmande_eslah THEN 1 ELSE 0 END) + SUM(CASE WHEN arseh_ayan THEN 1 ELSE 0 END) AS total_naghsheh_count,
     SUM(CASE WHEN amaliate_meydani THEN 1 ELSE 0 END) AS amaliate_meydani_count,
     SUM(CASE WHEN dadeh_amaei THEN 1 ELSE 0 END) AS dadeh_amaei_count,
-    SUM(CASE WHEN daryafte_naghsheh THEN 1 ELSE 0 END) AS GeoCode_count
+    SUM(CASE WHEN daryafte_naghsheh THEN 1 ELSE 0 END) AS GeoCode_count,
+	SUM(CASE WHEN pdf THEN 1 ELSE 0 END) AS mokhtasat_rousta_count,
+	SUM(CASE WHEN ersal_setad THEN 1 ELSE 0 END) AS mahdoudeh_rousta_count
 FROM 
     public.locations1 l2
 	${whereClause};`;
@@ -759,34 +761,34 @@ const getPostalCodeRequest = async (role, permission) => {
   if (role === '4' || role === '1') {
     // Convert the permission array into a list of SQL conditions
     const conditions = permission.map((region) => `'${region}'`).join(', ');
-    whereClause = `WHERE ostantitle IN (${conditions})`;
+    whereClause = `WHERE ostantitle IN (${conditions}) `;
 	location = role === '4' ? 'shahrestantitle' : (role === '1' ? 'ostantitle' : undefined);
   }
 
   const sql = `WITH calculated_columns AS (
   SELECT
     ostantitle AS "استان",
-    under72 AS "زیر ۷۲ ساعت",
-    over72 AS "بالای ۷۲ ساعت",
-    monthbalance AS "مانده ماه",
-    sixmonthbalance AS "مانده ۶ ماه",
-    currentmontharch AS "عملکرد ماه جاری",
-    sixmontharch AS "عملکرد ۶ ماه",
-    (over72 + under72 + monthbalance) AS "ستون ح",
-    ((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS "ستون جدید",
+    under72 AS "رسیدگی شده زیر 72 ساعت",
+    over72 AS "رسیدگی شده بالای 72 ساعت",
+    monthbalance AS "مانده ماه جاری",
+    sixmonthbalance AS "مانده ماههای قبل (شش ماهه)",
+    currentmontharch AS "آرشیو مورد تایید ماه جاری",
+    sixmontharch AS "آرشیو مورد تایید ماههای قبل",
+    (over72 + under72 + monthbalance) AS "مجموع درخواست های ماه جاری",
+    ((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS "درصد رسیدگی به موقع به درخواست ها",
     CASE
       WHEN ((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) < 50 THEN 0
       WHEN ((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) > 97 THEN 3
       ELSE (((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) - 50) * 6 / 47
-    END AS "فرمول ۱",
-    ((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS "فرمول ۲",
+    END AS "امتیاز شاخص 1 (3 امتیاز)",
+    ((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS "درصد رسیدگی موفق به درخواست ها",
     CASE
       WHEN ((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) < 80 THEN 0
       WHEN ((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) > 100 THEN 2
       ELSE (((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) - 80) * 10 / 100
-    END AS "فرمول ۳",
-    ((monthbalance - currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS "فرمول ۴",
-    ((sixmonthbalance - sixmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS "فرمول ۶"
+    END AS "امتیاز شاخص 2 (2 امتیاز)",
+    ((monthbalance - currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS "درصد بلاتکلیف ماه جاری",
+    ((sixmonthbalance - sixmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS "درصد بلاتکیف تجمعی (شش ماهه)"
   FROM
     public.postalcode_request
 ),
@@ -794,40 +796,41 @@ final_calculations AS (
   SELECT
     *,
     CASE
-      WHEN "فرمول ۴" > 5 THEN -1
-      ELSE "فرمول ۴" * (-0.5)
-    END AS "فرمول ۵",
+      WHEN "درصد بلاتکلیف ماه جاری" > 5 THEN -1
+      ELSE "درصد بلاتکلیف ماه جاری" * (-0.5)
+    END AS "امتیاز شاخص 3 (1-امتیاز)",
     CASE
-      WHEN "فرمول ۶" > 10 THEN -2
-      ELSE "فرمول ۶" * (-0.5)
-    END AS "فرمول ۷"
+      WHEN "درصد بلاتکیف تجمعی (شش ماهه)" > 10 THEN -2
+      ELSE "درصد بلاتکیف تجمعی (شش ماهه)" * (-0.5)
+    END AS "امتیاز شاخص 4 (2- امتیاز)"
   FROM
     calculated_columns
 )
 SELECT
   "استان",
-  "زیر ۷۲ ساعت",
-  "بالای ۷۲ ساعت",
-  "مانده ماه",
-  "مانده ۶ ماه",
-  "عملکرد ماه جاری",
-  "عملکرد ۶ ماه",
-  "ستون ح",
-  ROUND("ستون جدید", 2) AS "ستون جدید",
-  ROUND("فرمول ۱", 2) AS "فرمول ۱",
-  ROUND("فرمول ۲", 2) AS "فرمول ۲",
-  ROUND("فرمول ۳", 2) AS "فرمول ۳",
-  ROUND("فرمول ۴", 2) AS "فرمول ۴",
-  ROUND("فرمول ۵", 2) AS "فرمول ۵",
-  ROUND("فرمول ۶", 2) AS "فرمول ۶",
-  ROUND("فرمول ۷", 2) AS "فرمول ۷",
+  "رسیدگی شده زیر 72 ساعت",
+  "رسیدگی شده بالای 72 ساعت",
+  "مانده ماه جاری",
+  "مانده ماههای قبل (شش ماهه)",
+  "آرشیو مورد تایید ماه جاری",
+  "آرشیو مورد تایید ماههای قبل",
+  "مجموع درخواست های ماه جاری",
+  ROUND("درصد رسیدگی به موقع به درخواست ها", 2) AS "درصد رسیدگی به موقع به درخواست ها",
+  ROUND("امتیاز شاخص 1 (3 امتیاز)", 2) AS "امتیاز شاخص 1 (3 امتیاز)",
+  ROUND("درصد رسیدگی موفق به درخواست ها", 2) AS "درصد رسیدگی موفق به درخواست ها",
+  ROUND("امتیاز شاخص 2 (2 امتیاز)", 2) AS "امتیاز شاخص 2 (2 امتیاز)",
+  ROUND("درصد بلاتکلیف ماه جاری", 2) AS "درصد بلاتکلیف ماه جاری",
+  ROUND("امتیاز شاخص 3 (1-امتیاز)", 2) AS "امتیاز شاخص 3 (1-امتیاز)",
+  ROUND("درصد بلاتکیف تجمعی (شش ماهه)", 2) AS "درصد بلاتکیف تجمعی (شش ماهه)",
+  ROUND("امتیاز شاخص 4 (2- امتیاز)", 2) AS "امتیاز شاخص 4 (2- امتیاز)",
   CASE
-    WHEN ROUND("فرمول ۱" + "فرمول ۳" + "فرمول ۵" + "فرمول ۷", 2) < 0 THEN 0
-    ELSE ROUND("فرمول ۱" + "فرمول ۳" + "فرمول ۵" + "فرمول ۷", 2)
-  END AS "فرمول ۸"
+    WHEN ROUND("امتیاز شاخص 1 (3 امتیاز)" + "امتیاز شاخص 2 (2 امتیاز)" + "امتیاز شاخص 3 (1-امتیاز)" + "امتیاز شاخص 4 (2- امتیاز)", 2) < 0 THEN 0
+    ELSE ROUND("امتیاز شاخص 1 (3 امتیاز)" + "امتیاز شاخص 2 (2 امتیاز)" + "امتیاز شاخص 3 (1-امتیاز)" + "امتیاز شاخص 4 (2- امتیاز)", 2)
+  END AS "جمع امتیاز"
 FROM
   final_calculations
-  ${whereClause}`;
+  ${whereClause}
+  ORDER BY "استان"`;
   return await query(sql);
 };
 // Update roosta data

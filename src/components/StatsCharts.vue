@@ -272,4 +272,7 @@ export default {
 .text-h6 {
   font-family: 'B Traffic', sans-serif !important;
 }
+th {
+  padding-left: '8 px' !important;
+}
 </style>
