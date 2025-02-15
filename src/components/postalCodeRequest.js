@@ -11,29 +11,29 @@ export function usePostalCodeRequest () {
 
   // Define the tabs (if needed)
   const tabs = ref([
-    'درخواستهای کدپستی' // Only one tab since we have a single table
+    'درخواست‌های کدپستی' // Only one tab since we have a single table
   ])
 
   // Define the headers for the table based on the query
   const headers = ref([
     [
-      { text: 'استان', value: 'ostantitle' },
-      { text: 'زیر 72 ساعت', value: 'under72' },
-      { text: 'بالای 72 ساعت', value: 'over72' },
-      { text: 'مانده ماه', value: 'monthbalance' },
-      { text: 'مانده 6 ماه', value: 'sixmonthbalance' },
-      { text: 'آرشیو ماه جاری', value: 'currentmontharch' },
-      { text: 'آرشیو 6 ماه', value: 'sixmontharch' },
-      { text: 'ستون H', value: 'column_h' },
-      { text: 'ستون جدید', value: 'new_column' },
-      { text: 'فرمول 1', value: 'f1' },
-      { text: 'فرمول 2', value: 'f2' },
-      { text: 'فرمول 3', value: 'f3' },
-      { text: 'فرمول 4', value: 'f4' },
-      { text: 'فرمول 5', value: 'f5' },
-      { text: 'فرمول 6', value: 'f6' },
-      { text: 'فرمول 7', value: 'f7' },
-      { text: 'فرمول 8', value: 'formula_8' }
+      { text: 'استان', value: 'استان' },
+      { text: 'زیر ۷۲ ساعت', value: 'زیر_۷۲_ساعت' },
+      { text: 'بالای ۷۲ ساعت', value: 'بالای_۷۲_ساعت' },
+      { text: 'مانده ماه', value: 'مانده_ماه' },
+      { text: 'مانده ۶ ماه', value: 'مانده_۶_ماه' },
+      { text: 'عملکرد ماه جاری', value: 'عملکرد_ماه_جاری' },
+      { text: 'عملکرد ۶ ماه', value: 'عملکرد_۶_ماه' },
+      { text: 'ستون ح', value: 'ستون_ح' },
+      { text: 'ستون جدید', value: 'ستون_جدید' },
+      { text: 'فرمول ۱', value: 'فرمول_۱' },
+      { text: 'فرمول ۲', value: 'فرمول_۲' },
+      { text: 'فرمول ۳', value: 'فرمول_۳' },
+      { text: 'فرمول ۴', value: 'فرمول_۴' },
+      { text: 'فرمول ۵', value: 'فرمول_۵' },
+      { text: 'فرمول ۶', value: 'فرمول_۶' },
+      { text: 'فرمول ۷', value: 'فرمول_۷' },
+      { text: 'فرمول ۸', value: 'فرمول_۸' }
     ]
   ])
 

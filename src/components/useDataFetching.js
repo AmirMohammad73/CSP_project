@@ -96,7 +96,18 @@ export function useDataFetching (
       let series = []
       // Dynamically set stacking based on selectedOption
       chartOptions.value.chart.stacked = selectedOption.value === 'BSC'
-
+      const columnMapping = {
+        year: 'سال',
+        amaliat: 'عملیات',
+        eghdamat: 'اقدامات',
+        amalkard: 'عملکرد',
+        tahaghog: 'تخصیص',
+        vahede_sanjesh: 'واحد سنجش',
+        motevali: 'معتبر',
+        dastgah: 'دستگاه',
+        dirkard: 'دیرکرد',
+        barnameh_diff: 'تفاضل برنامه'
+      }
       // Handle data for پایش عملیات روستایی
       if (selectedOption.value === 'پایش عملیات روستایی') {
         if (activeTab.value === 0) {
@@ -266,9 +277,10 @@ export function useDataFetching (
         const amaliatCategories = [
           ...new Set(filteredData.map(item => item.amaliat))
         ]
-        categories = amaliatCategories;
+        categories = amaliatCategories
         chartOptions.value.chart.type = 'bar'
         chartOptions.value.chart.stacked = true // Enable stacking
+        let originItem = [];
         // Calculate percentages for each category
         const calculatePercentages = (year, amaliat) => {
           const item = filteredData.find(
@@ -287,7 +299,6 @@ export function useDataFetching (
               total === 0 ? 0 : (Number(item.barnameh_diff) / total) * 100
           }
         }
-
         // Build series with grouped stacks per year
         series = []
         years.forEach(year => {
@@ -316,7 +327,6 @@ export function useDataFetching (
             color: '#4682B4'
           })
         })
-        console.log(categories)
         // chartOptions.value.xaxis.categories = amaliatCategories;
         chartOptions.value.plotOptions.bar.columnWidth = '80%'
 
@@ -362,6 +372,7 @@ export function useDataFetching (
                     typeKey = ''
                 }
                 const originalValue = item[typeKey]
+                console.log(originalValue);
                 return `${originalValue} (${val.toFixed(2)}%)`
               }
               return val.toFixed(2) + '%'

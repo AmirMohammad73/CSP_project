@@ -43,8 +43,8 @@
                     <h4 class="text-h6 text-right mb-2">
                       جدول {{ tabs[activeTab] }}
                     </h4>
-                    <v-data-table :items="tableData[activeTab]" :headers="headers.values[0]" class="elevation-1"
-                      :class-name="getColumnClass"></v-data-table>
+                    <v-data-table :items="tableData[activeTab]" :headers="headers.values[0]"
+                      class="elevation-1"></v-data-table>
 
                   </div>
                 </v-card-text>

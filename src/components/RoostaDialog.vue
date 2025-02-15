@@ -36,8 +36,8 @@
                                     <template v-else-if="isBooleanColumn(header.key)">
                                         <v-checkbox v-model="item[header.key]" :true-value="true" :false-value="false"
                                             :disabled="!isEditableCheckbox(header.key, item)" hide-details
-                                            density="compact"></v-checkbox>
-
+                                            density="compact"
+                                            @change="handleCheckboxChange(item, header.key)"></v-checkbox>
                                     </template>
                                     <template v-else>
                                         {{ item[header.key] }}
@@ -114,6 +114,19 @@ export default {
         },
     },
     methods: {
+        handleCheckboxChange(item, key) {
+            if (this.dataFirstItem === 'setad') {
+                const checkboxes = ['bonyad_maskan', 'sayer_manabe', 'tarsim'];
+                if (checkboxes.includes(key)) {
+                    // Uncheck other checkboxes
+                    checkboxes.forEach(checkbox => {
+                        if (checkbox !== key) {
+                            item[checkbox] = false;
+                        }
+                    });
+                }
+            }
+        },
         setInitialCheckboxStates() {
             this.initialCheckboxStates = this.roostaData.reduce((acc, item) => {
                 acc[item.population_point_id] = {
@@ -125,16 +138,14 @@ export default {
             }, {});
         },
         isEditableCheckbox(key, item) {
-            console.log(this.dataFirstItem);
             var editableColumns = [];
-            if (this.dataFirstItem == 'setad') {
+            if (this.dataFirstItem === 'setad') {
                 editableColumns = [
                     'bonyad_maskan',
                     'sayer_manabe',
                     'tarsim',
-                ]
-            }
-            else if (this.dataFirstItem != 'manager') {
+                ];
+            } else if (this.dataFirstItem !== 'manager') {
                 editableColumns = [
                     'amaliate_meydani',
                     'dadeh_amaei',

@@ -765,56 +765,66 @@ const getPostalCodeRequest = async (role, permission) => {
 
   const sql = `WITH calculated_columns AS (
   SELECT
-    ostantitle, under72, over72, monthbalance, sixmonthbalance, currentmontharch, sixmontharch, -- Calculate column_H
-    (over72 + under72 + monthbalance) AS column_H,
-    -- Calculate new_column (I5)
-    ((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS new_column,
-    -- Formula 1: =IF(I5<50%;0;IF(I5>97%;3;(I5-50%)*6/383))
+    ostantitle AS "استان",
+    under72 AS "زیر ۷۲ ساعت",
+    over72 AS "بالای ۷۲ ساعت",
+    monthbalance AS "مانده ماه",
+    sixmonthbalance AS "مانده ۶ ماه",
+    currentmontharch AS "عملکرد ماه جاری",
+    sixmontharch AS "عملکرد ۶ ماه",
+    (over72 + under72 + monthbalance) AS "ستون ح",
+    ((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS "ستون جدید",
     CASE
       WHEN ((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) < 50 THEN 0
       WHEN ((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) > 97 THEN 3
-      ELSE ((((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) - 50) * 6.383) / 100
-    END AS f1,
-    -- Formula 2: =(C5+B5+F5)/H5
-    ((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS f2,
-    -- Formula 3: =IF(K5<80%;0;IF(K5>100%;2;(K5-80%)10))
+      ELSE (((under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) - 50) * 6 / 47
+    END AS "فرمول ۱",
+    ((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS "فرمول ۲",
     CASE
       WHEN ((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) < 80 THEN 0
       WHEN ((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) > 100 THEN 2
-      ELSE ((((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) - 80) * 10)/100
-    END AS f3,
-    -- Formula 4: =(D5-F5)/H5
-    ((monthbalance - currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS f4,
-    -- Formula 6: =(E5-G5)/H5
-    ((sixmonthbalance - sixmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS f6
+      ELSE (((over72 + under72 + currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) - 80) * 10 / 100
+    END AS "فرمول ۳",
+    ((monthbalance - currentmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS "فرمول ۴",
+    ((sixmonthbalance - sixmontharch) * 100.0 / NULLIF((over72 + under72 + monthbalance), 0)) AS "فرمول ۶"
   FROM
     public.postalcode_request
 ),
 final_calculations AS (
   SELECT
-    ostantitle, under72, over72, monthbalance, sixmonthbalance, currentmontharch, sixmontharch, column_H, new_column, f1, f2, f3, f4, f6, -- Formula 5: =IF(M5>5%;-1;M5(-0/2)100)
+    *,
     CASE
-      WHEN f4 > 5 THEN -1 
-      ELSE f4 * (-f4 / 2) * 100 
-    END AS f5,
-    -- Formula 7: =IF(O5>10%;-2;O5(-0/2)*100)
+      WHEN "فرمول ۴" > 5 THEN -1
+      ELSE "فرمول ۴" * (-0.5)
+    END AS "فرمول ۵",
     CASE
-      WHEN f6 > 10 THEN -2 
-      ELSE f6 * (-f6 / 2) * 100 
-    END AS f7
+      WHEN "فرمول ۶" > 10 THEN -2
+      ELSE "فرمول ۶" * (-0.5)
+    END AS "فرمول ۷"
   FROM
     calculated_columns
 )
 SELECT
-  ostantitle, under72, over72, monthbalance, sixmonthbalance, currentmontharch, sixmontharch, column_H, ROUND(new_column, 2) AS new_column, ROUND(f1, 2) AS f1, ROUND(f2, 2) AS f2, ROUND(f3, 2) AS f3, ROUND(f4, 2) AS f4,
-  ROUND(f5, 2) AS f5,
-  ROUND(f6, 2) AS f6,
-  ROUND(f7, 2) AS f7,
-  -- Formula 8: =IF(SUM(J5;L5;N5;P5)<0;0;SUM(J5;L5;N5;P5))
+  "استان",
+  "زیر ۷۲ ساعت",
+  "بالای ۷۲ ساعت",
+  "مانده ماه",
+  "مانده ۶ ماه",
+  "عملکرد ماه جاری",
+  "عملکرد ۶ ماه",
+  "ستون ح",
+  ROUND("ستون جدید", 2) AS "ستون جدید",
+  ROUND("فرمول ۱", 2) AS "فرمول ۱",
+  ROUND("فرمول ۲", 2) AS "فرمول ۲",
+  ROUND("فرمول ۳", 2) AS "فرمول ۳",
+  ROUND("فرمول ۴", 2) AS "فرمول ۴",
+  ROUND("فرمول ۵", 2) AS "فرمول ۵",
+  ROUND("فرمول ۶", 2) AS "فرمول ۶",
+  ROUND("فرمول ۷", 2) AS "فرمول ۷",
   CASE
-	WHEN ROUND(f1 + f3 + f5 + f7, 2) < 0 THEN 0 
-	ELSE ROUND(f1 + f3 + f5 + f7, 2) 
-  END AS formula_8
+    WHEN ROUND("فرمول ۱" + "فرمول ۳" + "فرمول ۵" + "فرمول ۷", 2) < 0 THEN 0
+    ELSE ROUND("فرمول ۱" + "فرمول ۳" + "فرمول ۵" + "فرمول ۷", 2)
+  END AS "فرمول ۸"
 FROM
   final_calculations
   ${whereClause}`;
