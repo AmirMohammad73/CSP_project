@@ -114,12 +114,22 @@ export default {
     watch(
       () => AppStore.isDarkTheme,
       (newVal) => {
-        chartOptions.value.theme.mode = newVal ? "dark" : "light";
-        chartOptions.value.colors = newVal ? ["#00E396"] : ["#008FFB"];
+        // تغییر رنگ‌ها و تم نمودار بر اساس دارک/لایت
+        chartOptions.value = {
+          ...chartOptions.value,
+          theme: {
+            mode: newVal ? "dark" : "light",
+          },
+          colors: newVal ? ["#00E396"] : ["#008FFB"],
+          chart: {
+            background: newVal ? "#1E1E1E" : "#FFFFFF",
+          },
+        };
         chartKey.value++; // Force re-render
       },
       { immediate: true }
     );
+
 
     return {
       series,

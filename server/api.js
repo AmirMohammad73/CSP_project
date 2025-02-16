@@ -750,6 +750,136 @@ const getBSCTab5Data = async () => {
     (SELECT * FROM section1_summary ORDER BY ostantitle);`;
   return await query(sql);
 };
+const getWeeklyData = async (role, permission) => {
+	  let whereClause = '';
+	  let location = 'ostantitle';
+  // Add a WHERE clause if the role is 4 or 1
+  if (role === '4' || role === '1') {
+    // Convert the permission array into a list of SQL conditions
+    const conditions = permission.map((region) => `'${region}'`).join(', ');
+    whereClause = `WHERE ostantitle IN (${conditions})`;
+	location = role === '4' ? 'shahrestantitle' : (role === '1' ? 'ostantitle' : undefined);
+  }
+
+  const sql = `WITH weeks AS (
+    SELECT
+        cl.date,
+        (cl.date - ((EXTRACT(DOW FROM cl.date) + 1)::int % 7) * INTERVAL '1 day')::date AS week_start,
+        (cl.date - ((EXTRACT(DOW FROM cl.date) + 1)::int % 7) * INTERVAL '1 day' + INTERVAL '6 days')::date AS week_end,
+        cl.columns
+    FROM
+        change_log cl
+),
+jalali_weeks AS (
+    SELECT
+        w.week_start,
+        w.week_end,
+        start_jalali.jy AS start_jy,
+        start_jalali.jm AS start_jm,
+        start_jalali.jd AS start_jd,
+        end_jalali.jy AS end_jy,
+        end_jalali.jm AS end_jm,
+        end_jalali.jd AS end_jd,
+        w.columns
+    FROM
+        weeks w
+        CROSS JOIN LATERAL gregorian_to_jalali(w.week_start::timestamp) AS start_jalali
+        CROSS JOIN LATERAL gregorian_to_jalali(w.week_end::timestamp) AS end_jalali
+),
+formatted_weeks AS (
+    SELECT
+        *,
+        'از ' || LPAD(start_jd::text, 2, '0') || '/' || LPAD(start_jm::text, 2, '0') || '/' || start_jy || ' تا ' || LPAD(end_jd::text, 2, '0') || '/' || LPAD(end_jm::text, 2, '0') || '/' || end_jy AS week_num
+    FROM
+        jalali_weeks
+),
+unnested_columns AS (
+    SELECT
+        week_num,
+        week_start,  -- Include week_start here
+        unnest(columns) AS type_count
+    FROM
+        formatted_weeks
+)
+SELECT
+    week_num,
+    type_count,
+    COUNT(*) AS record_count
+FROM
+    unnested_columns
+WHERE
+    type_count IN ('amaliate_meydani', 'dadeh_amaei', 'daryafte_naghsheh')
+GROUP BY
+    week_num, type_count, week_start  -- Include week_start in GROUP BY
+ORDER BY
+    week_start, type_count;  -- Use week_start for ordering`;
+  return await query(sql);
+};
+const getMonthlyData = async (role, permission) => {
+	  let whereClause = '';
+	  let location = 'ostantitle';
+  // Add a WHERE clause if the role is 4 or 1
+  if (role === '4' || role === '1') {
+    // Convert the permission array into a list of SQL conditions
+    const conditions = permission.map((region) => `'${region}'`).join(', ');
+    whereClause = `WHERE ostantitle IN (${conditions})`;
+	location = role === '4' ? 'shahrestantitle' : (role === '1' ? 'ostantitle' : undefined);
+  }
+
+  const sql = `WITH months AS (
+    SELECT
+        cl.date,
+        DATE_TRUNC('month', cl.date)::date AS month_start,
+        (DATE_TRUNC('month', cl.date) + INTERVAL '1 month' - INTERVAL '1 day')::date AS month_end,
+        cl.columns
+    FROM
+        change_log cl
+),
+jalali_months AS (
+    SELECT
+        m.month_start,
+        m.month_end,
+        start_jalali.jy AS start_jy,
+        start_jalali.jm AS start_jm,
+        start_jalali.jd AS start_jd,
+        end_jalali.jy AS end_jy,
+        end_jalali.jm AS end_jm,
+        end_jalali.jd AS end_jd,
+        m.columns
+    FROM
+        months m
+        CROSS JOIN LATERAL gregorian_to_jalali(m.month_start::timestamp) AS start_jalali
+        CROSS JOIN LATERAL gregorian_to_jalali(m.month_end::timestamp) AS end_jalali
+),
+formatted_months AS (
+    SELECT
+        *,
+        'از ' || LPAD(start_jd::text, 2, '0') || '/' || LPAD(start_jm::text, 2, '0') || '/' || start_jy || ' تا ' || LPAD(end_jd::text, 2, '0') || '/' || LPAD(end_jm::text, 2, '0') || '/' || end_jy AS week_num
+    FROM
+        jalali_months
+),
+unnested_columns AS (
+    SELECT
+        week_num,
+        month_start,  -- Include month_start here
+        unnest(columns) AS type_count
+    FROM
+        formatted_months
+)
+SELECT
+    week_num,
+    type_count,
+    COUNT(*) AS record_count
+FROM
+    unnested_columns
+WHERE
+    type_count IN ('amaliate_meydani', 'dadeh_amaei', 'daryafte_naghsheh')
+GROUP BY
+    week_num, type_count, month_start  -- Include month_start in GROUP BY
+ORDER BY
+    month_start, type_count;  -- Use month_start for ordering`;
+  return await query(sql);
+};
 const getInteroperability = async (eghdamat) => {
   const sql = `SELECT kargrouh_barnameh1.year, kargrouh_barnameh1.amaliat, kargrouh_barnameh1.eghdamat, kargrouh_barnameh1.amalkard, kargrouh_barnameh1.tahaghog, kargrouh_barnameh1.vahede_sanjesh, kargrouh_barnameh1.motevali, kargrouh_barnameh1.dastgah, GREATEST((SELECT month_cal(13, kargrouh_barnameh1.id)) - kargrouh_barnameh1.amalkard, 0) AS dirkard, ((farvardin + ordibehesht + khordad + tir + mordad + shahrivar + mehr + aban + azar + dey + bahman + esfand) - GREATEST((SELECT month_cal(13, kargrouh_barnameh1.id)) - kargrouh_barnameh1.amalkard, 0) - kargrouh_barnameh1.amalkard) AS barnameh_diff FROM kargrouh_barnameh1 WHERE eghdamat LIKE '${eghdamat}' ORDER BY priority;`;
   return await query(sql);
@@ -1000,4 +1130,4 @@ const getOstanNames = async (role, permission) => {
 const sql = `SELECT ostantitle FROM public.locations1 ${whereClause} GROUP BY ostantitle ORDER BY ostantitle;`;
   return await query(sql);
 };
-module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData };
+module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData, getWeeklyData, getMonthlyData };

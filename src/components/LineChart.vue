@@ -9,14 +9,8 @@
                         <v-btn value="weekly">هفتگی</v-btn>
                     </v-btn-toggle>
                 </div>
-                <apexchart
-                    :key="chartKey"
-                    type="line"
-                    height="350"
-                    :options="chartOptions"
-                    :series="currentSeries"
-                    @zoom="handleZoom"
-                ></apexchart>
+                <apexchart :key="chartKey" type="line" height="350" :options="chartOptions" :series="currentSeries"
+                    @zoom="handleZoom"></apexchart>
             </v-card-text>
         </v-card>
     </v-container>
@@ -36,43 +30,13 @@ export default {
         const chartKey = ref(0);
         const timeframe = ref("daily");
 
-        // Daily series data
-        const dailySeries = ref([
-            {
-                name: "عملیات میدانی",
-                data: [30, 40, 35, 50, 49, 60, 70, 91, 125],
-            },
-            {
-                name: "داده آمائی",
-                data: [20, 30, 25, 40, 39, 50, 60, 81, 105],
-            },
-            {
-                name: "ژئوکد",
-                data: [10, 20, 15, 30, 29, 40, 50, 71, 95],
-            },
-        ]);
-
-        // Weekly series data
-        const weeklySeries = ref([
-            {
-                name: "عملیات میدانی",
-                data: [180, 220, 250, 300],
-            },
-            {
-                name: "داده آمائی",
-                data: [150, 180, 200, 240],
-            },
-            {
-                name: "ژئوکد",
-                data: [100, 130, 160, 190],
-            },
-        ]);
+        const dailySeries = ref([]);
+        const weeklySeries = ref([]);
 
         const currentSeries = computed(() => {
             return timeframe.value === "daily" ? dailySeries.value : weeklySeries.value;
         });
 
-        // Chart options
         const chartOptions = ref({
             chart: {
                 height: 350,
@@ -89,7 +53,13 @@ export default {
             },
             xaxis: {
                 categories: [],
-                type: "datetime",
+                type: "category", // نوع category به جای datetime
+                labels: {
+                    rotate: -45,
+                    style: {
+                        fontSize: '12px',
+                    },
+                },
             },
             yaxis: {
                 title: {
@@ -98,7 +68,7 @@ export default {
             },
             tooltip: {
                 x: {
-                    format: "dd MMM yyyy",
+                    formatter: (val) => val, // نمایش دقیق همان مقدار week_num
                 },
             },
             theme: {
@@ -109,70 +79,109 @@ export default {
                 : ["#FF6B6B", "#4ECDC4", "#556EE6"],
         });
 
-        // Update x-axis categories based on timeframe
-        const updateCategories = () => {
-            if (timeframe.value === "daily") {
-                chartOptions.value.xaxis.categories = [
-                    "2023-01-01", "2023-01-02", "2023-01-03", "2023-01-04", "2023-01-05",
-                    "2023-01-06", "2023-01-07", "2023-01-08", "2023-01-09"
-                ];
-            } else {
-                chartOptions.value.xaxis.categories = [
-                    "2023-01-01", "2023-01-08", "2023-01-15", "2023-01-22"
-                ];
+
+        const fetchDailyData = async () => {
+            try {
+                const response = await fetch('http://192.168.47.1:3001/api/weeklydata', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                const data = await response.json();
+                console.log(data);
+                dailySeries.value = formatData(data); // فقط formatData را صدا بزنید
+                chartKey.value++; // بازسازی نمودار
+            } catch (error) {
+                console.error('Error fetching daily data:', error);
             }
-            chartKey.value++; // Force re-render
         };
 
-        // Handle zoom event
+        const fetchWeeklyData = async () => {
+            try {
+                const response = await fetch('http://192.168.47.1:3001/api/monthlydata', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                const data = await response.json();
+                console.log(data);
+                weeklySeries.value = formatData(data); // فقط formatData را صدا بزنید
+                chartKey.value++; // بازسازی نمودار
+            } catch (error) {
+                console.error('Error fetching weekly data:', error);
+            }
+        };
+
+
+        const formatData = (data) => {
+            const seriesMap = {
+                amaliate_meydani: { name: "عملیات میدانی", data: [] },
+                dadeh_amaei: { name: "داده آمائی", data: [] },
+                daryafte_naghsheh: { name: "ژئوکد", data: [] },
+            };
+
+            const categories = [];
+
+            data.forEach(item => {
+                if (seriesMap[item.type_count]) {
+                    seriesMap[item.type_count].data.push(Number(item.record_count));
+                }
+                if (!categories.includes(item.week_num)) {
+                    categories.push(item.week_num);
+                }
+            });
+
+            // مستقیماً مقادیر محور X را از week_num دریافت کن
+            chartOptions.value.xaxis.categories = categories;
+
+            return Object.values(seriesMap);
+        };
+
+        // const updateCategories = () => {
+        //     if (timeframe.value === "daily") {
+        //         chartOptions.value.xaxis.categories = dailySeries.value[0]?.data.map((_, index) => `2023-01-${index + 1}`) || [];
+        //     } else {
+        //         chartOptions.value.xaxis.categories = weeklySeries.value[0]?.data.map((_, index) => `2023-01-${(index + 1) * 7}`) || [];
+        //     }
+        //     chartKey.value++; // Force re-render
+        // };
+
         const handleZoom = (chartContext, { xaxis, yaxis }) => {
             if (timeframe.value === "daily") {
                 const zoomRange = xaxis.max - xaxis.min;
-                // If zoomed out to show more than 7 days, switch to weekly view
-                if (zoomRange > 7 * 24 * 60 * 60 * 1000) { // 7 days in milliseconds
+                if (zoomRange > 7 * 24 * 60 * 60 * 1000) {
                     timeframe.value = "weekly";
-                    aggregateDailyToWeekly();
+                    fetchWeeklyData();
                 }
             }
         };
 
-        // Aggregate daily data to weekly data
-        const aggregateDailyToWeekly = () => {
-            const dailyData = dailySeries.value;
-            const weeklyData = dailyData.map(series => {
-                const weeklyValues = [];
-                for (let i = 0; i < series.data.length; i += 7) {
-                    const weekData = series.data.slice(i, i + 7);
-                    const sum = weekData.reduce((acc, val) => acc + val, 0);
-                    weeklyValues.push(sum);
-                }
-                return {
-                    name: series.name,
-                    data: weeklyValues,
-                };
-            });
-            weeklySeries.value = weeklyData;
-            updateCategories();
-        };
+        watch(timeframe, (newVal) => {
+            if (newVal === "daily") {
+                fetchDailyData();
+            } else {
+                fetchWeeklyData();
+            }
+            chartKey.value++; // اجباری برای بازسازی نمودار
+        });
 
-        // Watch for timeframe changes
-        watch(timeframe, updateCategories);
-
-        // Watch for theme changes
         watch(
             () => AppStore.isDarkTheme,
             (newVal) => {
                 chartOptions.value.theme.mode = newVal ? "dark" : "light";
                 chartOptions.value.colors = newVal
-                    ? ["#FF6B6B", "#4ECDC4", "#556EE6"]
-                    : ["#FF6B6B", "#4ECDC4", "#556EE6"];
+                    ? ["#FF6B6B", "#4ECDC4", "#556EE6"] // Dark theme colors
+                    : ["#FF6B6B", "#4ECDC4", "#556EE6"]; // Light theme colors
                 chartKey.value++; // Force re-render
             },
             { immediate: true }
         );
 
-        // Initialize categories
-        updateCategories();
+        onMounted(() => {
+            fetchDailyData();
+        });
 
         return {
             currentSeries,
