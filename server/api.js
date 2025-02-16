@@ -761,58 +761,64 @@ const getWeeklyData = async (role, permission) => {
 	location = role === '4' ? 'shahrestantitle' : (role === '1' ? 'ostantitle' : undefined);
   }
 
-  const sql = `WITH weeks AS (
+  const sql = `WITH RECURSIVE all_weeks AS (
     SELECT
-        cl.date,
-        (cl.date - ((EXTRACT(DOW FROM cl.date) + 1)::int % 7) * INTERVAL '1 day')::date AS week_start,
-        (cl.date - ((EXTRACT(DOW FROM cl.date) + 1)::int % 7) * INTERVAL '1 day' + INTERVAL '6 days')::date AS week_end,
-        cl.columns
-    FROM
-        change_log cl
+        DATE_TRUNC('week', '2024-08-24'::date + INTERVAL '2 day') - INTERVAL '2 day' AS week_start,
+        DATE_TRUNC('week', '2024-08-24'::date + INTERVAL '2 day') - INTERVAL '2 day' + INTERVAL '6 days' AS week_end
+    UNION ALL
+    SELECT
+        week_start + INTERVAL '7 days',
+        week_end + INTERVAL '7 days'
+    FROM all_weeks
+    WHERE week_end < CURRENT_DATE
 ),
-jalali_weeks AS (
+weekly_counts AS (
     SELECT
-        w.week_start,
-        w.week_end,
-        start_jalali.jy AS start_jy,
-        start_jalali.jm AS start_jm,
-        start_jalali.jd AS start_jd,
-        end_jalali.jy AS end_jy,
-        end_jalali.jm AS end_jm,
-        end_jalali.jd AS end_jd,
-        w.columns
-    FROM
-        weeks w
-        CROSS JOIN LATERAL gregorian_to_jalali(w.week_start::timestamp) AS start_jalali
-        CROSS JOIN LATERAL gregorian_to_jalali(w.week_end::timestamp) AS end_jalali
+        DATE_TRUNC('week', cl.date + INTERVAL '2 day') - INTERVAL '2 day' AS week_start,
+        COUNT(*) FILTER (WHERE cl.columns @> ARRAY['amaliate_meydani']) AS amaliate_meydani_count,
+        COUNT(*) FILTER (WHERE cl.columns @> ARRAY['dadeh_amaei']) AS dadeh_amaei_count,
+        COUNT(*) FILTER (WHERE cl.columns @> ARRAY['daryafte_naghsheh']) AS daryafte_naghsheh_count
+    FROM public.change_log cl
+    JOIN public.locations1 l ON cl.pop_id::bigint = l.population_point_id
+    GROUP BY DATE_TRUNC('week', cl.date + INTERVAL '2 day') - INTERVAL '2 day'
 ),
-formatted_weeks AS (
+lateral_counts AS (
     SELECT
-        *,
-        'از ' || LPAD(start_jd::text, 2, '0') || '/' || LPAD(start_jm::text, 2, '0') || '/' || start_jy || ' تا ' || LPAD(end_jd::text, 2, '0') || '/' || LPAD(end_jm::text, 2, '0') || '/' || end_jy AS week_num
-    FROM
-        jalali_weeks
-),
-unnested_columns AS (
+        aw.week_start,
+        'amaliate_meydani' AS operation,
+        COALESCE(wc.amaliate_meydani_count, 0) AS record_count
+    FROM all_weeks aw
+    LEFT JOIN weekly_counts wc ON aw.week_start = wc.week_start
+    UNION ALL
     SELECT
-        week_num,
-        week_start,  -- Include week_start here
-        unnest(columns) AS type_count
-    FROM
-        formatted_weeks
+        aw.week_start,
+        'dadeh_amaei' AS operation,
+        COALESCE(wc.dadeh_amaei_count, 0) AS record_count
+    FROM all_weeks aw
+    LEFT JOIN weekly_counts wc ON aw.week_start = wc.week_start
+    UNION ALL
+    SELECT
+        aw.week_start,
+        'daryafte_naghsheh' AS operation,
+        COALESCE(wc.daryafte_naghsheh_count, 0) AS record_count
+    FROM all_weeks aw
+    LEFT JOIN weekly_counts wc ON aw.week_start = wc.week_start
 )
 SELECT
-    week_num,
-    type_count,
-    COUNT(*) AS record_count
-FROM
-    unnested_columns
-WHERE
-    type_count IN ('amaliate_meydani', 'dadeh_amaei', 'daryafte_naghsheh')
-GROUP BY
-    week_num, type_count, week_start  -- Include week_start in GROUP BY
-ORDER BY
-    week_start, type_count;  -- Use week_start for ordering`;
+    'از' || gregorian_to_jalali(week_start + INTERVAL '3 days') || ' تا ' || gregorian_to_jalali(week_start + INTERVAL '9 days') AS week_num,
+    CONCAT(
+        'هفته',
+        ROW_NUMBER() OVER (PARTITION BY operation ORDER BY week_start),
+        CASE
+            WHEN ROW_NUMBER() OVER (PARTITION BY operation ORDER BY week_start) = 1 THEN ' (شهریور1403)'
+            ELSE ''
+        END
+    ) AS week_label,
+    record_count,
+    operation,
+    week_start -- Include week_start for ordering
+FROM lateral_counts
+ORDER BY week_start, operation;`;
   return await query(sql);
 };
 const getMonthlyData = async (role, permission) => {
@@ -826,58 +832,66 @@ const getMonthlyData = async (role, permission) => {
 	location = role === '4' ? 'shahrestantitle' : (role === '1' ? 'ostantitle' : undefined);
   }
 
-  const sql = `WITH months AS (
-    SELECT
-        cl.date,
-        DATE_TRUNC('month', cl.date)::date AS month_start,
-        (DATE_TRUNC('month', cl.date) + INTERVAL '1 month' - INTERVAL '1 day')::date AS month_end,
-        cl.columns
-    FROM
-        change_log cl
+  const sql = `WITH RECURSIVE all_months AS (
+  -- Define the first month starting 2024-08-22
+  SELECT
+    '2024-08-22'::date AS month_start,
+    '2024-09-21'::date AS month_end
+  UNION ALL
+  -- Recursively add months with a 1-month interval (starting the 22nd of each month)
+  SELECT
+    (month_start + INTERVAL '1 month')::date AS month_start,
+    (month_end + INTERVAL '1 month')::date AS month_end
+  FROM all_months
+  WHERE month_end < CURRENT_DATE
 ),
-jalali_months AS (
-    SELECT
-        m.month_start,
-        m.month_end,
-        start_jalali.jy AS start_jy,
-        start_jalali.jm AS start_jm,
-        start_jalali.jd AS start_jd,
-        end_jalali.jy AS end_jy,
-        end_jalali.jm AS end_jm,
-        end_jalali.jd AS end_jd,
-        m.columns
-    FROM
-        months m
-        CROSS JOIN LATERAL gregorian_to_jalali(m.month_start::timestamp) AS start_jalali
-        CROSS JOIN LATERAL gregorian_to_jalali(m.month_end::timestamp) AS end_jalali
+monthly_counts AS (
+  -- Aggregate the counts by each custom month
+  SELECT
+    -- Align the change_log dates with the custom months starting from the 22nd
+    am.month_start,
+    COUNT(*) FILTER (WHERE cl.columns @> ARRAY['amaliate_meydani']) AS amaliate_meydani_count,
+    COUNT(*) FILTER (WHERE cl.columns @> ARRAY['dadeh_amaei']) AS dadeh_amaei_count,
+    COUNT(*) FILTER (WHERE cl.columns @> ARRAY['daryafte_naghsheh']) AS daryafte_naghsheh_count
+  FROM public.change_log cl
+  JOIN public.locations1 l ON cl.pop_id::bigint = l.population_point_id
+  JOIN all_months am ON cl.date >= am.month_start AND cl.date <= am.month_end
+  GROUP BY am.month_start
 ),
-formatted_months AS (
-    SELECT
-        *,
-        'از ' || LPAD(start_jd::text, 2, '0') || '/' || LPAD(start_jm::text, 2, '0') || '/' || start_jy || ' تا ' || LPAD(end_jd::text, 2, '0') || '/' || LPAD(end_jm::text, 2, '0') || '/' || end_jy AS week_num
-    FROM
-        jalali_months
-),
-unnested_columns AS (
-    SELECT
-        week_num,
-        month_start,  -- Include month_start here
-        unnest(columns) AS type_count
-    FROM
-        formatted_months
+lateral_counts AS (
+  -- Create separate rows for each operation type in each month
+  SELECT
+    am.month_start,
+    'amaliate_meydani' AS operation,
+    COALESCE(mc.amaliate_meydani_count, 0) AS record_count
+  FROM all_months am
+  LEFT JOIN monthly_counts mc ON am.month_start = mc.month_start
+  UNION ALL
+  SELECT
+    am.month_start,
+    'dadeh_amaei' AS operation,
+    COALESCE(mc.dadeh_amaei_count, 0) AS record_count
+  FROM all_months am
+  LEFT JOIN monthly_counts mc ON am.month_start = mc.month_start
+  UNION ALL
+  SELECT
+    am.month_start,
+    'daryafte_naghsheh' AS operation,
+    COALESCE(mc.daryafte_naghsheh_count, 0) AS record_count
+  FROM all_months am
+  LEFT JOIN monthly_counts mc ON am.month_start = mc.month_start
 )
 SELECT
-    week_num,
-    type_count,
-    COUNT(*) AS record_count
-FROM
-    unnested_columns
-WHERE
-    type_count IN ('amaliate_meydani', 'dadeh_amaei', 'daryafte_naghsheh')
-GROUP BY
-    week_num, type_count, month_start  -- Include month_start in GROUP BY
-ORDER BY
-    month_start, type_count;  -- Use month_start for ordering`;
+  CONCAT('ماه', ROW_NUMBER() OVER (PARTITION BY operation ORDER BY month_start),
+    CASE 
+      WHEN ROW_NUMBER() OVER (PARTITION BY operation ORDER BY month_start) = 1 THEN ' (شهریور1403)'
+      ELSE ''
+    END
+  ) AS week_num,
+  record_count,
+  operation
+FROM lateral_counts
+ORDER BY week_num, operation;`;
   return await query(sql);
 };
 const getInteroperability = async (eghdamat) => {

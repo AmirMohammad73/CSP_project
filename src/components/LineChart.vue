@@ -5,8 +5,8 @@
             <v-card-text>
                 <div class="text-center mb-4">
                     <v-btn-toggle v-model="timeframe" mandatory>
-                        <v-btn value="daily">روزانه</v-btn>
-                        <v-btn value="weekly">هفتگی</v-btn>
+                        <v-btn value="daily">هفتگی</v-btn>
+                        <v-btn value="weekly">ماهانه</v-btn>
                     </v-btn-toggle>
                 </div>
                 <apexchart :key="chartKey" type="line" height="350" :options="chartOptions" :series="currentSeries"
@@ -82,7 +82,7 @@ export default {
 
         const fetchDailyData = async () => {
             try {
-                const response = await fetch('http://192.168.47.1:3001/api/weeklydata', {
+                const response = await fetch('http://172.16.8.33:3001/api/weeklydata', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -99,7 +99,7 @@ export default {
 
         const fetchWeeklyData = async () => {
             try {
-                const response = await fetch('http://192.168.47.1:3001/api/monthlydata', {
+                const response = await fetch('http://172.16.8.33:3001/api/monthlydata', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -125,8 +125,8 @@ export default {
             const categories = [];
 
             data.forEach(item => {
-                if (seriesMap[item.type_count]) {
-                    seriesMap[item.type_count].data.push(Number(item.record_count));
+                if (seriesMap[item.operation]) {
+                    seriesMap[item.operation].data.push(Number(item.record_count));
                 }
                 if (!categories.includes(item.week_num)) {
                     categories.push(item.week_num);

@@ -266,7 +266,7 @@ app.get('/api/radardata', authenticateToken, async (req, res) => {
 app.get('/api/weeklydata', authenticateToken, async (req, res) => {
   try {
 	const user = req.user;
-    const data = await getWeeklyData(user);
+    const data = await getWeeklyData(user.role, user.permission);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
@@ -276,7 +276,7 @@ app.get('/api/weeklydata', authenticateToken, async (req, res) => {
 app.get('/api/monthlydata', authenticateToken, async (req, res) => {
   try {
 	const user = req.user;
-    const data = await getMonthlyData(user);
+    const data = await getMonthlyData(user.role, user.permission);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);

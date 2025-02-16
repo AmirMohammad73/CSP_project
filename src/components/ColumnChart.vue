@@ -6,7 +6,9 @@
         <div v-if="loading">در حال بارگذاری...</div>
         <div v-else-if="error">خطا در دریافت داده‌ها: {{ error }}</div>
         <div v-else>
-          <apexchart :key="chartKey" type="radar" height="329" :options="chartOptions" :series="series"></apexchart>
+          <div class="chart-container">
+            <apexchart :key="chartKey" type="radar" :options="chartOptions" :series="series"></apexchart>
+          </div>
         </div>
       </v-card-text>
     </v-card>
@@ -59,7 +61,10 @@ export default {
             return value.toFixed(2) + "%";
           }
         }
-      }
+      },
+      markers: {
+    size: 3 // این خط را اضافه کنید
+  }
     });
 
 
@@ -92,7 +97,6 @@ export default {
           const dadehAmaeiRatio = (serverData.dadeh_amaei_count || 0) / totalCount * 100;
           const mokhtasatRoustaRatio = (serverData.mokhtasat_rousta_count || 0) / totalCount * 100;
           const mahdoudehRoustaRatio = (serverData.mahdoudeh_rousta_count || 0) / totalCount * 100;
-          console.log(serverData);
           series.value = [
             {
               name: "درصد پیشرفت",
@@ -114,7 +118,7 @@ export default {
     watch(
       () => AppStore.isDarkTheme,
       (newVal) => {
-        // تغییر رنگ‌ها و تم نمودار بر اساس دارک/لایت
+        // Update chart options
         chartOptions.value = {
           ...chartOptions.value,
           theme: {
@@ -126,10 +130,12 @@ export default {
           },
         };
         chartKey.value++; // Force re-render
+
+        // Set CSS variable for axis label color
+        document.documentElement.style.setProperty('--axis-label-color', newVal ? "white" : "black");
       },
       { immediate: true }
     );
-
 
     return {
       series,
@@ -145,5 +151,11 @@ export default {
 <style>
 .v-card {
   width: auto;
+}
+
+.apexcharts-xaxis-label {
+  font-family: 'B Traffic' !important;
+  fill: var(--axis-label-color) !important;
+  /* font-style: italic; */
 }
 </style>

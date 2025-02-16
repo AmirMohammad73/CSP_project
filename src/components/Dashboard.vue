@@ -3,19 +3,18 @@
     <v-row>
       <v-col>
         <Card url="updatecount" title="آمار عملیات میدانی" emoji="🛠️"
-          cardColor="linear-gradient(135deg, #ff9800, #ff5722)" />
+          cardColor="linear-gradient(135deg, #81d4fa, #64b5f6)" />
       </v-col>
       <v-col>
-        <Card url="dadehcount" title="آمار داده آمائی" emoji="📊"
-          cardColor="linear-gradient(135deg, #4caf50, #388e3c)" />
+        <Card url="dadehcount" title="آمار داده آئتی" emoji="📊"
+          cardColor="linear-gradient(135deg, #64b5f6, #2196f3)" />
       </v-col>
       <v-col>
         <Card url="mapcount" title="آمار نقشه" emoji="🗺️" cardColor="linear-gradient(135deg, #2196f3, #1565c0)" />
       </v-col>
       <v-col>
-        <Card url="geocount" title="آمار ژئوکد" emoji="📍" cardColor="linear-gradient(135deg, #e91e63, #d81b60)" />
+        <Card url="geocount" title="آمار ژئوکد" emoji="📍" cardColor="linear-gradient(135deg, #1565c0, #607d8b)" />
       </v-col>
-
     </v-row>
     <v-row>
       <v-col>
@@ -30,13 +29,13 @@
     </v-row>
     <v-row>
       <v-col>
-        <Medals title= "برترینها در عملیات میدانی هفته گذشته"/>
+        <Medals title="برترینها در عملیات میدانی هفته گذشته" />
       </v-col>
       <v-col>
-        <Medals title= "برترینها در داده آمائی هفته گذشته"/>
+        <Medals title="برترینها در داده آمائی هفته گذشته" />
       </v-col>
       <v-col>
-        <Medals title= "برترینها در ژئوکد هفته گذشته"/>
+        <Medals title="برترینها در ژئوکد هفته گذشته" />
       </v-col>
     </v-row>
   </v-container>
