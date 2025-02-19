@@ -11,8 +11,8 @@
         @click="$emit('change-component', 'Dashboard')"></v-list-item>
       <v-list-item prepend-icon="mdi-pencil" title="ورود اطلاعات" value="account" class="white--text"
         @click="$emit('change-component', 'InfoEntry')"></v-list-item>
-      <v-list-item prepend-icon="mdi-account-group" title="Users" value="users" class="white--text"
-        @click="$emit('change-component', 'Users')"></v-list-item>
+      <!-- <v-list-item prepend-icon="mdi-account-group" title="Users" value="users" class="white--text"
+        @click="$emit('change-component', 'Users')"></v-list-item> -->
       <v-list-item prepend-icon="mdi-chart-bar" title="آمارها" value="stats" class="white--text"
         @click="$emit('change-component', 'StatsCharts')"></v-list-item>
       <v-list-item prepend-icon="mdi-file-document" title="گزارشگیری" value="reports" class="white--text"

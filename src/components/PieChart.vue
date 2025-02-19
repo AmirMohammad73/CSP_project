@@ -190,7 +190,7 @@ export default {
 
 .v-card-text {
   padding: 1rem;
-  height: 20.15vw !important;
+  height: 49vh !important;
 }
 
 .v-row {
