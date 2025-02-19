@@ -16,11 +16,10 @@
             <!-- Table -->
             <v-card-text class="table-container">
                 <v-infinite-scroll :items="filteredRoostaData" @load="loadMoreRoostaData">
-                    <v-table dir="rtl" class="sticky-header-table"
-                        :style="{ '--sticky-header-bg': stickyHeaderBackgroundColor }">
+                    <v-table dir="rtl" height="70vh" fixed-header>
                         <thead>
                             <tr>
-                                <th v-for="header in roostaHeaders" :key="header.key" class="sticky-header">
+                                <th v-for="header in roostaHeaders" :key="header.key">
                                     {{ header.title }}
                                 </th>
                             </tr>
@@ -54,6 +53,7 @@
                             </template>
                         </tbody>
                     </v-table>
+
                 </v-infinite-scroll>
             </v-card-text>
 
@@ -74,7 +74,6 @@ export default {
         modelValue: Boolean,
         roostaData: Array,
         roostaHeaders: Array,
-        stickyHeaderBackgroundColor: String,
         dataFirstItem: Object
     },
     data() {
@@ -299,26 +298,6 @@ export default {
     overflow-y: auto;
 }
 
-.sticky-header-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-}
-
-.sticky-header-table thead {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    background-color: var(--sticky-header-bg);
-}
-
-.sticky-header-table th {
-    position: sticky;
-    top: 0;
-    background-color: var(--sticky-header-bg);
-    z-index: 1;
-}
-
 .v-table td {
     white-space: nowrap;
     padding: 8px;
@@ -343,5 +322,14 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.text-h5 {
+    font-family: 'B Traffic';
+}
+
+.v-btn {
+    font-family: 'B Traffic';
+    font-weight: bold;
 }
 </style>

@@ -750,17 +750,14 @@ const getBSCTab5Data = async () => {
     (SELECT * FROM section1_summary ORDER BY ostantitle);`;
   return await query(sql);
 };
-const getWeeklyData = async (role, permission) => {
+const getWeeklyData = async (role, permission, username) => {
 	  let whereClause = '';
-	  let location = 'ostantitle';
   // Add a WHERE clause if the role is 4 or 1
-  if (role === '4' || role === '1') {
-    // Convert the permission array into a list of SQL conditions
+  if(role === '4' || role === '1') {
+	      // Convert the permission array into a list of SQL conditions
     const conditions = permission.map((region) => `'${region}'`).join(', ');
-    whereClause = `WHERE ostantitle IN (${conditions})`;
-	location = role === '4' ? 'shahrestantitle' : (role === '1' ? 'ostantitle' : undefined);
+    whereClause = `WHERE ostantitle IN (${conditions}) `;
   }
-
   const sql = `WITH RECURSIVE all_weeks AS (
     SELECT
         DATE_TRUNC('week', '2024-08-24'::date + INTERVAL '2 day') - INTERVAL '2 day' AS week_start,
@@ -774,13 +771,14 @@ const getWeeklyData = async (role, permission) => {
 ),
 weekly_counts AS (
     SELECT
-        DATE_TRUNC('week', cl.date + INTERVAL '2 day') - INTERVAL '2 day' AS week_start,
-        COUNT(*) FILTER (WHERE cl.columns @> ARRAY['amaliate_meydani']) AS amaliate_meydani_count,
-        COUNT(*) FILTER (WHERE cl.columns @> ARRAY['dadeh_amaei']) AS dadeh_amaei_count,
-        COUNT(*) FILTER (WHERE cl.columns @> ARRAY['daryafte_naghsheh']) AS daryafte_naghsheh_count
-    FROM public.change_log cl
-    JOIN public.locations1 l ON cl.pop_id::bigint = l.population_point_id
-    GROUP BY DATE_TRUNC('week', cl.date + INTERVAL '2 day') - INTERVAL '2 day'
+        DATE_TRUNC('week', v.change_date + INTERVAL '2 day') - INTERVAL '2 day' AS week_start,
+        COUNT(*) FILTER (WHERE v.changed_columns @> ARRAY['amaliate_meydani']) AS amaliate_meydani_count,
+        COUNT(*) FILTER (WHERE v.changed_columns @> ARRAY['dadeh_amaei']) AS dadeh_amaei_count,
+        COUNT(*) FILTER (WHERE v.changed_columns @> ARRAY['daryafte_naghsheh']) AS daryafte_naghsheh_count
+    FROM public.users_change_log_view v
+    JOIN public.locations1 l ON v.pop_id::bigint = l.population_point_id
+	${whereClause}
+    GROUP BY DATE_TRUNC('week', v.change_date + INTERVAL '2 day') - INTERVAL '2 day'
 ),
 lateral_counts AS (
     SELECT
@@ -816,20 +814,19 @@ SELECT
     ) AS week_label,
     record_count,
     operation,
-    week_start -- Include week_start for ordering
+    week_start
 FROM lateral_counts
-ORDER BY week_start, operation;`;
+ORDER BY week_start, operation;
+`;
   return await query(sql);
 };
-const getMonthlyData = async (role, permission) => {
+const getMonthlyData = async (role, permission, username) => {
 	  let whereClause = '';
-	  let location = 'ostantitle';
   // Add a WHERE clause if the role is 4 or 1
-  if (role === '4' || role === '1') {
-    // Convert the permission array into a list of SQL conditions
+  if(role === '4' || role === '1') {
+	      // Convert the permission array into a list of SQL conditions
     const conditions = permission.map((region) => `'${region}'`).join(', ');
-    whereClause = `WHERE ostantitle IN (${conditions})`;
-	location = role === '4' ? 'shahrestantitle' : (role === '1' ? 'ostantitle' : undefined);
+    whereClause = `WHERE ostantitle IN (${conditions}) `;
   }
 
   const sql = `WITH RECURSIVE all_months AS (
@@ -850,12 +847,13 @@ monthly_counts AS (
   SELECT
     -- Align the change_log dates with the custom months starting from the 22nd
     am.month_start,
-    COUNT(*) FILTER (WHERE cl.columns @> ARRAY['amaliate_meydani']) AS amaliate_meydani_count,
-    COUNT(*) FILTER (WHERE cl.columns @> ARRAY['dadeh_amaei']) AS dadeh_amaei_count,
-    COUNT(*) FILTER (WHERE cl.columns @> ARRAY['daryafte_naghsheh']) AS daryafte_naghsheh_count
-  FROM public.change_log cl
-  JOIN public.locations1 l ON cl.pop_id::bigint = l.population_point_id
-  JOIN all_months am ON cl.date >= am.month_start AND cl.date <= am.month_end
+    COUNT(*) FILTER (WHERE ucl.changed_columns @> ARRAY['amaliate_meydani']) AS amaliate_meydani_count,
+    COUNT(*) FILTER (WHERE ucl.changed_columns @> ARRAY['dadeh_amaei']) AS dadeh_amaei_count,
+    COUNT(*) FILTER (WHERE ucl.changed_columns @> ARRAY['daryafte_naghsheh']) AS daryafte_naghsheh_count
+  FROM public.users_change_log_view ucl
+  JOIN public.locations1 l ON ucl.pop_id::bigint = l.population_point_id
+  JOIN all_months am ON ucl.change_date >= am.month_start AND ucl.change_date <= am.month_end
+  ${whereClause}
   GROUP BY am.month_start
 ),
 lateral_counts AS (
@@ -894,8 +892,80 @@ FROM lateral_counts
 ORDER BY week_num, operation;`;
   return await query(sql);
 };
+const getQuarterlyData = async (role, permission, username) => {
+	  let whereClause = '';
+  // Add a WHERE clause if the role is 4 or 1
+  if(role === '4' || role === '1') {
+	      // Convert the permission array into a list of SQL conditions
+    const conditions = permission.map((region) => `'${region}'`).join(', ');
+    whereClause = `WHERE ostantitle IN (${conditions}) `;
+  }
+  const sql = `WITH RECURSIVE all_quarters AS (
+  -- Define the first quarter starting 2024-08-22
+  SELECT
+    '2024-08-22'::date AS quarter_start,
+    '2024-11-19'::date AS quarter_end
+  UNION ALL
+  -- Recursively add quarters with a 3-month interval
+  SELECT
+    (quarter_start + INTERVAL '3 months')::date AS quarter_start,
+    (quarter_end + INTERVAL '3 months')::date AS quarter_end
+  FROM all_quarters
+  WHERE quarter_end < CURRENT_DATE
+),
+quarterly_counts AS (
+  -- Aggregate the counts by each custom quarter
+  SELECT
+    -- Align the change_log dates with the custom quarters
+    aq.quarter_start,
+    COUNT(*) FILTER (WHERE ucl.changed_columns @> ARRAY['amaliate_meydani']) AS amaliate_meydani_count,
+    COUNT(*) FILTER (WHERE ucl.changed_columns @> ARRAY['dadeh_amaei']) AS dadeh_amaei_count,
+    COUNT(*) FILTER (WHERE ucl.changed_columns @> ARRAY['daryafte_naghsheh']) AS daryafte_naghsheh_count
+  FROM public.users_change_log_view ucl
+  JOIN public.locations1 l ON ucl.pop_id::bigint = l.population_point_id
+  JOIN all_quarters aq ON ucl.change_date >= aq.quarter_start AND ucl.change_date <= aq.quarter_end
+  ${whereClause}
+  GROUP BY aq.quarter_start
+),
+lateral_counts AS (
+  -- Create separate rows for each operation type in each quarter
+  SELECT
+    aq.quarter_start,
+    'amaliate_meydani' AS operation,
+    COALESCE(qc.amaliate_meydani_count, 0) AS record_count
+  FROM all_quarters aq
+  LEFT JOIN quarterly_counts qc ON aq.quarter_start = qc.quarter_start
+  UNION ALL
+  SELECT
+    aq.quarter_start,
+    'dadeh_amaei' AS operation,
+    COALESCE(qc.dadeh_amaei_count, 0) AS record_count
+  FROM all_quarters aq
+  LEFT JOIN quarterly_counts qc ON aq.quarter_start = qc.quarter_start
+  UNION ALL
+  SELECT
+    aq.quarter_start,
+    'daryafte_naghsheh' AS operation,
+    COALESCE(qc.daryafte_naghsheh_count, 0) AS record_count
+  FROM all_quarters aq
+  LEFT JOIN quarterly_counts qc ON aq.quarter_start = qc.quarter_start
+)
+SELECT
+  CONCAT('سه‌ماهه ', ROW_NUMBER() OVER (PARTITION BY operation ORDER BY quarter_start),
+    CASE 
+      WHEN ROW_NUMBER() OVER (PARTITION BY operation ORDER BY quarter_start) = 1 THEN ' (شهریور-آبان 1403)'
+      ELSE ''
+    END
+  ) AS week_num,
+  record_count,
+  operation
+FROM lateral_counts
+ORDER BY week_num, operation;`;
+  return await query(sql);
+};
+
 const getInteroperability = async (eghdamat) => {
-  const sql = `SELECT kargrouh_barnameh1.year, kargrouh_barnameh1.amaliat, kargrouh_barnameh1.eghdamat, kargrouh_barnameh1.amalkard, kargrouh_barnameh1.tahaghog, kargrouh_barnameh1.vahede_sanjesh, kargrouh_barnameh1.motevali, kargrouh_barnameh1.dastgah, GREATEST((SELECT month_cal(13, kargrouh_barnameh1.id)) - kargrouh_barnameh1.amalkard, 0) AS dirkard, ((farvardin + ordibehesht + khordad + tir + mordad + shahrivar + mehr + aban + azar + dey + bahman + esfand) - GREATEST((SELECT month_cal(13, kargrouh_barnameh1.id)) - kargrouh_barnameh1.amalkard, 0) - kargrouh_barnameh1.amalkard) AS barnameh_diff FROM kargrouh_barnameh1 WHERE eghdamat LIKE '${eghdamat}' ORDER BY priority;`;
+  const sql = `SELECT kargrouh_barnameh1.year AS "سال", kargrouh_barnameh1.amaliat AS "عملیات", kargrouh_barnameh1.eghdamat AS "اقدامات", kargrouh_barnameh1.amalkard AS "عملکرد", kargrouh_barnameh1.tahaghog AS "تحقق", kargrouh_barnameh1.vahede_sanjesh AS "واحد سنجش", kargrouh_barnameh1.motevali AS "متولی", kargrouh_barnameh1.dastgah AS "دستگاه", GREATEST((SELECT month_cal(13, kargrouh_barnameh1.id)) - kargrouh_barnameh1.amalkard, 0) AS "دیرکرد", ((farvardin + ordibehesht + khordad + tir + mordad + shahrivar + mehr + aban + azar + dey + bahman + esfand) - GREATEST((SELECT month_cal(13, kargrouh_barnameh1.id)) - kargrouh_barnameh1.amalkard, 0) - kargrouh_barnameh1.amalkard) AS "تفاضل برنامه" FROM kargrouh_barnameh1 WHERE eghdamat LIKE '${eghdamat}' ORDER BY priority;`;
   return await query(sql);
 };
 const getPostalCodeRequest = async (role, permission) => {
@@ -1144,4 +1214,4 @@ const getOstanNames = async (role, permission) => {
 const sql = `SELECT ostantitle FROM public.locations1 ${whereClause} GROUP BY ostantitle ORDER BY ostantitle;`;
   return await query(sql);
 };
-module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData, getWeeklyData, getMonthlyData };
+module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData, getWeeklyData, getMonthlyData, getQuarterlyData };

@@ -127,15 +127,23 @@ export default {
     watch(
       () => AppStore.isDarkTheme,
       (newVal) => {
-        if (chartOptions.value.theme) {
-          chartOptions.value.theme.mode = newVal ? "dark" : "light";
-        } else {
-          chartOptions.value.theme = { mode: newVal ? "dark" : "light" };
-        }
-        chartOptions.value.colors = newVal ? ["#00E396"] : ["#008FFB"];
+        // Update chart options
+        chartOptions.value = {
+          ...chartOptions.value,
+          theme: {
+            mode: newVal ? "dark" : "light",
+          },
+          colors: newVal ? ["#00E396"] : ["#008FFB"],
+          chart: {
+            background: newVal ? "#1E1E1E" : "#FFFFFF",
+          },
+        };
         chartKey.value++; // Force re-render
+
+        // Set CSS variable for axis label color
+        document.documentElement.style.setProperty('--axis-label-color', newVal ? "white" : "black");
       },
-      { immediate: true } // Ensure this runs during the initial setup
+      { immediate: true }
     );
 
     // Handle selectedOption changes
@@ -272,6 +280,7 @@ export default {
 .text-h6 {
   font-family: 'B Traffic', sans-serif !important;
 }
+
 th {
   padding-left: '8 px' !important;
 }

@@ -1,12 +1,13 @@
 <template>
     <v-container>
         <v-card>
-            <v-card-title class="text-center">گزارش هفتگی/ماهانه</v-card-title>
+            <v-card-title class="text-center">گزارش هفتگی/ماهانه/سه‌ماهه</v-card-title>
             <v-card-text>
                 <div class="text-center mb-4">
                     <v-btn-toggle v-model="timeframe" mandatory>
                         <v-btn value="daily">هفتگی</v-btn>
                         <v-btn value="weekly">ماهانه</v-btn>
+                        <v-btn value="quarterly">سه‌ماهه</v-btn>
                     </v-btn-toggle>
                 </div>
                 <apexchart :key="chartKey" type="line" height="350" :options="chartOptions" :series="currentSeries"
@@ -32,9 +33,19 @@ export default {
 
         const dailySeries = ref([]);
         const weeklySeries = ref([]);
+        const quarterlySeries = ref([]);
 
         const currentSeries = computed(() => {
-            return timeframe.value === "daily" ? dailySeries.value : weeklySeries.value;
+            switch (timeframe.value) {
+                case "daily":
+                    return dailySeries.value;
+                case "weekly":
+                    return weeklySeries.value;
+                case "quarterly":
+                    return quarterlySeries.value;
+                default:
+                    return dailySeries.value;
+            }
         });
 
         const chartOptions = ref({
@@ -63,7 +74,7 @@ export default {
             },
             yaxis: {
                 title: {
-                    text: "Value",
+                    text: "تعداد",
                 },
             },
             tooltip: {
@@ -82,7 +93,7 @@ export default {
 
         const fetchDailyData = async () => {
             try {
-                const response = await fetch('http://172.16.8.33:3001/api/weeklydata', {
+                const response = await fetch('http://192.168.47.1:3001/api/weeklydata', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -90,8 +101,8 @@ export default {
                 });
                 const data = await response.json();
                 console.log(data);
-                dailySeries.value = formatData(data); // فقط formatData را صدا بزنید
-                chartKey.value++; // بازسازی نمودار
+                dailySeries.value = formatData(data);
+                chartKey.value++;
             } catch (error) {
                 console.error('Error fetching daily data:', error);
             }
@@ -99,7 +110,7 @@ export default {
 
         const fetchWeeklyData = async () => {
             try {
-                const response = await fetch('http://172.16.8.33:3001/api/monthlydata', {
+                const response = await fetch('http://192.168.47.1:3001/api/monthlydata', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -107,14 +118,29 @@ export default {
                 });
                 const data = await response.json();
                 console.log(data);
-                weeklySeries.value = formatData(data); // فقط formatData را صدا بزنید
-                chartKey.value++; // بازسازی نمودار
+                weeklySeries.value = formatData(data);
+                chartKey.value++;
             } catch (error) {
                 console.error('Error fetching weekly data:', error);
             }
         };
 
-
+        const fetchQuarterlyData = async () => {
+            try {
+                const response = await fetch('http://192.168.47.1:3001/api/quarterlydata', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                const data = await response.json();
+                console.log(data);
+                quarterlySeries.value = formatData(data);
+                chartKey.value++;
+            } catch (error) {
+                console.error('Error fetching quarterly data:', error);
+            }
+        };
         const formatData = (data) => {
             const seriesMap = {
                 amaliate_meydani: { name: "عملیات میدانی", data: [] },
@@ -159,12 +185,18 @@ export default {
         };
 
         watch(timeframe, (newVal) => {
-            if (newVal === "daily") {
-                fetchDailyData();
-            } else {
-                fetchWeeklyData();
+            switch (newVal) {
+                case "daily":
+                    fetchDailyData();
+                    break;
+                case "weekly":
+                    fetchWeeklyData();
+                    break;
+                case "quarterly":
+                    fetchQuarterlyData();
+                    break;
             }
-            chartKey.value++; // اجباری برای بازسازی نمودار
+            chartKey.value++;
         });
 
         watch(

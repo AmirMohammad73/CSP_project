@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-card>
-      <v-card-title style="direction: rtl;">میزان پیشرفت فعالیت‌ها</v-card-title>
+      <v-card-title class="text-center" style="direction: rtl; text-align: center">میزان پیشرفت فعالیت‌ها</v-card-title>
       <v-card-text>
         <div v-if="loading">در حال بارگذاری...</div>
         <div v-else-if="error">خطا در دریافت داده‌ها: {{ error }}</div>
@@ -157,5 +157,8 @@ export default {
   font-family: 'B Traffic' !important;
   fill: var(--axis-label-color) !important;
   /* font-style: italic; */
+}
+.text-center{
+  padding: 0;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-card>
-      <v-card-title style="direction: rtl;">میزان پیشرفت کلی پروژه</v-card-title>
+      <v-card-title style="direction: rtl; text-align: center;">میزان پیشرفت کلی پروژه</v-card-title>
       <v-card-text>
         <div v-if="loading">در حال بارگذاری...</div>
         <div v-else-if="error">خطا در دریافت داده‌ها: {{ error }}</div>
@@ -190,7 +190,7 @@ export default {
 
 .v-card-text {
   padding: 1rem;
-  height: 460px !important;
+  height: 20.15vw !important;
 }
 
 .v-row {

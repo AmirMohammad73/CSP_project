@@ -108,6 +108,28 @@ export function useDataFetching (
         dirkard: 'دیرکرد',
         barnameh_diff: 'تفاضل برنامه'
       }
+      function translateKeys(item) {
+        const keyMap = {
+          year: 'سال',
+          amaliat: 'عملیات',
+          eghdamat: 'اقدامات',
+          amalkard: 'عملکرد',
+          tahaghog: 'تحقق',
+          vahede_sanjesh: 'واحد سنجش',
+          motevali: 'معتبر',
+          dastgah: 'دستگاه',
+          dirkard: 'دیرکرد',
+          barnameh_diff: 'تفاضل برنامه'
+        };
+      
+        return Object.keys(item).reduce((acc, key) => {
+          acc[keyMap[key] || key] = item[key];
+          return acc;
+        }, {});
+      }
+      
+      // ترجمه filteredData
+      const translatedFilteredData = filteredData.map(translateKeys);
       // Handle data for پایش عملیات روستایی
       if (selectedOption.value === 'پایش عملیات روستایی') {
         if (activeTab.value === 0) {
@@ -272,113 +294,102 @@ export function useDataFetching (
             }
           }
         }
-      } else if (selectedOption.value === 'برنامه کارگروه تعامل پذیری') {
-        const years = [...new Set(filteredData.map(item => item.year))]
+      }
+      else if (selectedOption.value === 'برنامه کارگروه تعامل پذیری') {
+        console.log(translatedFilteredData);
+        const years = [...new Set(translatedFilteredData.map(item => item['سال']))];
         const amaliatCategories = [
-          ...new Set(filteredData.map(item => item.amaliat))
-        ]
-        categories = amaliatCategories
-        chartOptions.value.chart.type = 'bar'
-        chartOptions.value.chart.stacked = true // Enable stacking
+          ...new Set(translatedFilteredData.map(item => item['عملیات']))
+        ];
+        categories = amaliatCategories;
+        chartOptions.value.chart.type = 'bar';
+        chartOptions.value.chart.stacked = true; // Enable stacking
         let originItem = [];
+        
         // Calculate percentages for each category
         const calculatePercentages = (year, amaliat) => {
-          const item = filteredData.find(
-            d => d.year === year && d.amaliat === amaliat
-          )
-          if (!item) return { amalkard: 0, dirkard: 0, barnameh_diff: 0 }
-
+          const item = translatedFilteredData.find(
+            d => d['سال'] === year && d['عملیات'] === amaliat
+          );
+          if (!item) return { 'عملکرد': 0, 'دیرکرد': 0, 'تفاضل برنامه': 0 };
+      
           const total =
-            Number(item.amalkard) +
-            Number(item.dirkard) +
-            Number(item.barnameh_diff)
+            Number(item['عملکرد']) +
+            Number(item['دیرکرد']) +
+            Number(item['تفاضل برنامه']);
           return {
-            amalkard: total === 0 ? 0 : (Number(item.amalkard) / total) * 100,
-            dirkard: total === 0 ? 0 : (Number(item.dirkard) / total) * 100,
-            barnameh_diff:
-              total === 0 ? 0 : (Number(item.barnameh_diff) / total) * 100
-          }
-        }
+            'عملکرد': total === 0 ? 0 : (Number(item['عملکرد']) / total) * 100,
+            'دیرکرد': total === 0 ? 0 : (Number(item['دیرکرد']) / total) * 100,
+            'تفاضل برنامه':
+              total === 0 ? 0 : (Number(item['تفاضل برنامه']) / total) * 100
+          };
+        };
+      
         // Build series with grouped stacks per year
-        series = []
+        series = [];
         years.forEach(year => {
           const percentages = amaliatCategories.map(amaliat =>
             calculatePercentages(year, amaliat)
-          )
+          );
           series.push({
             name: `عملکرد ${year}`,
-            data: percentages.map(p => p.amalkard),
+            data: percentages.map(p => p['عملکرد']),
             group: year.toString(), // Group by year
             stack: 'stack',
             color: '#00E396'
-          })
+          });
           series.push({
             name: `دیرکرد ${year}`,
-            data: percentages.map(p => p.dirkard),
+            data: percentages.map(p => p['دیرکرد']),
             group: year.toString(),
             stack: 'stack',
             color: '#FF4560'
-          })
+          });
           series.push({
             name: `برنامه ${year}`,
-            data: percentages.map(p => p.barnameh_diff),
+            data: percentages.map(p => p['تفاضل برنامه']),
             group: year.toString(),
             stack: 'stack',
             color: '#4682B4'
-          })
-        })
-        // chartOptions.value.xaxis.categories = amaliatCategories;
-        chartOptions.value.plotOptions.bar.columnWidth = '80%'
-
-        // Remove data labels
-        chartOptions.value.dataLabels = {
-          enabled: false
-        }
-
-        // Update y-axis to show percentages
-        chartOptions.value.yaxis = {
-          max: 100,
-          labels: {
-            formatter: function (val) {
-              return val.toFixed(0) + '%'
-            }
-          }
-        }
-
+          });
+        });
+      
+        // سایر تنظیمات چارت بدون تغییر باقی می‌ماند
+      
         // Update tooltip to show original values and percentages
         chartOptions.value.tooltip = {
           y: {
             formatter: function (val, { seriesIndex, dataPointIndex, w }) {
-              const seriesName = w.globals.seriesNames[seriesIndex]
-              const [typeName, year] = seriesName.split(' ')
-              const amaliat = w.globals.categoryLabels[dataPointIndex]
-              const item = filteredData.find(
-                d => d.year === year && d.amaliat === amaliat
-              )
-
+              const seriesName = w.globals.seriesNames[seriesIndex];
+              const [typeName, year] = seriesName.split(' ');
+              const amaliat = w.globals.categoryLabels[dataPointIndex];
+              const item = translatedFilteredData.find(
+                d => d['سال'] === year && d['عملیات'] === amaliat
+              );
+      
               if (item) {
-                let typeKey
+                let typeKey;
                 switch (typeName) {
                   case 'عملکرد':
-                    typeKey = 'amalkard'
-                    break
+                    typeKey = 'عملکرد';
+                    break;
                   case 'دیرکرد':
-                    typeKey = 'dirkard'
-                    break
+                    typeKey = 'دیرکرد';
+                    break;
                   case 'برنامه':
-                    typeKey = 'barnameh_diff'
-                    break
+                    typeKey = 'تفاضل برنامه';
+                    break;
                   default:
-                    typeKey = ''
+                    typeKey = '';
                 }
-                const originalValue = item[typeKey]
+                const originalValue = item[typeKey];
                 console.log(originalValue);
-                return `${originalValue} (${val.toFixed(2)}%)`
+                return `${originalValue} (${val.toFixed(2)}%)`;
               }
-              return val.toFixed(2) + '%'
+              return val.toFixed(2) + '%';
             }
           }
-        }
+        };
       }
       // Update the chart's options
       chartOptions.value.xaxis.categories = categories

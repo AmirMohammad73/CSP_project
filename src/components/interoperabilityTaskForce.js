@@ -16,7 +16,7 @@ export function useInteroperabilityTaskForce() {
     const headers = ref([
         [
             { text: "عملیات", value: "amaliat" },
-            { text: "سال", value: "year" },
+            { text: "سال", value: "سال" },
             { text: "اقدامات", value: "eghdamat" },
             { text: "عملکرد", value: "amalkard" },
             { text: "دیرکرد", value: "dirkard" },
@@ -27,7 +27,7 @@ export function useInteroperabilityTaskForce() {
         ],
         [
             { text: "عملیات", value: "amaliat" },
-            { text: "سال", value: "year" },
+            { text: "سال", value: "سال" },
             { text: "اقدامات", value: "eghdamat" },
             { text: "عملکرد", value: "amalkard" },
             { text: "دیرکرد", value: "dirkard" },
@@ -38,7 +38,7 @@ export function useInteroperabilityTaskForce() {
         ],
         [
             { text: "عملیات", value: "amaliat" },
-            { text: "سال", value: "year" },
+            { text: "سال", value: "سال" },
             { text: "اقدامات", value: "eghdamat" },
             { text: "عملکرد", value: "amalkard" },
             { text: "دیرکرد", value: "dirkard" },
@@ -49,7 +49,7 @@ export function useInteroperabilityTaskForce() {
         ],
         [
             { text: "عملیات", value: "amaliat" },
-            { text: "سال", value: "year" },
+            { text: "سال", value: "سال" },
             { text: "اقدامات", value: "eghdamat" },
             { text: "عملکرد", value: "amalkard" },
             { text: "دیرکرد", value: "dirkard" },
