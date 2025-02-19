@@ -224,7 +224,6 @@ export default {
       try {
         const currentHeaders = headers.value[activeTab.value];
         const currentData = tableData.value[activeTab.value];
-
         if (!currentHeaders || !currentData) {
           console.error("No headers or data available for the current tab.");
           return;
