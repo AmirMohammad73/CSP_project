@@ -975,7 +975,7 @@ const getPostalCodeRequest = async (role, permission) => {
   if (role === '4' || role === '1') {
     // Convert the permission array into a list of SQL conditions
     const conditions = permission.map((region) => `'${region}'`).join(', ');
-    whereClause = `WHERE ostantitle IN (${conditions}) `;
+    whereClause = `WHERE "استان" IN (${conditions}) `;
 	location = role === '4' ? 'shahrestantitle' : (role === '1' ? 'ostantitle' : undefined);
   }
 
@@ -1092,6 +1092,91 @@ const updateRoostaData = async (modifiedRecords) => {
     client.release();
   }
 };
+const getBests = async (operator) => {
+  const sql = `WITH query1 AS (
+  WITH RECURSIVE all_weeks AS (
+    SELECT 
+      DATE_TRUNC('week', '2024-08-24'::date + INTERVAL '2 day') - INTERVAL '2 day' AS week_start,
+      DATE_TRUNC('week', '2024-08-24'::date + INTERVAL '2 day') - INTERVAL '2 day' + INTERVAL '6 days' AS week_end
+    UNION ALL
+    SELECT 
+      week_start + INTERVAL '7 days',
+      week_end + INTERVAL '7 days'
+    FROM all_weeks
+    WHERE week_end < CURRENT_DATE
+  ),
+  weekly_counts AS (
+    SELECT 
+      DATE_TRUNC('week', cl.date + INTERVAL '2 day') - INTERVAL '2 day' AS week_start,
+      COUNT(*) FILTER (WHERE cl.columns @> ARRAY['amaliate_meydani']) AS amaliate_meydani_count,
+      COUNT(*) FILTER (WHERE cl.columns @> ARRAY['dadeh_amaei']) AS dadeh_amaei_count,
+      COUNT(*) FILTER (WHERE cl.columns @> ARRAY['daryafte_naghsheh']) AS daryafte_naghsheh_count
+    FROM public.change_log cl
+    JOIN public.locations1 l ON cl.pop_id::bigint = l.population_point_id
+    GROUP BY DATE_TRUNC('week', cl.date + INTERVAL '2 day') - INTERVAL '2 day'
+  ),
+  week_labels AS (
+    SELECT 
+      week_start,
+      CONCAT(
+        'هفته', 
+        ROW_NUMBER() OVER (ORDER BY week_start), 
+        CASE 
+          WHEN ROW_NUMBER() OVER (ORDER BY week_start) = 1 THEN ' (شهریور1403)'
+          ELSE ''
+        END
+      ) AS week_label
+    FROM all_weeks
+  ),
+  max_week AS (
+    SELECT MAX(CAST(SUBSTRING(week_label FROM 'هفته(\\d+)') AS INTEGER)) AS max_week_number
+    FROM week_labels
+    WHERE EXISTS (
+      SELECT 1
+      FROM change_log cl
+      JOIN public.locations1 l ON cl.pop_id::bigint = l.population_point_id
+      WHERE DATE_TRUNC('week', cl.date + INTERVAL '2 day') - INTERVAL '2 day' = week_labels.week_start
+      AND '${operator}' = ANY(cl.columns)
+    )
+  )
+  SELECT 
+    l.ostantitle,
+    COUNT(*) AS count
+  FROM change_log cl
+  JOIN public.locations1 l ON cl.pop_id::bigint = l.population_point_id
+  JOIN week_labels wl ON DATE_TRUNC('week', cl.date + INTERVAL '2 day') - INTERVAL '2 day' = wl.week_start
+  CROSS JOIN max_week mw
+  WHERE '${operator}' = ANY(cl.columns)
+  AND CAST(SUBSTRING(wl.week_label FROM 'هفته(\\d+)') AS INTEGER) = mw.max_week_number - 1
+  GROUP BY l.ostantitle
+),
+query2 AS (
+  SELECT ostantitle, count(*) AS total_count
+  FROM public.locations1
+  GROUP BY ostantitle
+),
+avg_work_done AS (
+  SELECT AVG(count) AS avg_count
+  FROM query1
+)
+SELECT 
+  COALESCE(q1.ostantitle, q2.ostantitle) AS ostantitle,
+  CASE 
+    WHEN q2.total_count = 0 OR avg.avg_count = 0 THEN NULL
+    ELSE ROUND(
+      CAST(COALESCE(q1.count, 0) AS NUMERIC) / q2.total_count *
+      COALESCE(q1.count, 0) / avg.avg_count,
+      4
+    )
+  END AS efficiency_index
+FROM query1 q1
+FULL OUTER JOIN query2 q2 ON q1.ostantitle = q2.ostantitle
+CROSS JOIN avg_work_done avg
+ORDER BY efficiency_index DESC NULLS LAST
+LIMIT 3;`;
+  return await query(sql);
+};
+
 const authenticateUser = async (username, password) => {
   const client = await pool.connect();
   try {
@@ -1214,4 +1299,4 @@ const getOstanNames = async (role, permission) => {
 const sql = `SELECT ostantitle FROM public.locations1 ${whereClause} GROUP BY ostantitle ORDER BY ostantitle;`;
   return await query(sql);
 };
-module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData, getWeeklyData, getMonthlyData, getQuarterlyData };
+module.exports = { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData, getWeeklyData, getMonthlyData, getQuarterlyData, getBests };

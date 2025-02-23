@@ -29,13 +29,13 @@
     </v-row>
     <v-row>
       <v-col>
-        <Medals title="برترین استانها در عملیات میدانی هفته گذشته" />
+        <Medals title="برترین استانها در عملیات میدانی هفته گذشته" url="best-updates"/>
       </v-col>
       <v-col>
-        <Medals title="برترین استانها در داده آمائی هفته گذشته" />
+        <Medals title="برترین استانها در داده آمائی هفته گذشته" url="best-data"/>
       </v-col>
       <v-col>
-        <Medals title="برترین استانها در ژئوکد هفته گذشته" />
+        <Medals title="برترین استانها در ژئوکد هفته گذشته" url="best-geocodes"/>
       </v-col>
     </v-row>
   </v-container>
