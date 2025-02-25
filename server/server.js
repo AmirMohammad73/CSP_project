@@ -37,9 +37,16 @@ app.get('/api/locations', authenticateToken, async (req, res) => {
     if (user.role === '4') {
       // For role 4, return an empty array or skip fetching data
       res.json(['ostan']);
-    } else if (user.role === '1'){
-		res.json(['setad']);
-	}		else {
+    } else if (user.role === '1') {
+      res.json(['setad']);
+    } else if (user.role === '5') {
+      // Fetch general locations data
+      const data = await getLocationsData();
+      // Combine ['QR'] with the fetched data
+      const combinedData = ['QR', ...data];
+      // Send the combined data as response
+      res.json(combinedData);
+    } else {
       // For other roles, fetch and return the general locations data
       const data = await getLocationsData();
       res.json(data);

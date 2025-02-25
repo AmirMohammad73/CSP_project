@@ -125,6 +125,17 @@ export default {
                     });
                 }
             }
+            else if (this.dataFirstItem === 'QR') {
+                const checkboxes = ['tolid_qr'];
+                if (checkboxes.includes(key)) {
+                    // Uncheck other checkboxes
+                    checkboxes.forEach(checkbox => {
+                        if (checkbox !== key) {
+                            item[checkbox] = false;
+                        }
+                    });
+                }
+            }
         },
         setInitialCheckboxStates() {
             this.initialCheckboxStates = this.roostaData.reduce((acc, item) => {
@@ -143,6 +154,10 @@ export default {
                     'bonyad_maskan',
                     'sayer_manabe',
                     'tarsim',
+                ];
+            } else if (this.dataFirstItem === 'QR') {
+                editableColumns = [
+                    'tolid_qr',
                 ];
             } else if (this.dataFirstItem !== 'manager') {
                 editableColumns = [

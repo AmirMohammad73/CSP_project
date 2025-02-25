@@ -333,7 +333,7 @@ export default {
         }
         const data = await response.json();
         this.dataFirstItem = data[0];
-        if (data[0] === 'ostan' || data[0] === 'setad') {
+        if (data[0] === 'ostan' || data[0] === 'setad' || data[0] === 'QR') {
           this.isRole4 = true;
           // If data is empty (role 4), fetch detailed locations directly
           await this.fetchDetailedLocations();

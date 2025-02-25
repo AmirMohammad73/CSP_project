@@ -1054,7 +1054,7 @@ const updateRoostaData = async (modifiedRecords) => {
     await client.query('BEGIN'); // Start a transaction
 
     for (const record of modifiedRecords) {
-      const { population_point_id, shenaseh_melli, amaliate_meydani, dadeh_amaei, geocode } = record;
+      const { population_point_id, shenaseh_melli, amaliate_meydani, dadeh_amaei, geocode, tolid_qr, pelak_talfighi } = record;
 
       // Update the main table
       const updateQuery = `
@@ -1063,10 +1063,12 @@ const updateRoostaData = async (modifiedRecords) => {
           shenaseh_melli = $1,
           amaliate_meydani = $2,
           dadeh_amaei = $3,
-          daryafte_naghsheh = $4
-        WHERE population_point_id = $5;
+          daryafte_naghsheh = $4,
+		  tolid_qr = $5,
+		  pelak_talfighi = $6
+        WHERE population_point_id = $7;
       `;
-      await client.query(updateQuery, [shenaseh_melli, amaliate_meydani, dadeh_amaei, geocode, population_point_id]);
+      await client.query(updateQuery, [shenaseh_melli, amaliate_meydani, dadeh_amaei, geocode, tolid_qr, pelak_talfighi, population_point_id]);
 
       // Insert the changes into the changes table
       const insertQuery = `
@@ -1075,12 +1077,14 @@ const updateRoostaData = async (modifiedRecords) => {
           shenaseh_melli, 
           amaliate_meydani, 
           dadeh_amaei, 
-          daryafte_naghsheh, 
+          daryafte_naghsheh,
+		  tolid_qr,
+		  pelak_talfighi,
           changed_at
         )
-        VALUES ($1, $2, $3, $4, $5, NOW());
+        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW());
       `;
-      await client.query(insertQuery, [population_point_id, shenaseh_melli, amaliate_meydani, dadeh_amaei, geocode]);
+      await client.query(insertQuery, [population_point_id, shenaseh_melli, amaliate_meydani, dadeh_amaei, geocode, tolid_qr, pelak_talfighi]);
     }
 
     await client.query('COMMIT'); // Commit the transaction
