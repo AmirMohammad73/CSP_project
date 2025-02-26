@@ -1,6 +1,6 @@
 <!-- locationsTable.vue -->
 <template>
-    <v-data-table-virtual v-if="!loading && !error" :headers="headers" :items="filteredLocations" height="auto"
+    <v-data-table-virtual v-if="!loading && !error" :headers="headers" :items="filteredLocations" height="33vw"
       item-value="row_number" class="elevation-1 rounded" fixed-header @click:row="handleRowClick">
       <template v-slot:item.total_naghsheh_count="{ item }">
         <div class="data-bar-container" v-tooltip="getPercentageTooltip(item.total_naghsheh_count, item.total_count)">
