@@ -204,14 +204,19 @@ const getPieMap = async (role, permission) => {
 };
 // Function to construct and execute the SQL query
 const getQueryData = async (selectedItems, role, permission) => {
+	console.log(selectedItems);
     let whereCondition = '';
-
+  if (role === '4' || role === '1') {
+    // Convert the permission array into a list of SQL conditions
+    const conditions = permission.map((region) => `'${region}'`).join(', ');
+    whereCondition = `AND ostantitle IN (${conditions})`;
+  }
     // Add WHERE condition if selectedItems is provided
     if (selectedItems && selectedItems.length > 0) {
         const formattedItems = selectedItems.map(item => `'${item}'`).join(', ');
+		console.log(formattedItems);
         whereCondition = `AND ostantitle IN (${formattedItems})`;
     }
-
     const sql = `SELECT 
     ostantitle, 
     shahrestantitle, 
@@ -1260,40 +1265,50 @@ const authenticateToken = async (req, res, next) => {
 
     // Attach user information to the request object
     req.user = {
-      userId: decoded.sub, // Use `sub` instead of `user_id`
-	  username: decoded.username,
+      userId: decoded.sub,
+      username: decoded.username,
       role: decoded.role,
       permission: decoded.permission,
-	  timestamp: decoded.timestamp,
+      timestamp: decoded.timestamp,
     };
 
     // Check if the token is blacklisted
-    const blacklistedToken = await pool.query(
-      `SELECT * FROM tokens WHERE token_id = $1 AND is_blacklisted = TRUE`,
-      [token]
-    );
+    const blacklistedToken = await checkBlacklistedToken(token);
 
-    if (blacklistedToken.rows.length > 0) {
+    if (blacklistedToken) {
       return res.status(403).json({ error: 'Token is blacklisted' });
     }
 
+    // Log user information for debugging
     next();
   } catch (err) {
     console.error('Authentication error:', err);
     res.status(403).json({ error: 'Invalid token' });
   }
 };
-const blacklistToken = async (token) => {
-  const client = await pool.connect();
+
+const checkBlacklistedToken = async (token) => {
   try {
-    await client.query(`UPDATE tokens SET is_blacklisted = TRUE WHERE token_id = $1`, [token]);
+    const result = await pool.query(
+      `SELECT * FROM tokens WHERE token_id = $1 AND is_blacklisted = TRUE`,
+      [token]
+    );
+    return result.rows.length > 0;
+  } catch (err) {
+    console.error('Error checking blacklisted token:', err);
+    throw err;
+  }
+};
+
+const blacklistToken = async (token) => {
+  try {
+    await pool.query(`UPDATE tokens SET is_blacklisted = TRUE WHERE token_id = $1`, [token]);
   } catch (err) {
     console.error('Error blacklisting token:', err);
     throw err;
-  } finally {
-    client.release();
   }
 };
+
 
 const getOstanNames = async (role, permission) => {
   let whereClause = '';

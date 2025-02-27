@@ -89,11 +89,11 @@ const exportToExcel = async () => {
         const ipStore = useIPStore();
         const SERVER_HOST = ipStore.SERVER_HOST;
         const authStore = useAuthStore();
+        console.log(selectedItems.value);
         const response = await fetch(`http://${SERVER_HOST}:3001/query`, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${authStore.token}`,
-                'Content-Type': 'application/json',
             },
             body: JSON.stringify({ selectedItems: selectedItems.value }),
         })

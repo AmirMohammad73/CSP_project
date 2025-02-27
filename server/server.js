@@ -126,8 +126,10 @@ app.get('/api/bsc/tab5', authenticateToken, async (req, res) => {
 // Endpoint to handle the query with dynamic WHERE conditions
 app.post('/query', authenticateToken, async (req, res) => {
     try {
-        const { selectedItems } = req.body; // Array of selected ostantitles
-        const data = await getQueryData(selectedItems);
+        const { selectedItems } = req.body;
+		console.log("selectedItems:", selectedItems);
+        const { role, permission } = req.user;
+        const data = await getQueryData(selectedItems, role, permission);
         res.json(data);
     } catch (err) {
         console.error('API error:', err);
