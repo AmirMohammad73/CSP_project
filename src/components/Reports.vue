@@ -94,6 +94,7 @@ const exportToExcel = async () => {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${authStore.token}`,
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify({ selectedItems: selectedItems.value }),
         })
@@ -129,7 +130,6 @@ const exportToExcel = async () => {
                 'ژئوکد',
                 'مختصات روستا',
                 'محدوده روستا',
-                'تاریخ',
                 'تعداد مکان ژئوکد شده',
                 'تعداد مکان بهنگام شده',
                 'تعداد ساختمان',
@@ -148,7 +148,7 @@ const exportToExcel = async () => {
         const excelFileName = 'Selected_Items.xlsx'
         XLSX.writeFile(workbook, excelFileName)
     } catch (err) {
-        error.value = 'خطا در صادرات به اکسل'
+        error.value = 'خطا در خروجی به اکسل'
         console.error('Error exporting to Excel:', err)
     } finally {
         exporting.value = false

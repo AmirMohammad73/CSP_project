@@ -204,7 +204,6 @@ const getPieMap = async (role, permission) => {
 };
 // Function to construct and execute the SQL query
 const getQueryData = async (selectedItems, role, permission) => {
-	console.log(selectedItems);
     let whereCondition = '';
   if (role === '4' || role === '1') {
     // Convert the permission array into a list of SQL conditions
@@ -233,7 +232,6 @@ const getQueryData = async (selectedItems, role, permission) => {
     daryafte_naghsheh AS geocode, 
     pdf, 
     ersal_setad,
-    date,
     tedad_geocode_makan,
     tedad_makan_jadid,
     tedad_sakhteman,
