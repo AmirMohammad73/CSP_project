@@ -359,13 +359,12 @@ export default {
         // For role 4, reset to ostantitle level
         this.currentLevel = 'کشور';
         this.breadcrumb = [{ text: 'کشور', disabled: false }];
-        this.fetchDetailedLocations();
+        this.fetchLocations();
         this.roostaData = [];
       } else if (item.text === 'استان') {
         // For role 4, reset to ostantitle level
         this.currentLevel = 'ostantitle';
         this.breadcrumb = [{ text: 'استان', disabled: false }];
-        console.log(this.currentOstantitle);
         this.fetchDetailedLocations(this.currentOstantitle);
         this.roostaData = [];
       }

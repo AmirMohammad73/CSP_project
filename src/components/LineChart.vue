@@ -93,7 +93,7 @@ export default {
 
         const fetchDailyData = async () => {
             try {
-                const response = await fetch('http://192.168.47.1:3001/api/weeklydata', {
+                const response = await fetch('http://172.16.8.33:3001/api/weeklydata', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -110,7 +110,7 @@ export default {
 
         const fetchWeeklyData = async () => {
             try {
-                const response = await fetch('http://192.168.47.1:3001/api/monthlydata', {
+                const response = await fetch('http://172.16.8.33:3001/api/monthlydata', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -127,7 +127,7 @@ export default {
 
         const fetchQuarterlyData = async () => {
             try {
-                const response = await fetch('http://192.168.47.1:3001/api/quarterlydata', {
+                const response = await fetch('http://172.16.8.33:3001/api/quarterlydata', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
