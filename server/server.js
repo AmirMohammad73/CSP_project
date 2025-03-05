@@ -57,6 +57,11 @@ app.get('/api/locations', authenticateToken, async (req, res) => {
       const combinedData = ['QR', ...data];
       // Send the combined data as response
       res.json(combinedData);
+    } else if (user.role === '3') {
+      // Fetch general locations data
+      const data = await getLocationsData();
+      const combinedData = ['nazer', ...data];
+      res.json(combinedData);
     } else {
       // For other roles, fetch and return the general locations data
       const data = await getLocationsData();

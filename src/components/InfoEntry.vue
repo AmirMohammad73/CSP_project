@@ -340,6 +340,10 @@ export default {
           // Update currentLevel and breadcrumb for role 4
           this.currentLevel = 'ostantitle';
           this.breadcrumb = [{ text: 'استان', disabled: false }];
+        } else if (data[0] === 'nazer'){
+          this.isRole4 = false;
+          // Otherwise, use the fetched data
+          this.locations = [data[1]];
         } else {
           this.isRole4 = false;
           // Otherwise, use the fetched data

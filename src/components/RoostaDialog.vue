@@ -59,7 +59,7 @@
 
             <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" @click="saveRoostaData">ذخیره تغییرات</v-btn>
+                <v-btn color="primary" @click="saveRoostaData" :disabled="isSaveButtonDisabled">ذخیره تغییرات</v-btn>
                 <v-btn color="error" @click="closeDialog">بستن</v-btn>
             </v-card-actions>
         </v-card>
@@ -111,9 +111,13 @@ export default {
                 );
             });
         },
+        isSaveButtonDisabled() {
+            return this.dataFirstItem === 'nazer';
+        },
     },
     methods: {
         handleCheckboxChange(item, key) {
+            console.log(this.dataFirstItem);
             if (this.dataFirstItem === 'setad') {
                 const checkboxes = ['bonyad_maskan', 'sayer_manabe', 'tarsim'];
                 if (checkboxes.includes(key)) {
@@ -127,6 +131,17 @@ export default {
             }
             else if (this.dataFirstItem === 'QR') {
                 const checkboxes = ['tolid_qr'];
+                if (checkboxes.includes(key)) {
+                    // Uncheck other checkboxes
+                    checkboxes.forEach(checkbox => {
+                        if (checkbox !== key) {
+                            item[checkbox] = false;
+                        }
+                    });
+                }
+            }
+            else if (this.dataFirstItem === 'nazer') {
+                const checkboxes = [];
                 if (checkboxes.includes(key)) {
                     // Uncheck other checkboxes
                     checkboxes.forEach(checkbox => {
@@ -159,6 +174,9 @@ export default {
                 editableColumns = [
                     'tolid_qr',
                 ];
+            } else if (this.dataFirstItem === 'nazer') {
+                editableColumns = [];
+                console.log(this.dataFirstItem);
             } else if (this.dataFirstItem !== 'manager') {
                 editableColumns = [
                     'amaliate_meydani',
@@ -172,7 +190,6 @@ export default {
             if (!editableColumns.includes(key)) {
                 return false;
             }
-
             // Check if the checkbox was initially checked
             const initialState = this.initialCheckboxStates[item.population_point_id];
             if (initialState && (key === 'amaliate_meydani' || key === 'dadeh_amaei' || key === 'pelak_talfighi')) {
