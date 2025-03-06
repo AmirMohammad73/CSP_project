@@ -125,26 +125,20 @@ export default {
     };
     // Watch for theme changes
     watch(
-      () => AppStore.isDarkTheme,
-      (newVal) => {
-        // Update chart options
-        chartOptions.value = {
-          ...chartOptions.value,
-          theme: {
-            mode: newVal ? "dark" : "light",
-          },
-          colors: newVal ? ["#00E396"] : ["#008FFB"],
-          chart: {
-            background: newVal ? "#1E1E1E" : "#FFFFFF",
-          },
-        };
-        chartKey.value++; // Force re-render
+		  () => AppStore.isDarkTheme,
+		  (newVal) => {
+			if (chartOptions.value.theme) {
+			  chartOptions.value.theme.mode = newVal ? "dark" : "light";
+			} else {
+			  chartOptions.value.theme = { mode: newVal ? "dark" : "light" };
+			}
+			chartOptions.value.colors = newVal ? ["#00E396"] : ["#008FFB"];
+			chartKey.value++; // Force re-render
+      document.documentElement.style.setProperty('--axis-label-color', newVal ? "white" : "black");
+		  },
+		  { immediate: true } // Ensure this runs during the initial setup
+		);
 
-        // Set CSS variable for axis label color
-        document.documentElement.style.setProperty('--axis-label-color', newVal ? "white" : "black");
-      },
-      { immediate: true }
-    );
 
     // Handle selectedOption changes
     watch(selectedOption, (newValue) => {
