@@ -1,29 +1,75 @@
-<!-- LocationsTable.vue -->
 <template>
   <v-data-table-virtual v-if="!loading && !error" :headers="headers" :items="filteredLocations" height="33vw"
     item-value="row_number" class="elevation-1 rounded" fixed-header @click:row="handleRowClick">
+
     <template v-slot:item.total_naghsheh_count="{ item }">
-      <div class="data-bar-container" v-tooltip="getTotalNaghshehTooltip(item)">
+      <div class="data-bar-container">
+        <v-tooltip activator="parent" location="top">
+          <template v-slot:default>
+            <div class="tooltip-content" v-html="getTotalNaghshehTooltip(item)"></div>
+          </template>
+        </v-tooltip>
         <div class="data-bar" :style="{ width: (item.total_naghsheh_count / item.total_count) * 100 + '%' }"></div>
         <span class="data-bar-value">{{ item.total_naghsheh_count }}</span>
       </div>
     </template>
+
     <template v-slot:item.amaliate_meydani_count="{ item }">
-      <div class="data-bar-container" v-tooltip="getPercentageTooltip(item.amaliate_meydani_count, item.total_count)">
+      <div class="data-bar-container">
+        <v-tooltip activator="parent" location="top">
+          <template v-slot:default>
+            <div class="tooltip-content" v-html="getTotalAmaliatTooltip(item)"></div>
+          </template>
+        </v-tooltip>
         <div class="data-bar" :style="{ width: (item.amaliate_meydani_count / item.total_count) * 100 + '%' }"></div>
         <span class="data-bar-value">{{ item.amaliate_meydani_count }}</span>
       </div>
     </template>
+
     <template v-slot:item.dadeh_amaei_count="{ item }">
-      <div class="data-bar-container" v-tooltip="getPercentageTooltip(item.dadeh_amaei_count, item.total_count)">
+      <div class="data-bar-container">
+        <v-tooltip activator="parent" location="top">
+          <template v-slot:default>
+            <span class="tooltip-text">{{ getPercentageTooltip(item.dadeh_amaei_count, item.total_count) }}</span>
+          </template>
+        </v-tooltip>
         <div class="data-bar" :style="{ width: (item.dadeh_amaei_count / item.total_count) * 100 + '%' }"></div>
         <span class="data-bar-value">{{ item.dadeh_amaei_count }}</span>
       </div>
     </template>
+
     <template v-slot:item.geocode_count="{ item }">
-      <div class="data-bar-container" v-tooltip="getPercentageTooltip(item.geocode_count, item.total_count)">
+      <div class="data-bar-container">
+        <v-tooltip activator="parent" location="top">
+          <template v-slot:default>
+            <div class="tooltip-content" v-html="getTotalGeocodeTooltip(item)"></div>
+          </template>
+        </v-tooltip>
         <div class="data-bar" :style="{ width: (item.geocode_count / item.total_count) * 100 + '%' }"></div>
         <span class="data-bar-value">{{ item.geocode_count }}</span>
+      </div>
+    </template>
+    <template v-slot:item.mokhtasat_roosta_count="{ item }">
+      <div class="data-bar-container">
+        <v-tooltip activator="parent" location="top">
+          <template v-slot:default>
+            <span class="tooltip-text">{{ getPercentageTooltip(item.mokhtasat_roosta_count, item.total_count) }}</span>
+          </template>
+        </v-tooltip>
+        <div class="data-bar" :style="{ width: (item.mokhtasat_roosta_count / item.total_count) * 100 + '%' }"></div>
+        <span class="data-bar-value">{{ item.mokhtasat_roosta_count }}</span>
+      </div>
+    </template>
+
+    <template v-slot:item.mahdoudeh_roosta_count="{ item }">
+      <div class="data-bar-container">
+        <v-tooltip activator="parent" location="top">
+          <template v-slot:default>
+            <span class="tooltip-text">{{ getPercentageTooltip(item.mahdoudeh_roosta_count, item.total_count) }}</span>
+          </template>
+        </v-tooltip>
+        <div class="data-bar" :style="{ width: (item.mahdoudeh_roosta_count / item.total_count) * 100 + '%' }"></div>
+        <span class="data-bar-value">{{ item.mahdoudeh_roosta_count }}</span>
       </div>
     </template>
   </v-data-table-virtual>
@@ -45,10 +91,38 @@ export default {
     },
     getTotalNaghshehTooltip(item) {
       const percentage = this.getPercentageTooltip(item.total_naghsheh_count, item.total_count);
-      return `${percentage}<br>
+      return `
+        <div class="tooltip-content">
+          <strong>${percentage}</strong>
+          <hr>
           بنیاد مسکن: ${item.bonyad_maskan_count}<br>
           سایر منابع: ${item.sayer_manabe_count}<br>
-          ترسیم: ${item.tarsim_count}`;
+          ترسیم: ${item.tarsim_count}
+        </div>
+      `;
+    },
+    getTotalAmaliatTooltip(item) {
+      const percentage = this.getPercentageTooltip(item.amaliate_meydani_count, item.total_count);
+      return `
+        <div class="tooltip-content">
+          <strong>${percentage}</strong>
+          <hr>
+          تعداد رکورد: ${item.record_count}<br>
+          تعداد مکان: ${item.makan_count}<br>
+          تعداد ساختمان: ${item.building_count}
+        </div>
+      `;
+    },
+    getTotalGeocodeTooltip(item) {
+      const percentage = this.getPercentageTooltip(item.geocode_count, item.total_count);
+      return `
+        <div class="tooltip-content">
+          <strong>${percentage}</strong>
+          <hr>
+          تعداد مکان ژئوکد: ${item.geocode_makan_count}<br>
+          تعداد ساختمان ژئوکد: ${item.geocode_building_count}
+        </div>
+      `;
     },
     handleRowClick(event, { item }) {
       this.$emit('row-click', item);
@@ -56,23 +130,30 @@ export default {
   },
 };
 </script>
+
 <style scoped>
-.v-data-table-virtual {
-  table-layout: fixed;
-  text-align: center;
+.tooltip-content {
+  direction: rtl;
+  font-family: "B Traffic", sans-serif;
+  text-align: right;
+  padding: 8px;
+  font-size: 14px;
+  /* متن خوانا و مشکی ملایم */
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
 
-.v-data-table-virtual th:nth-child(8),
-.v-data-table-virtual td:nth-child(8) {
-  text-align: center;
+.tooltip-content hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 8px 0;
 }
 
-.v-data-table-virtual th {
-  vertical-align: middle;
-}
-
-.v-data-table-virtual td {
-  vertical-align: middle;
+.tooltip-text {
+  direction: rtl;
+  font-family: "B Traffic", sans-serif;
+  font-size: 14px;
+  /* متن خوانا */
 }
 
 .data-bar-container {
@@ -102,13 +183,5 @@ export default {
   font-size: 12px;
   color: #000;
   z-index: 1;
-}
-
-.tooltip-content {
-  white-space: pre-line;
-}
-
-.data-bar-column {
-  text-align: center !important;
 }
 </style>
