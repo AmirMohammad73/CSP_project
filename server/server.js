@@ -417,13 +417,16 @@ app.use((err, req, res, next) => {
 // Endpoint to update roosta data
 app.post('/api/locations/update-roosta', authenticateToken, async (req, res) => {
   const modifiedRecords = req.body;
-
+  const user = req.user;
+  const username = await user.username;
+  const role = await user.role;
+  console.log(username, role);
   if (!Array.isArray(modifiedRecords) || modifiedRecords.length === 0) {
     return res.status(400).json({ error: 'No valid data provided' });
   }
 
   try {
-    const result = await updateRoostaData(modifiedRecords);
+    const result = await updateRoostaData(modifiedRecords, role, username);
     res.status(200).json(result);
   } catch (error) {
     console.error('Error updating roosta data:', error);

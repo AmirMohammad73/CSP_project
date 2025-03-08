@@ -1051,7 +1051,7 @@ FROM
   return await query(sql);
 };
 // Update roosta data
-const updateRoostaData = async (modifiedRecords) => {
+const updateRoostaData = async (modifiedRecords, role, username) => {
   const client = await pool.connect(); // Now pool is defined
   try {
     await client.query('BEGIN'); // Start a transaction
@@ -1088,6 +1088,14 @@ const updateRoostaData = async (modifiedRecords) => {
         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW());
       `;
       await client.query(insertQuery, [population_point_id, shenaseh_melli, amaliate_meydani, dadeh_amaei, geocode, tolid_qr, pelak_talfighi]);
+	  if(role === '4'){
+	  const columns = [];
+	  if (amaliate_meydani) columns.push('amaliate_meydani');
+	  if (dadeh_amaei) columns.push('dadeh_amaei');
+	  if (geocode) columns.push('daryafte_naghsheh');
+      const change_log_insert = `INSERT INTO change_log1 (pop_id, user_id, columns, date) VALUES ($1, $2, $3, NOW());`;
+      await client.query(change_log_insert, [population_point_id, username, columns]);
+	  }
     }
 
     await client.query('COMMIT'); // Commit the transaction
