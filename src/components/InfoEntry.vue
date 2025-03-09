@@ -84,23 +84,23 @@ export default {
       selectedDehestan: {},
       bonyadMaskanFilter: 'all',
       headers: [
-        { title: 'ردیف', align: 'end', key: 'row_number', class: 'text-subtitle-1 font-weight-bold' },
-        { title: 'مکان', align: 'end', key: 'locname', class: 'text-subtitle-1 font-weight-bold' },
-        // { title: 'تعداد بنیاد مسکن', align: 'end', key: 'bonyad_maskan_count', class: 'text-subtitle-1 font-weight-bold' },
-        // { title: 'تعداد سایر منابع', align: 'end', key: 'sayer_manabe_count', class: 'text-subtitle-1 font-weight-bold' },
-        // { title: 'تعداد ترسیم', align: 'end', key: 'tarsim_count', class: 'text-subtitle-1 font-weight-bold' },
-        { title: 'تعداد نقشه ها', align: 'end', key: 'total_naghsheh_count', class: 'text-subtitle-1 font-weight-bold' },
-        { title: 'تعداد پارسلها', align: 'end', key: 'total_parcel_count', class: 'text-subtitle-1 font-weight-bold' },
-        { title: 'تعداد عملیات میدانی', align: 'end', key: 'amaliate_meydani_count', class: 'text-subtitle-1 font-weight-bold data-bar-column' },
-        // { title: 'تعداد رکورد بهنگام شده', align: 'end', key: 'record_count', class: 'text-subtitle-1 font-weight-bold' },
-        // { title: 'تعداد مکان بهنگام شده', align: 'end', key: 'makan_count', class: 'text-subtitle-1 font-weight-bold' },
-        // { title: 'تعداد ساختمان بهنگام شده', align: 'end', key: 'building_count', class: 'text-subtitle-1 font-weight-bold' },
-        { title: 'تعداد داده آمائی', align: 'end', key: 'dadeh_amaei_count', class: 'text-subtitle-1 font-weight-bold' },
-        { title: 'تعداد ژئوکد', align: 'end', key: 'geocode_count', class: 'text-subtitle-1 font-weight-bold' },
-        // { title: 'تعداد مکان ژئوکدشده', align: 'end', key: 'geocode_makan_count', class: 'text-subtitle-1 font-weight-bold' },
-        // { title: 'ساختمانهای ژئوکدشده', align: 'end', key: 'geocode_building_count', class: 'text-subtitle-1 font-weight-bold' },
-        { title: 'تعداد مختصات روستا', align: 'end', key: 'mokhtasat_roosta_count', class: 'text-subtitle-1 font-weight-bold' },
-        { title: 'تعداد حریم روستا', align: 'end', key: 'mahdoudeh_roosta_count', class: 'text-subtitle-1 font-weight-bold' },
+        { title: 'ردیف', align: 'center', key: 'row_number', class: 'text-subtitle-1 font-weight-bold' },
+        { title: 'مکان', align: 'center', key: 'locname', class: 'text-subtitle-1 font-weight-bold' },
+        // { title: 'تعداد بنیاد مسکن', align: 'center', key: 'bonyad_maskan_count', class: 'text-subtitle-1 font-weight-bold' },
+        // { title: 'تعداد سایر منابع', align: 'center', key: 'sayer_manabe_count', class: 'text-subtitle-1 font-weight-bold' },
+        // { title: 'تعداد ترسیم', align: 'center', key: 'tarsim_count', class: 'text-subtitle-1 font-weight-bold' },
+        { title: 'تعداد نقشه ها', align: 'center', key: 'total_naghsheh_count', class: 'text-subtitle-1 font-weight-bold' },
+        { title: 'تعداد پارسلها', align: 'center', key: 'total_parcel_count', class: 'text-subtitle-1 font-weight-bold' },
+        { title: 'تعداد عملیات میدانی', align: 'center', key: 'amaliate_meydani_count', class: 'text-subtitle-1 font-weight-bold data-bar-column' },
+        // { title: 'تعداد رکورد بهنگام شده', align: 'center', key: 'record_count', class: 'text-subtitle-1 font-weight-bold' },
+        // { title: 'تعداد مکان بهنگام شده', align: 'center', key: 'makan_count', class: 'text-subtitle-1 font-weight-bold' },
+        // { title: 'تعداد ساختمان بهنگام شده', align: 'center', key: 'building_count', class: 'text-subtitle-1 font-weight-bold' },
+        { title: 'تعداد داده آمائی', align: 'center', key: 'dadeh_amaei_count', class: 'text-subtitle-1 font-weight-bold' },
+        { title: 'تعداد ژئوکد', align: 'center', key: 'geocode_count', class: 'text-subtitle-1 font-weight-bold' },
+        // { title: 'تعداد مکان ژئوکدشده', align: 'center', key: 'geocode_makan_count', class: 'text-subtitle-1 font-weight-bold' },
+        // { title: 'ساختمانهای ژئوکدشده', align: 'center', key: 'geocode_building_count', class: 'text-subtitle-1 font-weight-bold' },
+        { title: 'تعداد مختصات روستا', align: 'center', key: 'mokhtasat_roosta_count', class: 'text-subtitle-1 font-weight-bold' },
+        { title: 'تعداد حریم روستا', align: 'center', key: 'mahdoudeh_roosta_count', class: 'text-subtitle-1 font-weight-bold' },
       ],
       locations: [],
       roostaHeaders: [
@@ -474,25 +474,18 @@ export default {
 .v-snackbar {
   font-weight: bold;
 }
-
+.v-data-table {
+  font-size: large; /* یا مقدار مشخصی مانند 16px */
+}
 .v-data-table-virtual {
-  table-layout: fixed;
-  text-align: center;
+  direction: ltr;
+  text-align: right;
+  font-family: 'B Traffic', sans-serif;
 }
-
-.v-data-table-virtual th:nth-child(8),
-.v-data-table-virtual td:nth-child(8) {
-  text-align: center;
-}
-
 .v-data-table-virtual th {
-  vertical-align: middle;
+  font-weight: bold;
+  text-align: right;
 }
-
-.v-data-table-virtual td {
-  vertical-align: middle;
-}
-
 .v-btn--icon:hover {
   background-color: rgba(25, 118, 210, 0.04);
 }

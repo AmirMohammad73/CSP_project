@@ -558,7 +558,7 @@ ORDER BY
 };
 const getRoostaData = async (ostantitle, shahrestantitle, zonetitle, dehestantitle) => {
   const sql = `SELECT ostantitle, shahrestantitle, zonetitle, dehestantitle, locationname, population_point_id, shenaseh_melli, adam_paziresh AS bonyad_maskan
-, niazmande_eslah AS sayer_manabe, arseh_ayan AS tarsim, tedad_parcel, amaliate_meydani, dadeh_amaei, eslah_naghsheh, daryafte_naghsheh AS geocode
+, niazmande_eslah AS sayer_manabe, arseh_ayan AS tarsim, COALESCE(NULLIF(REGEXP_REPLACE(tedad_parcel, '[^0-9]', '', 'g'), ''), '0')::int + COALESCE(NULLIF(REGEXP_REPLACE(tedad_parcel_tarsimi, '[^0-9]', '', 'g'), ''), '0')::int AS tedad_parcel, amaliate_meydani, dadeh_amaei, eslah_naghsheh, daryafte_naghsheh AS geocode
 , adam_tayid, tayid_va_bargozari, pdf AS mokhtasat_rousta, ersal_setad AS mahdoudeh_rousta, tolid_qr, pelak_talfighi FROM public.locations1
 WHERE ostantitle = $1 AND shahrestantitle = $2 AND zonetitle = $3 AND dehestantitle = $4;`;
   return await query(sql, [ostantitle, shahrestantitle, zonetitle, dehestantitle]);
@@ -1083,11 +1083,12 @@ const updateRoostaData = async (modifiedRecords, role, username) => {
           daryafte_naghsheh,
 		  tolid_qr,
 		  pelak_talfighi,
+		  username,
           changed_at
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW());
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW());
       `;
-      await client.query(insertQuery, [population_point_id, shenaseh_melli, amaliate_meydani, dadeh_amaei, geocode, tolid_qr, pelak_talfighi]);
+      await client.query(insertQuery, [population_point_id, shenaseh_melli, amaliate_meydani, dadeh_amaei, geocode, tolid_qr, pelak_talfighi, username]);
 	  if(role === '4'){
 	  const columns = [];
 	  if (amaliate_meydani) columns.push('amaliate_meydani');

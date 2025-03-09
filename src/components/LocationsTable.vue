@@ -30,10 +30,10 @@
       <div class="data-bar-container">
         <v-tooltip activator="parent" location="top">
           <template v-slot:default>
-            <span class="tooltip-text">{{ getPercentageTooltip(item.dadeh_amaei_count, item.total_count) }}</span>
+            <span class="tooltip-text">{{ getPercentageTooltip(item.dadeh_amaei_count, item.amaliate_meydani_count) }}</span>
           </template>
         </v-tooltip>
-        <div class="data-bar" :style="{ width: (item.dadeh_amaei_count / item.total_count) * 100 + '%' }"></div>
+        <div class="data-bar" :style="{ width: (item.dadeh_amaei_count / item.amaliate_meydani_count) * 100 + '%' }"></div>
         <span class="data-bar-value">{{ item.dadeh_amaei_count }}</span>
       </div>
     </template>
@@ -45,7 +45,7 @@
             <div class="tooltip-content" v-html="getTotalGeocodeTooltip(item)"></div>
           </template>
         </v-tooltip>
-        <div class="data-bar" :style="{ width: (item.geocode_count / item.total_count) * 100 + '%' }"></div>
+        <div class="data-bar" :style="{ width: (item.geocode_count / item.amaliate_meydani_count) * 100 + '%' }"></div>
         <span class="data-bar-value">{{ item.geocode_count }}</span>
       </div>
     </template>
@@ -114,7 +114,7 @@ export default {
       `;
     },
     getTotalGeocodeTooltip(item) {
-      const percentage = this.getPercentageTooltip(item.geocode_count, item.total_count);
+      const percentage = this.getPercentageTooltip(item.geocode_count, item.amaliate_meydani_count);
       return `
         <div class="tooltip-content">
           <strong>${percentage}</strong>
@@ -183,5 +183,8 @@ export default {
   font-size: 12px;
   color: #000;
   z-index: 1;
+}
+span {
+  font-size: large !important;
 }
 </style>
