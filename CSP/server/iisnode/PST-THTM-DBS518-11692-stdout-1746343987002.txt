@@ -1,0 +1,22 @@
+Server running at http://10.190.5.193:\\.\pipe\5c3722bd-2f38-46f1-8a24-50951f8710d1
+Database connection successful: { now: 2025-05-04T07:33:08.476Z }
+[
+  { ostantitle: 'کرمان', efficiency_index: '0.1226' },
+  { ostantitle: 'خراسان شمالی', efficiency_index: '0.0517' },
+  { ostantitle: 'سیستان وبلوچستان', efficiency_index: '0.0260' }
+]
+[
+  { ostantitle: 'کرمان', efficiency_index: '0.1226' },
+  { ostantitle: 'خراسان شمالی', efficiency_index: '0.0517' },
+  { ostantitle: 'سیستان وبلوچستان', efficiency_index: '0.0260' }
+]
+[
+  { ostantitle: 'کرمان', efficiency_index: '0.1226' },
+  { ostantitle: 'خراسان شمالی', efficiency_index: '0.0517' },
+  { ostantitle: 'سیستان وبلوچستان', efficiency_index: '0.0260' }
+]
+[
+  { ostantitle: 'کرمان', efficiency_index: '0.1226' },
+  { ostantitle: 'خراسان شمالی', efficiency_index: '0.0517' },
+  { ostantitle: 'سیستان وبلوچستان', efficiency_index: '0.0260' }
+]

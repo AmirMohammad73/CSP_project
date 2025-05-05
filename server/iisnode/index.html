@@ -1,0 +1,87 @@
+<html>
+<head>
+    <title>iisnode logs</title>
+    <style type="text/css">
+        body
+        {
+            font-family: "Trebuchet MS" , Arial, Helvetica, sans-serif;
+        }
+        table
+        {
+            border-collapse: collapse;
+        }
+        td, th
+        {
+            border: 1px solid lightgray;
+            padding: 3px 7px 2px 7px;
+        }
+        th
+        {
+            text-align: left;
+            padding-top: 5px;
+            padding-bottom: 4px;
+            background-color: Gray;
+            color: #ffffff;
+        }
+        td.stderr
+        {
+            color: Red;
+        }
+    </style>
+</head>
+<body>
+    <table id="logFilesTable">
+        <tr>
+            <th>
+                Computer name
+            </th>
+            <th>
+                PID
+            </th>
+            <th>
+                Type
+            </th>
+            <th>
+                Created
+            </th>
+            <th>
+                Link
+            </th>
+        </tr>
+    </table>
+    <p id="lastUpdated"></p>
+    <script type="text/javascript">
+
+        // this is replaced with actual data at runtime by code in interceptor.js
+        var logFiles = [{"file":"PST-THTM-DBS518-10972-stderr-1746420680814.txt","computername":"PST-THTM-DBS518","pid":10972,"type":"stderr","created":1746420680814},{"file":"PST-THTM-DBS518-10972-stdout-1746420680799.txt","computername":"PST-THTM-DBS518","pid":10972,"type":"stdout","created":1746420680799},{"file":"PST-THTM-DBS518-11692-stderr-1746343987017.txt","computername":"PST-THTM-DBS518","pid":11692,"type":"stderr","created":1746343987017},{"file":"PST-THTM-DBS518-11692-stdout-1746343987002.txt","computername":"PST-THTM-DBS518","pid":11692,"type":"stdout","created":1746343987002},{"file":"PST-THTM-DBS518-12104-stderr-1746360574677.txt","computername":"PST-THTM-DBS518","pid":12104,"type":"stderr","created":1746360574677},{"file":"PST-THTM-DBS518-12104-stdout-1746360574661.txt","computername":"PST-THTM-DBS518","pid":12104,"type":"stdout","created":1746360574661},{"file":"PST-THTM-DBS518-2732-stderr-1746362503670.txt","computername":"PST-THTM-DBS518","pid":2732,"type":"stderr","created":1746362503670},{"file":"PST-THTM-DBS518-2732-stdout-1746362503655.txt","computername":"PST-THTM-DBS518","pid":2732,"type":"stdout","created":1746362503655},{"file":"PST-THTM-DBS518-3132-stderr-1746339763495.txt","computername":"PST-THTM-DBS518","pid":3132,"type":"stderr","created":1746339763495},{"file":"PST-THTM-DBS518-3132-stdout-1746339763480.txt","computername":"PST-THTM-DBS518","pid":3132,"type":"stdout","created":1746339763480},{"file":"PST-THTM-DBS518-3180-stderr-1746349470124.txt","computername":"PST-THTM-DBS518","pid":3180,"type":"stderr","created":1746349470124},{"file":"PST-THTM-DBS518-3180-stdout-1746349470117.txt","computername":"PST-THTM-DBS518","pid":3180,"type":"stdout","created":1746349470117},{"file":"PST-THTM-DBS518-3796-stderr-1746342358077.txt","computername":"PST-THTM-DBS518","pid":3796,"type":"stderr","created":1746342358077},{"file":"PST-THTM-DBS518-3796-stdout-1746342358058.txt","computername":"PST-THTM-DBS518","pid":3796,"type":"stdout","created":1746342358058},{"file":"PST-THTM-DBS518-7496-stderr-1746354776084.txt","computername":"PST-THTM-DBS518","pid":7496,"type":"stderr","created":1746354776084},{"file":"PST-THTM-DBS518-7496-stdout-1746354776067.txt","computername":"PST-THTM-DBS518","pid":7496,"type":"stdout","created":1746354776067},{"file":"PST-THTM-DBS518-7732-stderr-1746363842722.txt","computername":"PST-THTM-DBS518","pid":7732,"type":"stderr","created":1746363842722},{"file":"PST-THTM-DBS518-7732-stdout-1746363842715.txt","computername":"PST-THTM-DBS518","pid":7732,"type":"stdout","created":1746363842715},{"file":"PST-THTM-DBS518-7996-stderr-1746337818782.txt","computername":"PST-THTM-DBS518","pid":7996,"type":"stderr","created":1746337818782},{"file":"PST-THTM-DBS518-7996-stdout-1746337818767.txt","computername":"PST-THTM-DBS518","pid":7996,"type":"stdout","created":1746337818767},{"file":"PST-THTM-DBS518-9164-stderr-1746370000669.txt","computername":"PST-THTM-DBS518","pid":9164,"type":"stderr","created":1746370000669},{"file":"PST-THTM-DBS518-9164-stdout-1746370000654.txt","computername":"PST-THTM-DBS518","pid":9164,"type":"stdout","created":1746370000654}];
+        var lastUpdated = 1746420682440;
+        var date = new Date();
+
+        date.setTime(lastUpdated);
+        document.getElementById('lastUpdated').innerHTML = 'Index was last updated ' + date;
+
+        logFiles.sort(function (a, b) {
+            return b.created - a.created;
+        });
+
+        var logFilesTable = document.getElementById("logFilesTable");
+        for (var i = 0; i < logFiles.length; i++) {
+            var logFile = logFiles[i];
+            date.setTime(logFile.created);
+            var row = logFilesTable.insertRow(-1);
+            var computerNameCell = row.insertCell(0);
+            var pidCell = row.insertCell(1);
+            var typeCell = row.insertCell(2);
+            var dateCell = row.insertCell(3);
+            var logCell = row.insertCell(4);
+            computerNameCell.innerHTML = logFile.computername;
+            pidCell.innerHTML = logFile.pid.toString();
+            typeCell.innerHTML = logFile.type;
+            typeCell.setAttribute('class', logFile.type);
+            dateCell.innerHTML = date.toString();
+            logCell.innerHTML = '<a href="' + logFile.file + '">log</a>';
+        };
+
+    </script>
+</body>
+</html>

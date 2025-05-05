@@ -72,7 +72,7 @@ export default {
       loading.value = true;
       error.value = null;
       try {
-        const response = await fetch(`http://${SERVER_HOST}:3001/api/radardata`, {
+        const response = await fetch(`${SERVER_HOST}/api/radardata`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${authStore.token}`,

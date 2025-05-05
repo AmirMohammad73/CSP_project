@@ -1,3 +1,4 @@
+//usedatafetching.js
 import { ref, watch } from 'vue'
 import { useAuthStore } from '../stores/app'
 import { useRouter } from 'vue-router'
@@ -224,7 +225,99 @@ export function useDataFetching (
           ]
         }
       }
-
+      else if (selectedOption.value === 'پایش عملیات شهری') {
+        if (activeTab.value === 0) {
+          // Map Status tab
+          series = [
+            {
+              name: 'بنیاد مسکن',
+              data: filteredData.map(row => Number(row['بنیاد مسکن'])),
+              color: '#FF4560' // Red
+            },
+            {
+              name: 'سایر منابع',
+              data: filteredData.map(row => Number(row['سایر منابع'])),
+              color: '#FEB019' // Yellow
+            },
+            {
+              name: 'ترسیم',
+              data: filteredData.map(row => Number(row['ترسیم'])),
+              color: '#FF6699' // Pink
+            }
+          ]
+        } else if (activeTab.value === 1) {
+          // Update Status tab
+          series = [
+            {
+              name: 'مجموع',
+              data: filteredData.map(row => Number(row['مجموع روستاها'])),
+              color: '#D3D3D3', // Light gray for background
+              columnWidth: '90%', // Make the "Total" column thicker
+              zIndex: -1 // Ensure it's behind the other columns
+            },
+            {
+              name: 'عملیات میدانی',
+              data: filteredData.map(row => Number(row['عملیات میدانی'])),
+              color: '#00E396', // Green
+              columnWidth: '30%' // Make the grouped columns thinner
+            },
+            {
+              name: 'داده آمائی',
+              data: filteredData.map(row => Number(row['داده آمائی'])),
+              color: '#008FFB', // Blue
+              columnWidth: '30%' // Make the grouped columns thinner
+            },
+            {
+              name: 'اصلاح و ارسال',
+              data: filteredData.map(row => Number(row['اصلاح و ارسال'])),
+              color: '#775DD0', // Purple
+              columnWidth: '30%' // Make the grouped columns thinner
+            }
+          ]
+        } else if (activeTab.value === 2) {
+          // Geocode Status tab
+          series = [
+            {
+              name: 'اصلاح و ارسال',
+              data: filteredData.map(row => Number(row['اصلاح و ارسال'])),
+              color: '#FF4560' // Red
+            },
+            {
+              name: 'تایید و بارگذاری',
+              data: filteredData.map(row => Number(row['تایید و بارگذاری'])),
+              color: '#FEB019' // Yellow
+            },
+            {
+              name: 'ژئوکد',
+              data: filteredData.map(row => Number(row['ژئوکد'])),
+              color: '#FF6699' // Pink
+            }
+          ]
+        } else if (activeTab.value === 3) {
+          // License Plate Status tab
+          series = [
+            {
+              name: 'QR تولید',
+              data: filteredData.map(row => Number(row['تولید QR'])),
+              color: '#FF4560' // Red
+            },
+            {
+              name: 'نصب پلاک',
+              data: filteredData.map(row => Number(row['نصب پلاک'])),
+              color: '#FEB019' // Yellow
+            }
+          ]
+        } else if (activeTab.value === 4) {
+          // National ID tab
+          series = [
+            {
+              name: 'شناسه ملی',
+              data: filteredData.map(row => Number(row['شناسه ملی'])),
+              color: '#00E396' // Green
+            }
+          ]
+        }
+      }
       // Handle data for Option 2 (BSC)
       else if (selectedOption.value === 'BSC') {
         series = [

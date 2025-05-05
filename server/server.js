@@ -10,7 +10,14 @@ const app = express();
 const port = 3001;
 
 // Middleware
-app.use(cors());
+const corsOptions = {
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    optionsSuccessStatus: 204,
+    credentials: true
+};
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Health check endpoint
@@ -40,7 +47,6 @@ app.get('/api/progressdata', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 // Data endpoint
 app.get('/api/locations', authenticateToken, async (req, res) => {
   try {
@@ -132,7 +138,6 @@ app.get('/api/bsc/tab5', authenticateToken, async (req, res) => {
 app.post('/query', authenticateToken, async (req, res) => {
     try {
         const { selectedItems } = req.body;
-		console.log("selectedItems:", selectedItems);
         const { role, permission } = req.user;
         const data = await getQueryData(selectedItems, role, permission);
         res.json(data);
@@ -420,7 +425,7 @@ app.post('/api/locations/update-roosta', authenticateToken, async (req, res) => 
   const user = req.user;
   const username = await user.username;
   const role = await user.role;
-  console.log(username, role);
+  //const { role, permission } = req.user;
   if (!Array.isArray(modifiedRecords) || modifiedRecords.length === 0) {
     return res.status(400).json({ error: 'No valid data provided' });
   }
@@ -477,6 +482,7 @@ app.get('/api/best-geocodes', authenticateToken, async (req, res) => {
   }
 });
 app.post('/api/login', async (req, res) => {
+	console.log("HEY");
   const { username, password } = req.body;
 
   try {
@@ -549,5 +555,5 @@ app.post('/api/change-password', authenticateToken, async (req, res) => {
 });
 // Start the server
 app.listen(port, () => {
-  console.log(`Server running at http://172.16.8.33:${port}`);
+  console.log(`Server running at http://10.190.5.193:${port}`);
 });

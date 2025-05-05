@@ -1,0 +1,2 @@
+Server running at http://10.190.5.193:\\.\pipe\d5d73a59-5f80-46d1-8b5c-2ce408937963
+Database connection successful: { now: 2025-05-04T05:50:21.217Z }

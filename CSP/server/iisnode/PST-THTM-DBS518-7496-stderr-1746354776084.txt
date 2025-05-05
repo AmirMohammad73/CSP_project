@@ -1,0 +1,10 @@
+(node:7496) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Login error: Error: No user found or user is blacklisted!
+    at authenticateUser (E:\New folder\CSP\server\api.js:1233:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async E:\New folder\CSP\server\server.js:488:18
+Login error: Error: No user found or user is blacklisted!
+    at authenticateUser (E:\New folder\CSP\server\api.js:1233:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async E:\New folder\CSP\server\server.js:488:18

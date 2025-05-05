@@ -53,11 +53,11 @@ export function useBSCIndices() {
 
     // Use SERVER_HOST to construct the endpoints
     const tabEndpoints = {
-        0: `http://${SERVER_HOST}:3001/api/bsc/tab1`,
-        1: `http://${SERVER_HOST}:3001/api/bsc/tab2`,
-        2: `http://${SERVER_HOST}:3001/api/bsc/tab3`,
-        3: `http://${SERVER_HOST}:3001/api/bsc/tab4`,
-        4: `http://${SERVER_HOST}:3001/api/bsc/tab5`,
+        0: `${SERVER_HOST}/api/bsc/tab1`,
+        1: `${SERVER_HOST}/api/bsc/tab2`,
+        2: `${SERVER_HOST}/api/bsc/tab3`,
+        3: `${SERVER_HOST}/api/bsc/tab4`,
+        4: `${SERVER_HOST}/api/bsc/tab5`,
     };
 
     return {

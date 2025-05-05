@@ -50,7 +50,7 @@
         loading.value = true;
         error.value = null;
         try {
-          const response = await fetch(`http://${SERVER_HOST}:3001/api/${props.url}`, {
+          const response = await fetch(`${SERVER_HOST}/api/${props.url}`, {
             method: 'GET',
             headers: {
               Authorization: `Bearer ${authStore.token}`,

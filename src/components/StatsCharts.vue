@@ -13,7 +13,7 @@
       <!-- Tabs and content -->
       <v-row v-if="selectedOption">
         <v-col cols="12">
-          <v-tabs v-model="activeTab" dir="rtl" dark centered>
+          <v-tabs v-model="activeTab" dir="rtl" dark centered grow>
             <v-tab v-for="(tab, index) in tabs" :key="index" :value="index">
               {{ tab }}
             </v-tab>
@@ -76,6 +76,7 @@ import * as XLSX from "xlsx";
 import { useAppStore } from "../stores/app";
 import { useDataFetching } from "./useDataFetching";
 import { useRuralOperationsMonitoring } from "./ruralOperationsMonitoring";
+import { useUrbanOperationsMonitoring } from "./urbanOperationsMonitoring";
 import { useBSCIndices } from "./BSCIndices";
 import { usePostalCodeRequest } from "./postalCodeRequest";
 import { useGNAFCustomIndex } from "./gnafCustomIndex";
@@ -93,10 +94,11 @@ export default {
     const selectedOption = ref("پایش عملیات روستایی");
     const options = ref([
       "پایش عملیات روستایی",
+      "پایش عملیات شهری",
       "BSC",
       "گزارش درخواستهای کد پستی",
-      "شاخص اختصاصی GNAF",
-      "برنامه کارگروه تعامل پذیری"
+      "شاخص اختصاصی GNAF"
+      // "برنامه کارگروه تعامل پذیری"
     ]);
     const activeTab = ref(0);
     const tableData = ref([]);
@@ -111,6 +113,8 @@ export default {
       switch (selectedOption.value) {
         case "پایش عملیات روستایی":
           return useRuralOperationsMonitoring();
+        case "پایش عملیات شهری":
+          return useUrbanOperationsMonitoring();
         case "BSC":
           return useBSCIndices();
         case "گزارش درخواستهای کد پستی":
@@ -124,20 +128,20 @@ export default {
       }
     };
     // Watch for theme changes
-    watch(
-		  () => AppStore.isDarkTheme,
-		  (newVal) => {
-			if (chartOptions.value.theme) {
-			  chartOptions.value.theme.mode = newVal ? "dark" : "light";
-			} else {
-			  chartOptions.value.theme = { mode: newVal ? "dark" : "light" };
-			}
-			chartOptions.value.colors = newVal ? ["#00E396"] : ["#008FFB"];
-			chartKey.value++; // Force re-render
-      document.documentElement.style.setProperty('--axis-label-color', newVal ? "white" : "black");
-		  },
-		  { immediate: true } // Ensure this runs during the initial setup
-		);
+	watch(
+	  () => AppStore.isDarkTheme,
+	  (newVal) => {
+		if (chartOptions.value.theme) {
+		  chartOptions.value.theme.mode = newVal ? "dark" : "light";
+		} else {
+		  chartOptions.value.theme = { mode: newVal ? "dark" : "light" };
+		}
+		chartOptions.value.colors = newVal ? ["#00E396"] : ["#008FFB"];
+		chartKey.value++; // Force re-render
+		document.documentElement.style.setProperty('--axis-label-color', newVal ? "white" : "black");
+	  },
+	  { immediate: true } // Ensure this runs during the initial setup
+	);
 
 
     // Handle selectedOption changes
@@ -218,6 +222,7 @@ export default {
       try {
         const currentHeaders = headers.value[activeTab.value];
         const currentData = tableData.value[activeTab.value];
+
         if (!currentHeaders || !currentData) {
           console.error("No headers or data available for the current tab.");
           return;

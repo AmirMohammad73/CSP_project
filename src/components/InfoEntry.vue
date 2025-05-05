@@ -189,7 +189,7 @@ export default {
       const authStore = useAuthStore();
       const SERVER_HOST = ipStore.SERVER_HOST;
       try {
-        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/detailed`, {
+        const response = await fetch(`${SERVER_HOST}/api/locations/detailed`, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${authStore.token}`,
@@ -215,7 +215,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`, {
+        const response = await fetch(`${SERVER_HOST}/api/locations/shahrestan?ostantitle=${encodeURIComponent(ostantitle)}`, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${authStore.token}`,
@@ -241,7 +241,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`, {
+        const response = await fetch(`${SERVER_HOST}/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${authStore.token}`,
@@ -266,7 +266,7 @@ export default {
       this.loading = true;
       this.error = false;
       try {
-        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`, {
+        const response = await fetch(`${SERVER_HOST}/api/locations/dehestan?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}`, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${authStore.token}`,
@@ -292,7 +292,7 @@ export default {
       this.error = false;
       try {
         const response = await fetch(
-          `http://${SERVER_HOST}:3001/api/locations/roosta?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}&dehestantitle=${encodeURIComponent(dehestantitle)}`
+          `${SERVER_HOST}/api/locations/roosta?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&zonetitle=${encodeURIComponent(zonetitle)}&dehestantitle=${encodeURIComponent(dehestantitle)}`
           , {
             method: 'GET',
             headers: {
@@ -320,7 +320,7 @@ export default {
       this.error = false;
 
       try {
-        const response = await fetch(`http://${SERVER_HOST}:3001/api/locations`, {
+        const response = await fetch(`${SERVER_HOST}/api/locations`, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${authStore.token}`,

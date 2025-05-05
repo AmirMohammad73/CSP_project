@@ -61,10 +61,10 @@ export function useInteroperabilityTaskForce() {
 
     ]);
     const tabEndpoints = {
-        0: `http://${SERVER_HOST}:3001/api/interoperability-task-force/dc`,
-        1: `http://${SERVER_HOST}:3001/api/interoperability-task-force/dqi`,
-        2: `http://${SERVER_HOST}:3001/api/interoperability-task-force/dbd`,
-        3: `http://${SERVER_HOST}:3001/api/interoperability-task-force/dapi`
+        0: `${SERVER_HOST}/api/interoperability-task-force/dc`,
+        1: `${SERVER_HOST}/api/interoperability-task-force/dqi`,
+        2: `${SERVER_HOST}/api/interoperability-task-force/dbd`,
+        3: `${SERVER_HOST}/api/interoperability-task-force/dapi`
     };
 
     return {

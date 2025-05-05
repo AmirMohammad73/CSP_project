@@ -1,0 +1,7 @@
+Server running at http://10.190.5.193:\\.\pipe\7f8d69b3-2c0d-4a22-ae84-38fc5afe5476
+Database connection successful: { now: 2025-05-04T12:09:36.312Z }
+[
+  { ostantitle: 'کرمان', efficiency_index: '0.1226' },
+  { ostantitle: 'خراسان شمالی', efficiency_index: '0.0517' },
+  { ostantitle: 'سیستان وبلوچستان', efficiency_index: '0.0260' }
+]

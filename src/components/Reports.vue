@@ -56,7 +56,7 @@ const fetchItems = async () => {
     loading.value = true
     error.value = ''
     try {
-        const response = await fetch(`http://${SERVER_HOST}:3001/ostans`, {
+        const response = await fetch(`${SERVER_HOST}/ostans`, {
             method: 'GET',
             headers: {
                 Authorization: `Bearer ${authStore.token}`,
@@ -89,7 +89,7 @@ const exportToExcel = async () => {
         const ipStore = useIPStore();
         const SERVER_HOST = ipStore.SERVER_HOST;
         const authStore = useAuthStore();
-        const response = await fetch(`http://${SERVER_HOST}:3001/query`, {
+        const response = await fetch(`${SERVER_HOST}/query`, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${authStore.token}`,
@@ -132,7 +132,7 @@ const exportToExcel = async () => {
                 'تعداد مکان ژئوکد شده',
                 'تعداد مکان بهنگام شده',
                 'تعداد ساختمان',
-                'تعداد مکان بهنگام شده',
+                'تعداد رکورد',
                 'تعداد ساختمان ژئوکد شده',
                 'تایید و بارگذاری',
                 'تعداد پارسلها',
@@ -147,7 +147,7 @@ const exportToExcel = async () => {
         const excelFileName = 'Selected_Items.xlsx'
         XLSX.writeFile(workbook, excelFileName)
     } catch (err) {
-        error.value = 'خطا در خروجی به اکسل'
+        error.value = 'خطا در صادرات به اکسل'
         console.error('Error exporting to Excel:', err)
     } finally {
         exporting.value = false

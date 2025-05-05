@@ -39,7 +39,7 @@ export function usePostalCodeRequest () {
 
   // Define the endpoint for fetching the table data
   const tabEndpoints = {
-    0: `http://${SERVER_HOST}:3001/api/postalcode-request` // Endpoint for the table data
+    0: `${SERVER_HOST}/api/postalcode-request` // Endpoint for the table data
   }
 
   return {

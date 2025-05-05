@@ -133,7 +133,7 @@ export default {
   methods: {
     async fetchNotifications() {
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/notifications', {
+        const response = await fetch('https://chaproosta-gnaf.post.ir/api/notifications', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -180,7 +180,7 @@ export default {
       }
 
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/change-password', {
+        const response = await fetch('https://chaproosta-gnaf.post.ir/api/change-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -196,7 +196,7 @@ export default {
         const result = await response.json();
 
         if (response.ok) {
-          alert('Password changed successfully!');
+          alert('پسورد با موفقیت تغییر یافت');
           this.closeChangePasswordDialog();
         } else {
           alert(result.error || 'Failed to change password');
@@ -225,7 +225,7 @@ export default {
     },
     async onNotificationMenuOpen() {
       try {
-        const response = await fetch('http://172.16.8.33:3001/api/update-timestamp', {
+        const response = await fetch('https://chaproosta-gnaf.post.ir/api/update-timestamp', {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',

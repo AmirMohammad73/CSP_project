@@ -166,9 +166,8 @@ export default {
             var editableColumns = [];
             if (this.dataFirstItem === 'setad') {
                 editableColumns = [
-                    'bonyad_maskan',
-                    'sayer_manabe',
-                    'tarsim',
+                    'mokhtasat_rousta',
+                    'mahdoudeh_rousta',
                 ];
             } else if (this.dataFirstItem === 'QR') {
                 editableColumns = [
@@ -258,7 +257,7 @@ export default {
                     return;
                 }
 
-                const response = await fetch(`http://${SERVER_HOST}:3001/api/locations/update-roosta`, {
+                const response = await fetch(`${SERVER_HOST}/api/locations/update-roosta`, {
                     method: 'POST',
                     headers: {
                         Authorization: `Bearer ${authStore.token}`,

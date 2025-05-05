@@ -51,11 +51,11 @@ export function useRuralOperationsMonitoring() {
     ]);
 
     const tabEndpoints = {
-        0: `http://${SERVER_HOST}:3001/api/data`, // Map Status
-        1: `http://${SERVER_HOST}:3001/api/update`, // Update Status
-        2: `http://${SERVER_HOST}:3001/api/geocode`, // Geocode Status
-        3: `http://${SERVER_HOST}:3001/api/license-plate`, // License Plate Status
-        4: `http://${SERVER_HOST}:3001/api/national-id`, // National ID
+        0: `${SERVER_HOST}/api/data`, // Map Status
+        1: `${SERVER_HOST}/api/update`, // Update Status
+        2: `${SERVER_HOST}/api/geocode`, // Geocode Status
+        3: `${SERVER_HOST}/api/license-plate`, // License Plate Status
+        4: `${SERVER_HOST}/api/national-id`, // National ID
     };
 
     return {

@@ -1,0 +1,246 @@
+(node:3180) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Authentication error: TokenExpiredError: jwt expired
+    at E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:190:21
+    at getSecret (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:97:14)
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:101:10)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12) {
+  expiredAt: 2025-05-03T21:13:41.000Z
+}
+Authentication error: TokenExpiredError: jwt expired
+    at E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:190:21
+    at getSecret (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:97:14)
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:101:10)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12) {
+  expiredAt: 2025-05-03T21:13:41.000Z
+}
+Authentication error: TokenExpiredError: jwt expired
+    at E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:190:21
+    at getSecret (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:97:14)
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:101:10)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12) {
+  expiredAt: 2025-05-03T21:13:41.000Z
+}
+Authentication error: TokenExpiredError: jwt expired
+    at E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:190:21
+    at getSecret (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:97:14)
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:101:10)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12) {
+  expiredAt: 2025-05-03T21:13:41.000Z
+}
+Authentication error: TokenExpiredError: jwt expired
+    at E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:190:21
+    at getSecret (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:97:14)
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:101:10)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12) {
+  expiredAt: 2025-05-03T21:13:41.000Z
+}
+Authentication error: TokenExpiredError: jwt expired
+    at E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:190:21
+    at getSecret (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:97:14)
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:101:10)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12) {
+  expiredAt: 2025-05-03T21:13:41.000Z
+}
+Authentication error: TokenExpiredError: jwt expired
+    at E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:190:21
+    at getSecret (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:97:14)
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:101:10)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12) {
+  expiredAt: 2025-05-03T21:13:41.000Z
+}
+Authentication error: TokenExpiredError: jwt expired
+    at E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:190:21
+    at getSecret (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:97:14)
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:101:10)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12) {
+  expiredAt: 2025-05-03T21:13:41.000Z
+}
+Authentication error: TokenExpiredError: jwt expired
+    at E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:190:21
+    at getSecret (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:97:14)
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:101:10)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12) {
+  expiredAt: 2025-05-03T21:13:41.000Z
+}
+Authentication error: TokenExpiredError: jwt expired
+    at E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:190:21
+    at getSecret (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:97:14)
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:101:10)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12) {
+  expiredAt: 2025-05-03T21:13:41.000Z
+}
+Authentication error: TokenExpiredError: jwt expired
+    at E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:190:21
+    at getSecret (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:97:14)
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:101:10)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12) {
+  expiredAt: 2025-05-03T21:13:41.000Z
+}
+Authentication error: TokenExpiredError: jwt expired
+    at E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:190:21
+    at getSecret (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:97:14)
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:101:10)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12) {
+  expiredAt: 2025-05-03T21:13:41.000Z
+}
+Authentication error: JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:70:17)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:91:12)
+Authentication error: JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:70:17)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:91:12)
+Authentication error: JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:70:17)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:91:12)
+Authentication error: JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:70:17)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:91:12)
+Authentication error: JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:70:17)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:91:12)
+Authentication error: JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:70:17)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:91:12)
+Authentication error: JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:70:17)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:91:12)
+Authentication error: JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (E:\New folder\CSP\server\node_modules\jsonwebtoken\verify.js:70:17)
+    at authenticateToken (E:\New folder\CSP\server\api.js:1294:25)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\New folder\CSP\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:95:5)
+    at E:\New folder\CSP\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:346:12)
+    at next (E:\New folder\CSP\server\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (E:\New folder\CSP\server\node_modules\express\lib\router\layer.js:91:12)

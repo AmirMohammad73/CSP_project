@@ -22,7 +22,7 @@ export function useGNAFCustomIndex() {
 
   // Use SERVER_HOST to construct the endpoints
   const tabEndpoints = {
-    0: `http://${SERVER_HOST}:3001/api/gnafindex`
+    0: `${SERVER_HOST}/api/gnafindex`
   };
 
   return {
