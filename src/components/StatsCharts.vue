@@ -13,11 +13,14 @@
       <!-- Tabs and content -->
       <v-row v-if="selectedOption">
         <v-col cols="12">
-          <v-tabs v-model="activeTab" dir="rtl" dark centered grow>
-            <v-tab v-for="(tab, index) in tabs" :key="index" :value="index">
-              {{ tab }}
-            </v-tab>
-          </v-tabs>
+          <v-card>
+            <div class="tabs-wrap" dir="rtl">
+              <v-btn v-for="(tab, index) in tabs" :key="index" :value="index" class="mx-2 my-1" color="primary"
+                variant="tonal" :class="{ 'active-tab': activeTab === index }" @click="activeTab = index">
+                {{ tab }}
+              </v-btn>
+            </div>
+          </v-card>
           <v-tabs-items v-model="activeTab">
             <v-tab-item>
               <v-card class="mt-4">
@@ -128,20 +131,20 @@ export default {
       }
     };
     // Watch for theme changes
-	watch(
-	  () => AppStore.isDarkTheme,
-	  (newVal) => {
-		if (chartOptions.value.theme) {
-		  chartOptions.value.theme.mode = newVal ? "dark" : "light";
-		} else {
-		  chartOptions.value.theme = { mode: newVal ? "dark" : "light" };
-		}
-		chartOptions.value.colors = newVal ? ["#00E396"] : ["#008FFB"];
-		chartKey.value++; // Force re-render
-		document.documentElement.style.setProperty('--axis-label-color', newVal ? "white" : "black");
-	  },
-	  { immediate: true } // Ensure this runs during the initial setup
-	);
+    watch(
+      () => AppStore.isDarkTheme,
+      (newVal) => {
+        if (chartOptions.value.theme) {
+          chartOptions.value.theme.mode = newVal ? "dark" : "light";
+        } else {
+          chartOptions.value.theme = { mode: newVal ? "dark" : "light" };
+        }
+        chartOptions.value.colors = newVal ? ["#00E396"] : ["#008FFB"];
+        chartKey.value++; // Force re-render
+        document.documentElement.style.setProperty('--axis-label-color', newVal ? "white" : "black");
+      },
+      { immediate: true } // Ensure this runs during the initial setup
+    );
 
 
     // Handle selectedOption changes
@@ -266,6 +269,20 @@ export default {
 };
 </script>
 <style scoped>
+.tabs-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 16px;
+  /* برای ویژگی centered در v-tabs اصلی */
+  background-color: #efefef;
+  /* برای ویژگی dark در v-tabs اصلی */
+}
+
+.active-tab {
+  background-color: rgba(var(--v-theme-primary), 0.8) !important;
+  color: white !important;
+}
+
 .elevation-1 {
   direction: rtl;
 }
