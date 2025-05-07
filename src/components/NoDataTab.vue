@@ -98,8 +98,8 @@
           { title: 'تعداد ژئوکد', align: 'center', key: 'geocode_count', class: 'text-subtitle-1 font-weight-bold' },
           // { title: 'تعداد مکان ژئوکدشده', align: 'center', key: 'geocode_makan_count', class: 'text-subtitle-1 font-weight-bold' },
           // { title: 'ساختمانهای ژئوکدشده', align: 'center', key: 'geocode_building_count', class: 'text-subtitle-1 font-weight-bold' },
-          { title: 'تعداد مختصات روستا', align: 'center', key: 'mokhtasat_roosta_count', class: 'text-subtitle-1 font-weight-bold' },
-          { title: 'تعداد حریم روستا', align: 'center', key: 'mahdoudeh_roosta_count', class: 'text-subtitle-1 font-weight-bold' },
+          { title: 'تعداد مختصات شهر', align: 'center', key: 'mokhtasat_roosta_count', class: 'text-subtitle-1 font-weight-bold' },
+          { title: 'تعداد حریم شهر', align: 'center', key: 'mahdoudeh_roosta_count', class: 'text-subtitle-1 font-weight-bold' },
         ],
         locations: [],
         shahrHeaders: [
@@ -219,9 +219,9 @@
         const SERVER_HOST = ipStore.SERVER_HOST;
         this.loading = true;
         this.error = false;
-  
+
         try {
-          const response = await fetch(`${SERVER_HOST}/api/locations/zone?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`, {
+          const response = await fetch(`${SERVER_HOST}/api/locations/shahr?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}`, {
             method: 'GET',
             headers: {
               Authorization: `Bearer ${authStore.token}`,
@@ -232,33 +232,6 @@
           }
           const data = await response.json();
           this.locations = data;
-        } catch (error) {
-          console.error('Error fetching zone data:', error);
-          this.error = true;
-        } finally {
-          this.loading = false;
-        }
-      },
-      async fetchShahrData(ostantitle, shahrestantitle) {
-        const ipStore = useIPStore();
-        const authStore = useAuthStore();
-        const SERVER_HOST = ipStore.SERVER_HOST;
-        this.loading = true;
-        this.error = false;
-        try {
-          const response = await fetch(
-            `${SERVER_HOST}/api/locations/shahr?ostantitle=${encodeURIComponent(ostantitle)}&shahrestantitle=${encodeURIComponent(shahrestantitle)}&shahrtitle=${encodeURIComponent(shahrtitle)}`
-            , {
-              method: 'GET',
-              headers: {
-                Authorization: `Bearer ${authStore.token}`,
-              },
-            });
-          if (!response.ok) {
-            throw new Error('Failed to fetch shahr data');
-          }
-          const data = await response.json();
-          this.shahrData = data;
         } catch (error) {
           console.error('Error fetching shahr data:', error);
           this.error = true;
@@ -361,8 +334,8 @@
             'GeoCode Count': location.geocode_count,
             'Geocode Makan Count': location.geocode_makan_count,
             'Geocode Building Count': location.geocode_building_count,
-            'تعداد مختصات روستا': location.mokhtasat_roosta_count,
-            'تعداد حریم روستا': location.mahdoudeh_roosta_count,
+            'تعداد مختصات شهر': location.mokhtasat_roosta_count,
+            'تعداد حریم شهر': location.mahdoudeh_roosta_count,
           }));
   
           const wb = XLSX.utils.book_new();
