@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const { getMapStatusData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getShahrData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, updateRoostaData, getPostalCodeRequest, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData, getWeeklyData, getMonthlyData, getQuarterlyData, getBests, getProgressData } = require('./api');
+const { getMapStatusData, getCityLocationsData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getShahrData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, updateRoostaData, getPostalCodeRequest, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData, getWeeklyData, getMonthlyData, getQuarterlyData, getBests, getProgressData } = require('./api');
 
 const JWT_SECRET = 'efd6401dca50843be8272263a61b1a97959fdfafb1f0bcedc6210269c7c84902';
 require('dotenv').config();
@@ -71,6 +71,37 @@ app.get('/api/locations', authenticateToken, async (req, res) => {
     } else {
       // For other roles, fetch and return the general locations data
       const data = await getLocationsData();
+      res.json(data);
+    }
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+// Data endpoint
+app.get('/api/city_locations', authenticateToken, async (req, res) => {
+  try {
+    const user = req.user; // User information is available from the authenticated token
+    if (user.role === '4') {
+      // For role 4, return an empty array or skip fetching data
+      res.json(['ostan']);
+    } else if (user.role === '1') {
+      res.json(['setad']);
+    } else if (user.role === '5') {
+      // Fetch general locations data
+      const data = await getCityLocationsData();
+      // Combine ['QR'] with the fetched data
+      const combinedData = ['QR', ...data];
+      // Send the combined data as response
+      res.json(combinedData);
+    } else if (user.role === '3') {
+      // Fetch general locations data
+      const data = await getCityLocationsData();
+      const combinedData = ['nazer', ...data];
+      res.json(combinedData);
+    } else {
+      // For other roles, fetch and return the general locations data
+      const data = await getCityLocationsData();
       res.json(data);
     }
   } catch (err) {
