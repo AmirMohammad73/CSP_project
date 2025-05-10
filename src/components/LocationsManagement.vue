@@ -285,6 +285,7 @@
         }
       },
       async fetchRoostaData(ostantitle, shahrestantitle, zonetitle, dehestantitle) {
+        console.log("Bolayyah");
         const ipStore = useIPStore();
         const authStore = useAuthStore();
         const SERVER_HOST = ipStore.SERVER_HOST;
