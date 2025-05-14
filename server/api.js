@@ -650,7 +650,7 @@ ORDER BY
 };
 const getRoostaData = async (ostantitle, shahrestantitle, zonetitle, dehestantitle) => {
   const sql = `SELECT ostantitle, shahrestantitle, zonetitle, dehestantitle, locationname, population_point_id, shenaseh_melli, adam_paziresh AS bonyad_maskan
-, niazmande_eslah AS sayer_manabe, arseh_ayan AS tarsim, COALESCE(NULLIF(REGEXP_REPLACE(tedad_parcel, '[^0-9]', '', 'g'), ''), '0')::int + COALESCE(NULLIF(REGEXP_REPLACE(tedad_parcel_tarsimi, '[^0-9]', '', 'g'), ''), '0')::int AS tedad_parcel, amaliate_meydani, dadeh_amaei, eslah_naghsheh, daryafte_naghsheh AS geocode
+, niazmande_eslah AS sayer_manabe, arseh_ayan AS tarsim, COALESCE(NULLIF(REGEXP_REPLACE(tedad_parcel, '[^0-9]', '', 'g'), ''), '0')::int + COALESCE(NULLIF(REGEXP_REPLACE(tedad_parcel_tarsimi, '[^0-9]', '', 'g'), ''), '0')::int AS tedad_parcel, amaliate_meydani_userid, dadeh_amaei, eslah_naghsheh, daryafte_naghsheh AS geocode
 , adam_tayid, tayid_va_bargozari, pdf AS mokhtasat_rousta, ersal_setad AS mahdoudeh_rousta, tolid_qr, pelak_talfighi FROM public.locations1
 WHERE ostantitle = $1 AND shahrestantitle = $2 AND zonetitle = $3 AND dehestantitle = $4 AND (locationtype = 'روستا' OR locationtype = 'آبادی');`;
   return await query(sql, [ostantitle, shahrestantitle, zonetitle, dehestantitle]);
@@ -1143,28 +1143,32 @@ FROM
   return await query(sql);
 };
 // Update roosta data
+// Update roosta data
 const updateRoostaData = async (modifiedRecords, role, username) => {
   const client = await pool.connect(); // Now pool is defined
   try {
     await client.query('BEGIN'); // Start a transaction
 
     for (const record of modifiedRecords) {
-      const { population_point_id, shenaseh_melli, amaliate_meydani, dadeh_amaei, eslah_naghsheh, geocode, tolid_qr, pelak_talfighi } = record;
+      const { population_point_id, shenaseh_melli, amaliate_meydani_userid, dadeh_amaei, eslah_naghsheh, geocode, tolid_qr, pelak_talfighi } = record;
+
+      // Determine the value of amaliate_meydani based on amaliate_meydani_userid
+      const amaliate_meydani = amaliate_meydani_userid !== null;
 
       // Update the main table
       const updateQuery = `
         UPDATE public.locations1
         SET 
           shenaseh_melli = $1,
-          amaliate_meydani = $2,
+          amaliate_meydani_userid = $2,
           dadeh_amaei = $3,
-		  eslah_naghsheh = $4,
+          eslah_naghsheh = $4,
           daryafte_naghsheh = $5,
-		  tolid_qr = $6,
-		  pelak_talfighi = $7
+          tolid_qr = $6,
+          pelak_talfighi = $7
         WHERE population_point_id = $8;
       `;
-      await client.query(updateQuery, [shenaseh_melli, amaliate_meydani, dadeh_amaei, eslah_naghsheh, geocode, tolid_qr, pelak_talfighi, population_point_id]);
+      await client.query(updateQuery, [shenaseh_melli, amaliate_meydani_userid, dadeh_amaei, eslah_naghsheh, geocode, tolid_qr, pelak_talfighi, population_point_id]);
 
       // Insert the changes into the changes table
       const insertQuery = `
@@ -1173,25 +1177,40 @@ const updateRoostaData = async (modifiedRecords, role, username) => {
           shenaseh_melli, 
           amaliate_meydani, 
           dadeh_amaei,
-		  eslah_naghsheh,
+          eslah_naghsheh,
           daryafte_naghsheh,
-		  tolid_qr,
-		  pelak_talfighi,
-		  user_id,
+          tolid_qr,
+          pelak_talfighi,
+          user_id,
           changed_at
         )
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW());
       `;
-      await client.query(insertQuery, [population_point_id, shenaseh_melli, amaliate_meydani, dadeh_amaei, eslah_naghsheh, geocode, tolid_qr, pelak_talfighi, username]);
-	// Determine which fields are true and build the columns array
-	if(role === '4'){
-      const columns = [];
-	  if (amaliate_meydani) columns.push('amaliate_meydani');
-	  if (dadeh_amaei) columns.push('dadeh_amaei');
-	  if (geocode) columns.push('daryafte_naghsheh');
-      const change_log_insert = `INSERT INTO change_log (pop_id, user_id, columns, date) VALUES ($1, $2, $3, NOW());`;
-	  await client.query(change_log_insert, [population_point_id, username, columns]);
-	}
+      await client.query(insertQuery, [
+        population_point_id,
+        shenaseh_melli,
+        amaliate_meydani, // Use the calculated value here
+        dadeh_amaei,
+        eslah_naghsheh,
+        geocode,
+        tolid_qr,
+        pelak_talfighi,
+        username
+      ]);
+
+      // Determine which fields are true and build the columns array
+      if (role === '4') {
+        const columns = [];
+        if (amaliate_meydani) columns.push('amaliate_meydani');
+        if (dadeh_amaei) columns.push('dadeh_amaei');
+        if (geocode) columns.push('daryafte_naghsheh');
+
+        const change_log_insert = `
+          INSERT INTO change_log (pop_id, user_id, columns, date)
+          VALUES ($1, $2, $3, NOW());
+        `;
+        await client.query(change_log_insert, [population_point_id, username, columns]);
+      }
     }
 
     await client.query('COMMIT'); // Commit the transaction

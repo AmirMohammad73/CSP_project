@@ -115,7 +115,7 @@
           // { title: 'سایر منابع', key: 'sayer_manabe' },
           // { title: 'ترسیم', key: 'tarsim' },
           { title: 'پارسلها', key: 'tedad_parcel' },
-          { title: 'عملیات میدانی', key: 'amaliate_meydani' },
+          { title: 'عملیات میدانی', key: 'amaliate_meydani_userid' },
           { title: 'داده آمائی', key: 'dadeh_amaei' },
           { title: 'ژئوکد', key: 'geocode' },
           { title: 'اصلاح نقشه', key: 'eslah_naghsheh' },
@@ -285,7 +285,6 @@
         }
       },
       async fetchRoostaData(ostantitle, shahrestantitle, zonetitle, dehestantitle) {
-        console.log("Bolayyah");
         const ipStore = useIPStore();
         const authStore = useAuthStore();
         const SERVER_HOST = ipStore.SERVER_HOST;
