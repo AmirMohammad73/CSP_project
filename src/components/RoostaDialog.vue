@@ -32,6 +32,12 @@
                                             hide-details
                                             :class="header.key === 'shenaseh_melli' ? 'wide-field-5x' : 'wide-field-3x'"></v-text-field>
                                     </template>
+                                    <template v-else-if="header.key === 'amaliate_meydani_userid'">
+                                        <v-select v-model="item[header.key]" :items="[1, 2, 3, 'نامشخص']"
+                                            variant="outlined" density="compact" hide-details
+                                            :disabled="isAmaliyatDisabled(item)" class="text-center">
+                                        </v-select>
+                                    </template>
                                     <template v-else-if="isBooleanColumn(header.key)">
                                         <v-checkbox v-model="item[header.key]" :true-value="true" :false-value="false"
                                             :disabled="!isEditableCheckbox(header.key, item)" hide-details
@@ -116,6 +122,29 @@ export default {
         },
     },
     methods: {
+        prepareForSave(data) {
+            return data.map(item => {
+                const newItem = { ...item };
+                if (newItem.amaliate_meydani_userid === "نامشخص") {
+                    newItem.amaliate_meydani_userid = true;
+                } else if (newItem.amaliate_meydani_userid === null) {
+                    newItem.amaliate_meydani_userid = false;
+                }
+                return newItem;
+            });
+        },
+        isAmaliyatDisabled(item) {
+            return item.amaliate_meydani_userid === "نامشخص";
+        },
+        convertOldData() {
+            this.visibleRoostaData.forEach(item => {
+                if (item.amaliate_meydani_userid === true) {
+                    item.amaliate_meydani_userid = "نامشخص";
+                } else if (item.amaliate_meydani_userid === false) {
+                    item.amaliate_meydani_userid = null;
+                }
+            });
+        },
         handleCheckboxChange(item, key) {
             console.log(this.dataFirstItem);
             if (this.dataFirstItem === 'setad') {
@@ -155,7 +184,7 @@ export default {
         setInitialCheckboxStates() {
             this.initialCheckboxStates = this.roostaData.reduce((acc, item) => {
                 acc[item.population_point_id] = {
-                    amaliate_meydani: item.amaliate_meydani,
+                    amaliate_meydani_userid: item.amaliate_meydani_userid,
                     dadeh_amaei: item.dadeh_amaei,
                     pelak_talfighi: item.pelak_talfighi,
                 };
@@ -175,10 +204,9 @@ export default {
                 ];
             } else if (this.dataFirstItem === 'nazer') {
                 editableColumns = [];
-                console.log(this.dataFirstItem);
             } else if (this.dataFirstItem !== 'manager') {
                 editableColumns = [
-                    'amaliate_meydani',
+                    'amaliate_meydani_userid', // ✔️ وجود دارد
                     'dadeh_amaei',
                     'geocode',
                     'eslah_naghsheh',
@@ -189,9 +217,10 @@ export default {
             if (!editableColumns.includes(key)) {
                 return false;
             }
-            // Check if the checkbox was initially checked
+
+            // برای سایر فیلدها، منطق قبلی حفظ شود
             const initialState = this.initialCheckboxStates[item.population_point_id];
-            if (initialState && (key === 'amaliate_meydani' || key === 'dadeh_amaei' || key === 'pelak_talfighi')) {
+            if (initialState && (key === 'dadeh_amaei' || key === 'pelak_talfighi')) {
                 return !initialState[key];
             }
 
@@ -202,7 +231,6 @@ export default {
                 'bonyad_maskan',
                 'sayer_manabe',
                 'tarsim',
-                'amaliate_meydani',
                 'dadeh_amaei',
                 'geocode',
                 'eslah_naghsheh',
@@ -216,6 +244,7 @@ export default {
         loadInitialData() {
             this.visibleRoostaData = this.roostaData.slice(0, this.pageSize);
             this.currentPage = 1;
+            this.convertOldData();
         },
         async loadMoreRoostaData({ done }) {
             if (this.isLoading) return;
@@ -257,13 +286,16 @@ export default {
                     return;
                 }
 
+                // ✅ تبدیل داده‌ها قبل از ارسال به سرور
+                const payload = this.prepareForSave(modifiedRecords);
+
                 const response = await fetch(`${SERVER_HOST}/api/locations/update-roosta`, {
                     method: 'POST',
                     headers: {
                         Authorization: `Bearer ${authStore.token}`,
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(modifiedRecords),
+                    body: JSON.stringify(payload),
                 });
 
                 if (!response.ok) {
