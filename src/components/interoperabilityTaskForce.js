@@ -7,10 +7,7 @@ export function useInteroperabilityTaskForce() {
     const SERVER_HOST = ipStore.SERVER_HOST;
 
     const tabs = ref([
-        "تکمیل داده ها",
-        "بهبود کیفیت داده ها",
-        "توسعه پایگاه داده ها",
-        "دریافت API از سایر دستگاهها"
+        "نقشه راه نهادی",
     ]);
 
     const headers = ref([

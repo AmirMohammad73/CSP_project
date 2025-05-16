@@ -34,22 +34,28 @@
                       </h4>
                       <v-row>
                         <v-col cols="12">
-                          <!-- Add a key to force re-render -->
-                          <apexchart :key="chartKey" width="100%" height="600" type="bar" :options="chartOptions"
-                            :series="chartOptions.series"></apexchart>
+                          <!-- نمایش شرطی کامپوننت‌های نمودار -->
+                          <template v-if="selectedOption !== 'برنامه کارگروه تعامل پذیری'">
+                            <apexchart :key="chartKey" width="100%" height="600" type="bar" :options="chartOptions"
+                              :series="chartOptions.series"></apexchart>
+                          </template>
+                          <template v-else>
+                            <InteroperabilityChart />
+                          </template>
                         </v-col>
                       </v-row>
                     </div>
                   </transition>
                   <!-- Table -->
-                  <div class="table-container mt-8">
-                    <h4 class="text-h6 text-right mb-2">
-                      جدول {{ tabs[activeTab] }}
-                    </h4>
-                    <v-data-table :items="tableData[activeTab]" :headers="headers.values[0]"
-                      class="elevation-1"></v-data-table>
-
-                  </div>
+                  <template v-if="selectedOption !== 'برنامه کارگروه تعامل پذیری'">
+                    <div class="table-container mt-8">
+                      <h4 class="text-h6 text-right mb-2">
+                        جدول {{ tabs[activeTab] }}
+                      </h4>
+                      <v-data-table :items="tableData[activeTab]" :headers="headers.values[0]"
+                        class="elevation-1"></v-data-table>
+                    </div>
+                  </template>
                 </v-card-text>
               </v-card>
             </v-tab-item>
@@ -84,10 +90,12 @@ import { useBSCIndices } from "./BSCIndices";
 import { usePostalCodeRequest } from "./postalCodeRequest";
 import { useGNAFCustomIndex } from "./gnafCustomIndex";
 import { useInteroperabilityTaskForce } from './interoperabilityTaskForce';
+import InteroperabilityChart from './InteroperabilityChart.vue';
 import { computed } from 'vue';
 export default {
   components: {
     apexchart: VueApexCharts,
+    InteroperabilityChart
   },
   setup() {
 
@@ -100,8 +108,8 @@ export default {
       "پایش عملیات شهری",
       "BSC",
       "گزارش درخواستهای کد پستی",
-      "شاخص اختصاصی GNAF"
-      // "برنامه کارگروه تعامل پذیری"
+      "شاخص اختصاصی GNAF",
+      "برنامه کارگروه تعامل پذیری"
     ]);
     const activeTab = ref(0);
     const tableData = ref([]);
@@ -142,11 +150,6 @@ export default {
         chartOptions.value.colors = newVal ? ["#00E396"] : ["#008FFB"];
         chartKey.value++; // Force re-render
         document.documentElement.style.setProperty('--axis-label-color', newVal ? "white" : "black");
-        document.documentElement.style.setProperty('--tabs-bg-color', newVal ? '#424242' : '#efefef');
-
-        // 👇 (اختیاری) اگر رنگ متن هم بخوای عوض شه
-        document.documentElement.style.setProperty('--tabs-text-color', newVal ? 'white' : 'black');
-
       },
       { immediate: true } // Ensure this runs during the initial setup
     );
@@ -210,9 +213,6 @@ export default {
 
     // Fetch data on mount
     onMounted(() => {
-      const isDark = AppStore.isDarkTheme;
-      document.documentElement.style.setProperty('--tabs-bg-color', isDark ? '#424242' : '#efefef');
-      document.documentElement.style.setProperty('--tabs-text-color', isDark ? 'white' : 'black');
       initialFetchData().then(() => {
         // Ensure chart theme is set correctly during initial load
         chartOptions.value.theme.mode = AppStore.isDarkTheme ? "dark" : "light";
@@ -282,8 +282,8 @@ export default {
   flex-wrap: wrap;
   padding: 16px;
   /* برای ویژگی centered در v-tabs اصلی */
-  background-color: var(--tabs-bg-color);
-  color: var(--tabs-text-color);
+  background-color: #efefef;
+  /* برای ویژگی dark در v-tabs اصلی */
 }
 
 .active-tab {
