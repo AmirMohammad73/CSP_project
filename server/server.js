@@ -523,7 +523,6 @@ app.get('/api/best-geocodes', authenticateToken, async (req, res) => {
   }
 });
 app.post('/api/login', async (req, res) => {
-	console.log("HEY");
   const { username, password } = req.body;
 
   try {
@@ -594,6 +593,19 @@ app.post('/api/change-password', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+// Endpoint to handle the query with dynamic WHERE conditions
+app.post('/getostanusers', authenticateToken, async (req, res) => {
+    try {
+        const { selectedItems } = req.body;
+        const { role, permission } = req.user;
+        const data = await getQueryData(selectedItems, role, permission);
+        res.json(data);
+    } catch (err) {
+        console.error('API error:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server running at http://10.190.5.193:${port}`);

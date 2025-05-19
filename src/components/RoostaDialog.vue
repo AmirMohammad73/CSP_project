@@ -134,7 +134,8 @@ export default {
             });
         },
         isAmaliyatDisabled(item) {
-            return item.amaliate_meydani_userid === "نامشخص";
+            const initialState = this.initialCheckboxStates[item.population_point_id];
+            return initialState && initialState.amaliate_meydani_userid !== null && initialState.amaliate_meydani_userid !== undefined;
         },
         convertOldData() {
             this.visibleRoostaData.forEach(item => {
@@ -185,8 +186,6 @@ export default {
             this.initialCheckboxStates = this.roostaData.reduce((acc, item) => {
                 acc[item.population_point_id] = {
                     amaliate_meydani_userid: item.amaliate_meydani_userid,
-                    dadeh_amaei: item.dadeh_amaei,
-                    pelak_talfighi: item.pelak_talfighi,
                 };
                 return acc;
             }, {});
