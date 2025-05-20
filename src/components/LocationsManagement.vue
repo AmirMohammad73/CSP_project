@@ -115,7 +115,7 @@
           // { title: 'سایر منابع', key: 'sayer_manabe' },
           // { title: 'ترسیم', key: 'tarsim' },
           { title: 'پارسلها', key: 'tedad_parcel' },
-          { title: 'عملیات میدانی', key: 'amaliate_meydani_userid' },
+          { title: 'عملیات میدانی', key: 'amaliate_meydani_user_fullname' },
           { title: 'داده آمائی', key: 'dadeh_amaei' },
           { title: 'ژئوکد', key: 'geocode' },
           { title: 'اصلاح نقشه', key: 'eslah_naghsheh' },
