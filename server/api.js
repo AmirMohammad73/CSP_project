@@ -660,10 +660,15 @@ const getRoostaData = async (ostantitle, shahrestantitle, zonetitle, dehestantit
     l.adam_paziresh AS bonyad_maskan,
     l.niazmande_eslah AS sayer_manabe,
     l.arseh_ayan AS tarsim,
-    COALESCE(NULLIF(REGEXP_REPLACE(l.tedad_parcel, '[^0-9]', '', 'g'), ''), '0')::int + COALESCE(NULLIF(REGEXP_REPLACE(l.tedad_parcel_tarsimi, '[^0-9]', '', 'g'), ''), '0')::int AS tedad_parcel,
-    -- جایگزینی amaliate_meydani_user_fullname با نام کامل کاربر
+    COALESCE(NULLIF(REGEXP_REPLACE(l.tedad_parcel, '[^0-9]', '', 'g'), ''), '0')::int + 
+    COALESCE(NULLIF(REGEXP_REPLACE(l.tedad_parcel_tarsimi, '[^0-9]', '', 'g'), ''), '0')::int AS tedad_parcel,
+
+    -- amaliate_meydani_user_fullname
     CONCAT(ru.firstname, ' ', ru.lastname) AS amaliate_meydani_user_fullname,
-    l.dadeh_amaei,
+
+    -- dadeh_amaei_user_fullname
+    CONCAT(ru2.firstname, ' ', ru2.lastname) AS dadeh_amaei_user_fullname,
+
     l.eslah_naghsheh,
     l.daryafte_naghsheh AS geocode,
     l.adam_tayid,
@@ -673,15 +678,23 @@ const getRoostaData = async (ostantitle, shahrestantitle, zonetitle, dehestantit
     l.tolid_qr,
     l.pelak_talfighi
 FROM
-    public.locations1 l  -- استفاده از alias 'l' برای جدول locations1
-LEFT JOIN
-    record_users ru ON l.amaliate_meydani_user_fullname = ru.user_id::TEXT -- پیوند با جدول record_users با alias 'ru'
+    public.locations1 l
+
+-- Join برای amaliate_meydani_user_fullname
+LEFT JOIN record_users ru 
+    ON l.amaliate_meydani_user_fullname = ru.user_id::TEXT
+
+-- Join جدید برای dadeh_amaei_user_fullname
+LEFT JOIN record_users ru2 
+    ON l.dadeh_amaei_user_fullname = ru2.user_id::TEXT
+
 WHERE
     l.ostantitle = $1
     AND l.shahrestantitle = $2
     AND l.zonetitle = $3
     AND l.dehestantitle = $4
-    AND (l.locationtype = 'روستا' OR l.locationtype = 'آبادی');`;
+    AND (l.locationtype = 'روستا' OR l.locationtype = 'آبادی')
+ORDER BY locationname`;
   return await query(sql, [ostantitle, shahrestantitle, zonetitle, dehestantitle]);
 };
 const getBSCTab1Data = async () => {
@@ -1178,10 +1191,11 @@ const updateRoostaData = async (modifiedRecords, role, username) => {
     await client.query('BEGIN'); // Start a transaction
 
     for (const record of modifiedRecords) {
-      const { population_point_id, shenaseh_melli, amaliate_meydani_user_fullname, dadeh_amaei, eslah_naghsheh, geocode, tolid_qr, pelak_talfighi } = record;
+      const { population_point_id, shenaseh_melli, amaliate_meydani_user_fullname, dadeh_amaei_user_fullname, eslah_naghsheh, geocode, tolid_qr, pelak_talfighi } = record;
 
       // Determine the value of amaliate_meydani based on amaliate_meydani_user_fullname
       const amaliate_meydani = amaliate_meydani_user_fullname !== null;
+      const dadeh_amaei = dadeh_amaei_user_fullname !== null;
 
       // Update the main table
       const updateQuery = `
@@ -1189,15 +1203,15 @@ const updateRoostaData = async (modifiedRecords, role, username) => {
         SET 
           shenaseh_melli = $1,
           amaliate_meydani_user_fullname = $2::TEXT,
-          dadeh_amaei = $3,
+          dadeh_amaei_user_fullname = $3::TEXT,
           eslah_naghsheh = $4,
           daryafte_naghsheh = $5,
           tolid_qr = $6,
           pelak_talfighi = $7
         WHERE population_point_id = $8;
       `;
-	  console.log([shenaseh_melli, amaliate_meydani_user_fullname, dadeh_amaei, eslah_naghsheh, geocode, tolid_qr, pelak_talfighi, population_point_id]);
-      await client.query(updateQuery, [shenaseh_melli, amaliate_meydani_user_fullname, dadeh_amaei, eslah_naghsheh, geocode, tolid_qr, pelak_talfighi, population_point_id]);
+	  console.log([shenaseh_melli, amaliate_meydani_user_fullname, dadeh_amaei_user_fullname, eslah_naghsheh, geocode, tolid_qr, pelak_talfighi, population_point_id]);
+      await client.query(updateQuery, [shenaseh_melli, amaliate_meydani_user_fullname, dadeh_amaei_user_fullname, eslah_naghsheh, geocode, tolid_qr, pelak_talfighi, population_point_id]);
 
       // Insert the changes into the changes table
       const insertQuery = `
@@ -1235,8 +1249,8 @@ const updateRoostaData = async (modifiedRecords, role, username) => {
         if (geocode) columns.push('daryafte_naghsheh');
 
         const change_log_insert = `
-          INSERT INTO change_log (id, pop_id, user_id, columns, date)
-          VALUES (35383, $1, $2, $3, NOW());
+          INSERT INTO change_log1 (pop_id, user_id, columns, date)
+          VALUES ($1, $2, $3, NOW());
         `;
         await client.query(change_log_insert, [population_point_id, username, columns]);
       }
@@ -1473,7 +1487,7 @@ const getOstanUsers = async (role, permission) => {
     let whereClause = '';
     if (role === '4') {
         const conditions = permission.map((region) => `'${region}'`).join(', ');
-        whereClause = `WHERE ostantitle IN (${conditions}) AND type = 1`;
+        whereClause = `WHERE ostantitle IN (${conditions}) AND (type = 1 OR type = 3) AND user_id != '0'`;
     }
 
     const sql = `
@@ -1484,4 +1498,19 @@ const getOstanUsers = async (role, permission) => {
     `;
     return await query(sql);
 };
-module.exports = { getMapStatusData, getCityLocationsData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getShahrData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData, getWeeklyData, getMonthlyData, getQuarterlyData, getBests, getProgressData, getOstanUsers };
+const getDadehAmaeiUsers = async (role, permission) => {
+    let whereClause = '';
+    if (role === '4') {
+        const conditions = permission.map((region) => `'${region}'`).join(', ');
+        whereClause = `WHERE ostantitle IN (${conditions}) AND (type = 2 OR type = 3) AND user_id != '0'`;
+    }
+
+    const sql = `
+        SELECT user_id, CONCAT(firstname, ' ', lastname) AS full_name 
+        FROM public.record_users 
+        ${whereClause}
+        ORDER BY ostantitle;
+    `;
+    return await query(sql);
+};
+module.exports = { getMapStatusData, getCityLocationsData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getShahrData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData, getWeeklyData, getMonthlyData, getQuarterlyData, getBests, getProgressData, getOstanUsers, getDadehAmaeiUsers };

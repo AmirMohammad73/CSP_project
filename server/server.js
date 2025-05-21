@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const { getMapStatusData, getCityLocationsData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getShahrData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, updateRoostaData, getPostalCodeRequest, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData, getWeeklyData, getMonthlyData, getQuarterlyData, getBests, getProgressData, getOstanUsers } = require('./api');
+const { getMapStatusData, getCityLocationsData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getShahrData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, updateRoostaData, getPostalCodeRequest, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData, getWeeklyData, getMonthlyData, getQuarterlyData, getBests, getProgressData, getOstanUsers, getDadehAmaeiUsers } = require('./api');
 
 const JWT_SECRET = 'efd6401dca50843be8272263a61b1a97959fdfafb1f0bcedc6210269c7c84902';
 require('dotenv').config();
@@ -466,7 +466,7 @@ app.post('/api/locations/update-roosta', authenticateToken, async (req, res) => 
   const user = req.user;
   const username = await user.username;
   const role = await user.role;
-  console.log(modifiedRecords)
+  console.log("modifiedRecords:", modifiedRecords)
   //const { role, permission } = req.user;
   if (!Array.isArray(modifiedRecords) || modifiedRecords.length === 0) {
     return res.status(400).json({ error: 'No valid data provided' });
@@ -599,6 +599,16 @@ app.post('/getostanusers', authenticateToken, async (req, res) => {
     try {
         const { role, permission } = req.user;
         const data = await getOstanUsers(role, permission);
+        res.json(data);
+    } catch (err) {
+        console.error('API error:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+app.post('/getdadehamaeiusers', authenticateToken, async (req, res) => {
+    try {
+        const { role, permission } = req.user;
+        const data = await getDadehAmaeiUsers(role, permission);
         res.json(data);
     } catch (err) {
         console.error('API error:', err);

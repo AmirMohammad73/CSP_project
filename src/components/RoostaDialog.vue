@@ -38,6 +38,13 @@
                                             :disabled="isAmaliyatDisabled(item)" class="text-center">
                                         </v-select>
                                     </template>
+                                    <template v-else-if="header.key === 'dadeh_amaei_user_fullname'">
+                                        <v-select v-model="item[header.key]" :items="dadehamaeiList"
+                                            item-title="full_name" item-value="user_id" variant="outlined"
+                                            density="compact" hide-details :disabled="isDadehAmaeiDisabled(item)"
+                                            class="text-center">
+                                        </v-select>
+                                    </template>
                                     <template v-else-if="isBooleanColumn(header.key)">
                                         <v-checkbox v-model="item[header.key]" :true-value="true" :false-value="false"
                                             :disabled="!isEditableCheckbox(header.key, item)" hide-details
@@ -92,6 +99,7 @@ export default {
             searchTerm: '', // Search term data property
             initialCheckboxStates: {},
             usersList: [],
+            dadehamaeiList: [],
             loadingUsers: false
         };
     },
@@ -104,6 +112,9 @@ export default {
                 this.setInitialCheckboxStates(); // Add this line
                 if (this.usersList.length === 0) {
                     this.fetchUsersList();
+                }
+                if (this.dadehamaeiList.length === 0) {
+                    this.fetchDadehAmaeiList();
                 }
             }
         },
@@ -152,11 +163,39 @@ export default {
                 // می‌توانید پیام خطا به کاربر نشان دهید
             }
         },
+        async fetchDadehAmaeiList() {
+            try {
+                const ipStore = useIPStore();
+                const authStore = useAuthStore();
+                const SERVER_HOST = ipStore.SERVER_HOST;
+
+                const response = await fetch(`${SERVER_HOST}/getdadehamaeiusers`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${authStore.token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch users list');
+                }
+
+                const data = await response.json();
+                this.dadehamaeiList = data;
+            } catch (error) {
+                console.error('Error fetching users list:', error);
+                // می‌توانید پیام خطا به کاربر نشان دهید
+            }
+        },
         prepareForSave(data) {
             return data.map(item => {
                 const newItem = { ...item };
-                if (newItem.amaliate_meydani_user_fullname === null || newItem.amaliate_meydani_user_fullname === '') {
+                if (newItem.amaliate_meydani_user_fullname === null || newItem.amaliate_meydani_user_fullname === ' ') {
                     newItem.amaliate_meydani_user_fullname = null; // یا 'نامشخص' بسته به منطق پس زمینه
+                }
+                if (newItem.dadeh_amaei_user_fullname === null || newItem.dadeh_amaei_user_fullname === ' ') {
+                    newItem.dadeh_amaei_user_fullname = null; // یا 'نامشخص' بسته به منطق پس زمینه
                 }
                 console.log(newItem);
                 return newItem;
@@ -166,12 +205,21 @@ export default {
             const initialState = this.initialCheckboxStates[item.population_point_id];
             return initialState && initialState.amaliate_meydani_user_fullname !== null && initialState.amaliate_meydani_user_fullname !== undefined && initialState.amaliate_meydani_user_fullname !== ' ';
         },
+        isDadehAmaeiDisabled(item) {
+            const initialState = this.initialCheckboxStates[item.population_point_id];
+            return initialState && initialState.dadeh_amaei_user_fullname !== null && initialState.dadeh_amaei_user_fullname !== undefined && initialState.dadeh_amaei_user_fullname !== ' ';
+        },
         convertOldData() {
             this.visibleRoostaData.forEach(item => {
                 if (item.amaliate_meydani_user_fullname === true) {
                     item.amaliate_meydani_user_fullname = "نامشخص";
                 } else if (item.amaliate_meydani_user_fullname === false) {
                     item.amaliate_meydani_user_fullname = null;
+                }
+                if (item.dadeh_amaei_user_fullname === true) {
+                    item.dadeh_amaei_user_fullname = "نامشخص";
+                } else if (item.dadeh_amaei_user_fullname === false) {
+                    item.dadeh_amaei_user_fullname = null;
                 }
             });
         },
@@ -215,6 +263,7 @@ export default {
             this.initialCheckboxStates = this.roostaData.reduce((acc, item) => {
                 acc[item.population_point_id] = {
                     amaliate_meydani_user_fullname: item.amaliate_meydani_user_fullname,
+                    dadeh_amaei_user_fullname: item.dadeh_amaei_user_fullname
                 };
                 return acc;
             }, {});
@@ -234,8 +283,8 @@ export default {
                 editableColumns = [];
             } else if (this.dataFirstItem !== 'manager') {
                 editableColumns = [
-                    'amaliate_meydani_user_fullname', // ✔️ وجود دارد
-                    'dadeh_amaei',
+                    'amaliate_meydani_user_fullname',
+                    'dadeh_amaei_user_fullname',
                     'geocode',
                     'eslah_naghsheh',
                     'pelak_talfighi',
@@ -248,7 +297,7 @@ export default {
 
             // برای سایر فیلدها، منطق قبلی حفظ شود
             const initialState = this.initialCheckboxStates[item.population_point_id];
-            if (initialState && (key === 'dadeh_amaei' || key === 'pelak_talfighi')) {
+            if (initialState && (key === 'pelak_talfighi')) {
                 return !initialState[key];
             }
 
@@ -259,7 +308,6 @@ export default {
                 'bonyad_maskan',
                 'sayer_manabe',
                 'tarsim',
-                'dadeh_amaei',
                 'geocode',
                 'eslah_naghsheh',
                 'mokhtasat_rousta',
@@ -316,7 +364,7 @@ export default {
 
                 // ✅ تبدیل داده‌ها قبل از ارسال به سرور
                 const payload = this.prepareForSave(modifiedRecords);
-
+                console.log(payload);
                 const response = await fetch(`${SERVER_HOST}/api/locations/update-roosta`, {
                     method: 'POST',
                     headers: {
