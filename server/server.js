@@ -335,8 +335,9 @@ app.get('/api/radardata', authenticateToken, async (req, res) => {
 // Data endpoint
 app.get('/api/weeklydata', authenticateToken, async (req, res) => {
   try {
-	const user = req.user;
-    const data = await getWeeklyData(user.role, user.permission, user.username);
+    const user = req.user;
+    const ostan = req.query.ostan; // دریافت پارامتر ostan از query string
+    const data = await getWeeklyData(user.role, user.permission, user.username, ostan);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
@@ -345,8 +346,9 @@ app.get('/api/weeklydata', authenticateToken, async (req, res) => {
 });
 app.get('/api/monthlydata', authenticateToken, async (req, res) => {
   try {
-	const user = req.user;
-    const data = await getMonthlyData(user.role, user.permission, user.username);
+    const user = req.user;
+    const ostan = req.query.ostan; // دریافت پارامتر ostan از query string
+    const data = await getMonthlyData(user.role, user.permission, user.username, ostan);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);
@@ -355,8 +357,9 @@ app.get('/api/monthlydata', authenticateToken, async (req, res) => {
 });
 app.get('/api/quarterlydata', authenticateToken, async (req, res) => {
   try {
-	const user = req.user;
-    const data = await getQuarterlyData(user.role, user.permission, user.username);
+    const user = req.user;
+    const ostan = req.query.ostan; // دریافت پارامتر ostan از query string
+    const data = await getQuarterlyData(user.role, user.permission, user.username, ostan);
     res.json(data);
   } catch (err) {
     console.error('API error:', err);

@@ -887,13 +887,18 @@ const getBSCTab5Data = async () => {
     (SELECT * FROM section1_summary ORDER BY ostantitle);`;
   return await query(sql);
 };
-const getWeeklyData = async (role, permission, username) => {
+const getWeeklyData = async (role, permission, username, ostan) => {
 	  let whereClause = '';
   // Add a WHERE clause if the role is 4 or 1
   if(role === '4' || role === '1') {
 	      // Convert the permission array into a list of SQL conditions
     const conditions = permission.map((region) => `'${region}'`).join(', ');
     whereClause = `WHERE ostantitle IN (${conditions}) `;
+  }
+  
+  // Add ostan filter if provided
+  if (ostan) {
+    whereClause = whereClause ? `${whereClause} AND ostantitle = '${ostan}'` : `WHERE ostantitle = '${ostan}'`;
   }
   const sql = `WITH RECURSIVE all_weeks AS (
     SELECT
@@ -957,13 +962,18 @@ ORDER BY week_start, operation;
 `;
   return await query(sql);
 };
-const getMonthlyData = async (role, permission, username) => {
+const getMonthlyData = async (role, permission, username, ostan) => {
 	  let whereClause = '';
   // Add a WHERE clause if the role is 4 or 1
   if(role === '4' || role === '1') {
 	      // Convert the permission array into a list of SQL conditions
     const conditions = permission.map((region) => `'${region}'`).join(', ');
     whereClause = `WHERE ostantitle IN (${conditions}) `;
+  }
+
+  // Add ostan filter if provided
+  if (ostan) {
+    whereClause = whereClause ? `${whereClause} AND ostantitle = '${ostan}'` : `WHERE ostantitle = '${ostan}'`;
   }
 
   const sql = `WITH RECURSIVE all_months AS (
@@ -1029,7 +1039,7 @@ FROM lateral_counts
 ORDER BY week_num, operation;`;
   return await query(sql);
 };
-const getQuarterlyData = async (role, permission, username) => {
+const getQuarterlyData = async (role, permission, username, ostan) => {
 	  let whereClause = '';
   // Add a WHERE clause if the role is 4 or 1
   if(role === '4' || role === '1') {
@@ -1037,6 +1047,12 @@ const getQuarterlyData = async (role, permission, username) => {
     const conditions = permission.map((region) => `'${region}'`).join(', ');
     whereClause = `WHERE ostantitle IN (${conditions}) `;
   }
+
+  // Add ostan filter if provided
+  if (ostan) {
+    whereClause = whereClause ? `${whereClause} AND ostantitle = '${ostan}'` : `WHERE ostantitle = '${ostan}'`;
+  }
+
   const sql = `WITH RECURSIVE all_quarters AS (
   -- Define the first quarter starting 2024-08-22
   SELECT

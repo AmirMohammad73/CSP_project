@@ -1,14 +1,27 @@
 <template>
     <v-container>
         <v-card>
-            <v-card-title class="text-center">گزارش هفتگی/ماهانه/سه‌ماهه</v-card-title>
+            <v-card-title class="text-center mb-6">گزارش هفتگی/ماهانه/سه‌ماهه</v-card-title>
             <v-card-text>
-                <div class="text-center mb-4">
-                    <v-btn-toggle v-model="timeframe" mandatory>
-                        <v-btn value="daily">هفتگی</v-btn>
-                        <v-btn value="weekly">ماهانه</v-btn>
-                        <v-btn value="quarterly">سه‌ماهه</v-btn>
-                    </v-btn-toggle>
+                <div class="controls-container mb-8">
+                    <div class="time-buttons">
+                        <v-btn-toggle v-model="timeframe" mandatory>
+                            <v-btn value="daily">هفتگی</v-btn>
+                            <v-btn value="weekly">ماهانه</v-btn>
+                            <v-btn value="quarterly">سه‌ماهه</v-btn>
+                        </v-btn-toggle>
+                    </div>
+                    <v-select
+                        v-model="selectedOstan"
+                        :items="ostansList"
+                        item-title="ostantitle"
+                        item-value="ostantitle"
+                        label="انتخاب استان"
+                        class="ostan-select"
+                        hide-details
+                        density="compact"
+                        variant="outlined"
+                    ></v-select>
                 </div>
                 <apexchart :key="chartKey" type="line" height="350" :options="chartOptions" :series="currentSeries"
                     @zoom="handleZoom"></apexchart>
@@ -30,6 +43,8 @@ export default {
         const AppStore = useAppStore();
         const chartKey = ref(0);
         const timeframe = ref("daily");
+        const selectedOstan = ref(null);
+        const ostansList = ref([]);
 
         const dailySeries = ref([]);
         const weeklySeries = ref([]);
@@ -90,36 +105,78 @@ export default {
                 : ["#FF6B6B", "#4ECDC4", "#556EE6"],
         });
 
-
-        const fetchDailyData = async () => {
+        // Add function to fetch ostans
+        const fetchOstans = async () => {
             try {
-                const response = await fetch('https://chaproosta-gnaf.post.ir/api/weeklydata', {
+                const response = await fetch('http://192.168.47.1:3001/ostans', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
                 const data = await response.json();
-                console.log(data);
+
+                // First get the user role from /api/locations
+                const roleResponse = await fetch('http://192.168.47.1:3001/api/locations', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                const roleData = await roleResponse.json();
+                
+                // Add جمع کشوری for all roles except 'ostan' and 'setad'
+                if (roleData[0] !== 'ostan' && roleData[0] !== 'setad') {
+                    ostansList.value = [{ ostantitle: 'جمع کشوری' }, ...data];
+                    // Set default selection to جمع کشوری
+                    selectedOstan.value = 'جمع کشوری';
+                } else {
+                    ostansList.value = data;
+                    // Set default selection to first ostan if available
+                    if (data.length > 0) {
+                        selectedOstan.value = data[0].ostantitle;
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching ostans:', error);
+            }
+        };
+
+        // Modify existing fetch functions to include ostan parameter
+        const fetchWeeklyData = async () => {
+            try {
+                const url = selectedOstan.value && selectedOstan.value !== 'جمع کشوری'
+                    ? `http://192.168.47.1:3001/api/weeklydata?ostan=${encodeURIComponent(selectedOstan.value)}`
+                    : 'http://192.168.47.1:3001/api/weeklydata';
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                const data = await response.json();
                 dailySeries.value = formatData(data);
-                chartKey.value++;
+                console.log('Weekly Data:', data);
+                chartKey.value++; // Force chart re-render
             } catch (error) {
                 console.error('Error fetching daily data:', error);
             }
         };
 
-        const fetchWeeklyData = async () => {
+        const fetchMonthlyData = async () => {
             try {
-                const response = await fetch('https://chaproosta-gnaf.post.ir/api/monthlydata', {
+                const url = selectedOstan.value && selectedOstan.value !== 'جمع کشوری'
+                    ? `http://192.168.47.1:3001/api/monthlydata?ostan=${encodeURIComponent(selectedOstan.value)}`
+                    : 'http://192.168.47.1:3001/api/monthlydata';
+                const response = await fetch(url, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
                 const data = await response.json();
-                console.log(data);
                 weeklySeries.value = formatData(data);
-                chartKey.value++;
+                chartKey.value++; // Force chart re-render
             } catch (error) {
                 console.error('Error fetching weekly data:', error);
             }
@@ -127,21 +184,25 @@ export default {
 
         const fetchQuarterlyData = async () => {
             try {
-                const response = await fetch('https://chaproosta-gnaf.post.ir/api/quarterlydata', {
+                const url = selectedOstan.value && selectedOstan.value !== 'جمع کشوری'
+                    ? `http://192.168.47.1:3001/api/quarterlydata?ostan=${encodeURIComponent(selectedOstan.value)}`
+                    : 'http://192.168.47.1:3001/api/quarterlydata';
+                const response = await fetch(url, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
                 const data = await response.json();
-                console.log(data);
                 quarterlySeries.value = formatData(data);
-                chartKey.value++;
+                chartKey.value++; // Force chart re-render
             } catch (error) {
                 console.error('Error fetching quarterly data:', error);
             }
         };
+
         const formatData = (data) => {
+            console.log('Raw data received:', data);
             const seriesMap = {
                 amaliate_meydani: { name: "عملیات میدانی", data: [] },
                 dadeh_amaei: { name: "داده آمائی", data: [] },
@@ -151,6 +212,7 @@ export default {
             const categories = [];
 
             data.forEach(item => {
+                console.log('Processing item:', item);
                 if (seriesMap[item.operation]) {
                     seriesMap[item.operation].data.push(Number(item.record_count));
                 }
@@ -158,6 +220,9 @@ export default {
                     categories.push(item.week_num);
                 }
             });
+
+            console.log('Formatted series:', Object.values(seriesMap));
+            console.log('Categories:', categories);
 
             // مستقیماً مقادیر محور X را از week_num دریافت کن
             chartOptions.value.xaxis.categories = categories;
@@ -179,24 +244,47 @@ export default {
                 const zoomRange = xaxis.max - xaxis.min;
                 if (zoomRange > 7 * 24 * 60 * 60 * 1000) {
                     timeframe.value = "weekly";
-                    fetchWeeklyData();
+                    fetchMonthlyData();
                 }
             }
         };
 
-        watch(timeframe, (newVal) => {
-            switch (newVal) {
+        // Add watcher for selectedOstan
+        watch(selectedOstan, () => {
+            console.log('Selected Ostan changed');
+            switch (timeframe.value) {
                 case "daily":
-                    fetchDailyData();
-                    break;
-                case "weekly":
+                    console.log('Fetching daily data');
                     fetchWeeklyData();
                     break;
+                case "weekly":
+                    console.log('Fetching weekly data');
+                    fetchMonthlyData();
+                    break;
                 case "quarterly":
+                    console.log('Fetching quarterly data');
                     fetchQuarterlyData();
                     break;
             }
-            chartKey.value++;
+        });
+
+        // Add watcher for timeframe
+        watch(timeframe, (newVal) => {
+            console.log('Timeframe changed to:', newVal);
+            switch (newVal) {
+                case "daily":
+                    console.log('Fetching daily data');
+                    fetchWeeklyData();
+                    break;
+                case "weekly":
+                    console.log('Fetching weekly data');
+                    fetchMonthlyData();
+                    break;
+                case "quarterly":
+                    console.log('Fetching quarterly data');
+                    fetchQuarterlyData();
+                    break;
+            }
         });
 
         watch(
@@ -212,7 +300,8 @@ export default {
         );
 
         onMounted(() => {
-            fetchDailyData();
+            fetchOstans();
+            fetchWeeklyData();
         });
 
         return {
@@ -221,13 +310,39 @@ export default {
             chartKey,
             timeframe,
             handleZoom,
+            selectedOstan,
+            ostansList,
         };
     },
 };
 </script>
 
 <style scoped>
-.v-btn-toggle {
-    margin-bottom: 20px;
+.controls-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    min-height: 40px;
+}
+
+.time-buttons {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.ostan-select {
+    position: absolute;
+    right: 0;
+    width: 200px;
+}
+
+.mb-6 {
+    margin-bottom: 24px;
+}
+
+.mb-8 {
+    margin-bottom: 32px;
 }
 </style>
