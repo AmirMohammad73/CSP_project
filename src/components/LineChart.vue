@@ -108,7 +108,7 @@ export default {
         // Add function to fetch ostans
         const fetchOstans = async () => {
             try {
-                const response = await fetch('http://192.168.47.1:3001/ostans', {
+                const response = await fetch('http://172.16.8.33:3001/ostans', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -117,7 +117,7 @@ export default {
                 const data = await response.json();
 
                 // First get the user role from /api/locations
-                const roleResponse = await fetch('http://192.168.47.1:3001/api/locations', {
+                const roleResponse = await fetch('http://172.16.8.33:3001/api/locations', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -146,8 +146,8 @@ export default {
         const fetchWeeklyData = async () => {
             try {
                 const url = selectedOstan.value && selectedOstan.value !== 'جمع کشوری'
-                    ? `http://192.168.47.1:3001/api/weeklydata?ostan=${encodeURIComponent(selectedOstan.value)}`
-                    : 'http://192.168.47.1:3001/api/weeklydata';
+                    ? `http://172.16.8.33:3001/api/weeklydata?ostan=${encodeURIComponent(selectedOstan.value)}`
+                    : 'http://172.16.8.33:3001/api/weeklydata';
                 const response = await fetch(url, {
                     method: 'GET',
                     headers: {
@@ -156,7 +156,6 @@ export default {
                 });
                 const data = await response.json();
                 dailySeries.value = formatData(data);
-                console.log('Weekly Data:', data);
                 chartKey.value++; // Force chart re-render
             } catch (error) {
                 console.error('Error fetching daily data:', error);
@@ -166,8 +165,8 @@ export default {
         const fetchMonthlyData = async () => {
             try {
                 const url = selectedOstan.value && selectedOstan.value !== 'جمع کشوری'
-                    ? `http://192.168.47.1:3001/api/monthlydata?ostan=${encodeURIComponent(selectedOstan.value)}`
-                    : 'http://192.168.47.1:3001/api/monthlydata';
+                    ? `http://172.16.8.33:3001/api/monthlydata?ostan=${encodeURIComponent(selectedOstan.value)}`
+                    : 'http://172.16.8.33:3001/api/monthlydata';
                 const response = await fetch(url, {
                     method: 'GET',
                     headers: {
@@ -185,8 +184,8 @@ export default {
         const fetchQuarterlyData = async () => {
             try {
                 const url = selectedOstan.value && selectedOstan.value !== 'جمع کشوری'
-                    ? `http://192.168.47.1:3001/api/quarterlydata?ostan=${encodeURIComponent(selectedOstan.value)}`
-                    : 'http://192.168.47.1:3001/api/quarterlydata';
+                    ? `http://172.16.8.33:3001/api/quarterlydata?ostan=${encodeURIComponent(selectedOstan.value)}`
+                    : 'http://172.16.8.33:3001/api/quarterlydata';
                 const response = await fetch(url, {
                     method: 'GET',
                     headers: {
@@ -202,7 +201,6 @@ export default {
         };
 
         const formatData = (data) => {
-            console.log('Raw data received:', data);
             const seriesMap = {
                 amaliate_meydani: { name: "عملیات میدانی", data: [] },
                 dadeh_amaei: { name: "داده آمائی", data: [] },
@@ -212,7 +210,6 @@ export default {
             const categories = [];
 
             data.forEach(item => {
-                console.log('Processing item:', item);
                 if (seriesMap[item.operation]) {
                     seriesMap[item.operation].data.push(Number(item.record_count));
                 }
@@ -220,9 +217,6 @@ export default {
                     categories.push(item.week_num);
                 }
             });
-
-            console.log('Formatted series:', Object.values(seriesMap));
-            console.log('Categories:', categories);
 
             // مستقیماً مقادیر محور X را از week_num دریافت کن
             chartOptions.value.xaxis.categories = categories;
@@ -251,18 +245,14 @@ export default {
 
         // Add watcher for selectedOstan
         watch(selectedOstan, () => {
-            console.log('Selected Ostan changed');
             switch (timeframe.value) {
                 case "daily":
-                    console.log('Fetching daily data');
                     fetchWeeklyData();
                     break;
                 case "weekly":
-                    console.log('Fetching weekly data');
                     fetchMonthlyData();
                     break;
                 case "quarterly":
-                    console.log('Fetching quarterly data');
                     fetchQuarterlyData();
                     break;
             }
@@ -270,18 +260,14 @@ export default {
 
         // Add watcher for timeframe
         watch(timeframe, (newVal) => {
-            console.log('Timeframe changed to:', newVal);
             switch (newVal) {
                 case "daily":
-                    console.log('Fetching daily data');
                     fetchWeeklyData();
                     break;
                 case "weekly":
-                    console.log('Fetching weekly data');
                     fetchMonthlyData();
                     break;
                 case "quarterly":
-                    console.log('Fetching quarterly data');
                     fetchQuarterlyData();
                     break;
             }

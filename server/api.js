@@ -1503,7 +1503,7 @@ const getOstanUsers = async (role, permission) => {
     let whereClause = '';
     if (role === '4') {
         const conditions = permission.map((region) => `'${region}'`).join(', ');
-        whereClause = `WHERE ostantitle IN (${conditions}) AND (type = 1 OR type = 3) AND user_id != '0'`;
+        whereClause = `WHERE ostantitle IN (${conditions}) AND ((type = 2 OR type = 3) AND user_id != '0') OR type = 4`;
     }
 
     const sql = `
@@ -1518,7 +1518,7 @@ const getDadehAmaeiUsers = async (role, permission) => {
     let whereClause = '';
     if (role === '4') {
         const conditions = permission.map((region) => `'${region}'`).join(', ');
-        whereClause = `WHERE ostantitle IN (${conditions}) AND (type = 2 OR type = 3) AND user_id != '0'`;
+        whereClause = `WHERE ostantitle IN (${conditions}) AND ((type = 2 OR type = 3) AND user_id != '0') OR type = 4`;
     }
 
     const sql = `

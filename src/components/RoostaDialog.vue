@@ -100,7 +100,10 @@ export default {
             initialCheckboxStates: {},
             usersList: [],
             dadehamaeiList: [],
-            loadingUsers: false
+            loadingUsers: false,
+            // Add maps to store user name to ID mappings
+            userNameToIdMap: new Map(),
+            dadehAmaeiNameToIdMap: new Map()
         };
     },
     watch: {
@@ -158,6 +161,10 @@ export default {
 
                 const data = await response.json();
                 this.usersList = data;
+                // Update the name to ID mapping
+                this.userNameToIdMap = new Map(
+                    data.map(user => [user.full_name, user.user_id])
+                );
             } catch (error) {
                 console.error('Error fetching users list:', error);
                 // می‌توانید پیام خطا به کاربر نشان دهید
@@ -183,21 +190,51 @@ export default {
 
                 const data = await response.json();
                 this.dadehamaeiList = data;
+                // Update the name to ID mapping
+                this.dadehAmaeiNameToIdMap = new Map(
+                    data.map(user => [user.full_name, user.user_id])
+                );
             } catch (error) {
                 console.error('Error fetching users list:', error);
                 // می‌توانید پیام خطا به کاربر نشان دهید
             }
         },
         prepareForSave(data) {
+            // Define special cases mapping
+            const specialCases = {
+                'نامشخص': '0',
+                'نامشخص ': '0',
+                'برون سپاری': '99999',
+                'برون سپاری ': '99999',
+                'نیروهای داخلی': '99998',
+                'نیروهای داخلی ': '99998'
+            };
+
             return data.map(item => {
                 const newItem = { ...item };
-                if (newItem.amaliate_meydani_user_fullname === null || newItem.amaliate_meydani_user_fullname === ' ') {
-                    newItem.amaliate_meydani_user_fullname = null; // یا 'نامشخص' بسته به منطق پس زمینه
-                }
-                if (newItem.dadeh_amaei_user_fullname === null || newItem.dadeh_amaei_user_fullname === ' ') {
-                    newItem.dadeh_amaei_user_fullname = null; // یا 'نامشخص' بسته به منطق پس زمینه
-                }
+                console.log(data);
                 console.log(newItem);
+
+                // Handle amaliate_meydani_user_fullname
+                if (newItem.amaliate_meydani_user_fullname === null || newItem.amaliate_meydani_user_fullname === ' ') {
+                    newItem.amaliate_meydani_user_fullname = null;
+                } else if (specialCases[newItem.amaliate_meydani_user_fullname]) {
+                    newItem.amaliate_meydani_user_fullname = specialCases[newItem.amaliate_meydani_user_fullname];
+                } else if (typeof newItem.amaliate_meydani_user_fullname === 'string') {
+                    const userId = this.userNameToIdMap.get(newItem.amaliate_meydani_user_fullname);
+                    newItem.amaliate_meydani_user_fullname = userId || null;
+                }
+
+                // Handle dadeh_amaei_user_fullname
+                if (newItem.dadeh_amaei_user_fullname === null || newItem.dadeh_amaei_user_fullname === ' ') {
+                    newItem.dadeh_amaei_user_fullname = null;
+                } else if (specialCases[newItem.dadeh_amaei_user_fullname]) {
+                    newItem.dadeh_amaei_user_fullname = specialCases[newItem.dadeh_amaei_user_fullname];
+                } else if (typeof newItem.dadeh_amaei_user_fullname === 'string') {
+                    const userId = this.dadehAmaeiNameToIdMap.get(newItem.dadeh_amaei_user_fullname);
+                    newItem.dadeh_amaei_user_fullname = userId || null;
+                }
+
                 return newItem;
             });
         },
@@ -361,7 +398,7 @@ export default {
                     this.$emit('save-success', '<span dir="rtl">تغییری برای ذخیره وجود ندارد.</span>');
                     return;
                 }
-
+                console.log(modifiedRecords);
                 // ✅ تبدیل داده‌ها قبل از ارسال به سرور
                 const payload = this.prepareForSave(modifiedRecords);
                 console.log(payload);
