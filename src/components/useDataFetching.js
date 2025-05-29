@@ -14,7 +14,7 @@ export function useDataFetching (
   const chartOptions = ref({
     chart: {
       type: 'bar',
-      stacked: selectedOption.value === 'BSC', // Enable stacking
+      stacked: selectedOption.value === 'پایش نقاط روستایی BSC' || selectedOption.value === 'پایش نقاط شهری BSC', // Enable stacking
       toolbar: {
         show: false
       }
@@ -96,7 +96,7 @@ export function useDataFetching (
       let categories = filteredData.map(row => row[currentHeaders[0].value])
       let series = []
       // Dynamically set stacking based on selectedOption
-      chartOptions.value.chart.stacked = selectedOption.value === 'BSC'
+      chartOptions.value.chart.stacked = selectedOption.value === 'پایش نقاط روستایی BSC' || selectedOption.value === 'پایش نقاط شهری BSC'
       const columnMapping = {
         year: 'سال',
         amaliat: 'عملیات',
@@ -225,101 +225,7 @@ export function useDataFetching (
           ]
         }
       }
-      else if (selectedOption.value === 'پایش عملیات شهری') {
-        if (activeTab.value === 0) {
-          // Map Status tab
-          series = [
-            {
-              name: 'بنیاد مسکن',
-              data: filteredData.map(row => Number(row['بنیاد مسکن'])),
-              color: '#FF4560' // Red
-            },
-            {
-              name: 'سایر منابع',
-              data: filteredData.map(row => Number(row['سایر منابع'])),
-              color: '#FEB019' // Yellow
-            },
-            {
-              name: 'ترسیم',
-              data: filteredData.map(row => Number(row['ترسیم'])),
-              color: '#FF6699' // Pink
-            }
-          ]
-        } else if (activeTab.value === 1) {
-          // Update Status tab
-          series = [
-            {
-              name: 'مجموع',
-              data: filteredData.map(row => Number(row['مجموع روستاها'])),
-              color: '#D3D3D3', // Light gray for background
-              columnWidth: '90%', // Make the "Total" column thicker
-              zIndex: -1 // Ensure it's behind the other columns
-            },
-            {
-              name: 'عملیات میدانی',
-              data: filteredData.map(row => Number(row['عملیات میدانی'])),
-              color: '#00E396', // Green
-              columnWidth: '30%' // Make the grouped columns thinner
-            },
-            {
-              name: 'داده آمائی',
-              data: filteredData.map(row => Number(row['داده آمائی'])),
-              color: '#008FFB', // Blue
-              columnWidth: '30%' // Make the grouped columns thinner
-            },
-            {
-              name: 'اصلاح و ارسال',
-              data: filteredData.map(row => Number(row['اصلاح و ارسال'])),
-              color: '#775DD0', // Purple
-              columnWidth: '30%' // Make the grouped columns thinner
-            }
-          ]
-        } else if (activeTab.value === 2) {
-          // Geocode Status tab
-          series = [
-            {
-              name: 'اصلاح و ارسال',
-              data: filteredData.map(row => Number(row['اصلاح و ارسال'])),
-              color: '#FF4560' // Red
-            },
-            {
-              name: 'تایید و بارگذاری',
-              data: filteredData.map(row => Number(row['تایید و بارگذاری'])),
-              color: '#FEB019' // Yellow
-            },
-            {
-              name: 'ژئوکد',
-              data: filteredData.map(row => Number(row['ژئوکد'])),
-              color: '#FF6699' // Pink
-            }
-          ]
-        } else if (activeTab.value === 3) {
-          // License Plate Status tab
-          series = [
-            {
-              name: 'QR تولید',
-              data: filteredData.map(row => Number(row['تولید QR'])),
-              color: '#FF4560' // Red
-            },
-            {
-              name: 'نصب پلاک',
-              data: filteredData.map(row => Number(row['نصب پلاک'])),
-              color: '#FEB019' // Yellow
-            }
-          ]
-        } else if (activeTab.value === 4) {
-          // National ID tab
-          series = [
-            {
-              name: 'شناسه ملی',
-              data: filteredData.map(row => Number(row['شناسه ملی'])),
-              color: '#00E396' // Green
-            }
-          ]
-        }
-      }
-      // Handle data for Option 2 (BSC)
-      else if (selectedOption.value === 'BSC') {
+      else if (selectedOption.value === 'پایش نقاط روستایی BSC' || selectedOption.value === 'پایش نقاط شهری BSC') {
         series = [
           {
             name: 'عملکرد',
@@ -334,9 +240,31 @@ export function useDataFetching (
           {
             name: 'برنامه',
             data: filteredData.map(row => Number(row['barnameh_diff'])),
-            color: '#FEB019' // Yellow
+            color: '#4682B4' // Blue
           }
         ]
+
+        // Add tooltip configuration for BSC charts
+        chartOptions.value.tooltip = {
+          y: {
+            formatter: function(value, { seriesIndex, dataPointIndex, w }) {
+              // Get the series name
+              const seriesName = w.globals.seriesNames[seriesIndex];
+              
+              // If this is the "برنامه" series, show the sum
+              if (seriesName === 'برنامه') {
+                const amalkard = w.globals.series[0][dataPointIndex]; // عملکرد
+                const dirkard = w.globals.series[1][dataPointIndex];  // دیرکرد
+                const barnameh = value;  // برنامه
+                const total = amalkard + dirkard + barnameh;
+                return total;
+              }
+              
+              // For other series, show the original value
+              return value;
+            }
+          }
+        }
       }
       // Handle data for شاخص اختصاصی GNAF
       else if (selectedOption.value === 'شاخص اختصاصی GNAF') {

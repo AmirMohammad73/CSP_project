@@ -701,13 +701,13 @@ const getBSCTab1Data = async () => {
   const sql = `WITH bsc_summary AS (
         SELECT
             ostantitle,
-            month_calc(12, 1, 1, bsc) AS amalkard,
-            month_calc(12, 2, 1, bsc) AS barnameh,
-            month_calc(12, 2, 1, bsc) AS total_barnameh,
+            0 AS amalkard,
+            month_calc(3, 2, 1, bsc) AS barnameh,
+            total_barnameh,
             amaliat
         FROM public.bsc
         WHERE amaliat = 1
-        GROUP BY ostantitle, amaliat, bsc
+        GROUP BY ostantitle, amaliat, bsc, total_barnameh
     )
     -- section1
     , section1_summary AS (
@@ -739,7 +739,7 @@ const getBSCTab2Data = async () => {
   const sql = `WITH bsc_summary AS (
         SELECT
             ostantitle,
-            month_calc(12, 1, 2, bsc) AS amalkard,
+            0 AS amalkard,
             month_calc(12, 2, 2, bsc) AS barnameh,
             month_calc(12, 2, 2, bsc) AS total_barnameh,
             amaliat
@@ -777,7 +777,7 @@ const getBSCTab3Data = async () => {
   const sql = `WITH bsc_summary AS (
         SELECT
             ostantitle,
-            month_calc(12, 1, 3, bsc) AS amalkard,
+            0 AS amalkard,
             month_calc(12, 2, 3, bsc) AS barnameh,
             month_calc(12, 2, 3, bsc) AS total_barnameh,
             amaliat
@@ -815,7 +815,7 @@ const getBSCTab4Data = async () => {
   const sql = `WITH bsc_summary AS (
         SELECT
             ostantitle,
-            month_calc(12, 1, 4, bsc) AS amalkard,
+            0 AS amalkard,
             month_calc(12, 2, 4, bsc) AS barnameh,
             month_calc(12, 2, 4, bsc) AS total_barnameh,
             amaliat
@@ -853,12 +853,594 @@ const getBSCTab5Data = async () => {
   const sql = `WITH bsc_summary AS (
         SELECT
             ostantitle,
-            month_calc(12, 1, 5, bsc) AS amalkard,
-            month_calc(12, 2, 5, bsc) AS barnameh,
+            0 AS amalkard,
+            month_calc(10, 2, 5, bsc) AS barnameh,
             month_calc(12, 2, 5, bsc) AS total_barnameh,
             amaliat
         FROM public.bsc
         WHERE amaliat = 5
+        GROUP BY ostantitle, amaliat, bsc
+    )
+    -- section1
+    , section1_summary AS (
+        SELECT
+            ostantitle,
+            amalkard,
+            barnameh - amalkard AS dirkard,
+            total_barnameh - amalkard - (barnameh - amalkard) AS barnameh_diff,
+            amaliat
+        FROM bsc_summary
+    )
+    -- Calculate totals for section1
+    , section1_totals AS (
+        SELECT
+            'جمع کشوری' AS ostantitle,
+            SUM(amalkard) AS amalkard,
+            SUM(dirkard) AS dirkard,
+            SUM(barnameh_diff) AS barnameh_diff,
+            MAX(amaliat) AS amaliat
+        FROM section1_summary
+    )
+    -- Combine results
+    (SELECT * FROM section1_totals)
+    UNION ALL
+    (SELECT * FROM section1_summary ORDER BY ostantitle);`;
+  return await query(sql);
+};
+const getBSCTab6Data = async () => {
+  const sql = `WITH bsc_summary AS (
+        SELECT
+            ostantitle,
+            0 AS amalkard,
+            month_calc(10, 2, 6, bsc) AS barnameh,
+            month_calc(12, 2, 6, bsc) AS total_barnameh,
+            amaliat
+        FROM public.bsc
+        WHERE amaliat = 6
+        GROUP BY ostantitle, amaliat, bsc
+    )
+    -- section1
+    , section1_summary AS (
+        SELECT
+            ostantitle,
+            amalkard,
+            barnameh - amalkard AS dirkard,
+            total_barnameh - amalkard - (barnameh - amalkard) AS barnameh_diff,
+            amaliat
+        FROM bsc_summary
+    )
+    -- Calculate totals for section1
+    , section1_totals AS (
+        SELECT
+            'جمع کشوری' AS ostantitle,
+            SUM(amalkard) AS amalkard,
+            SUM(dirkard) AS dirkard,
+            SUM(barnameh_diff) AS barnameh_diff,
+            MAX(amaliat) AS amaliat
+        FROM section1_summary
+    )
+    -- Combine results
+    (SELECT * FROM section1_totals)
+    UNION ALL
+    (SELECT * FROM section1_summary ORDER BY ostantitle);`;
+  return await query(sql);
+};
+const getBSCTab7Data = async () => {
+  const sql = `WITH bsc_summary AS (
+        SELECT
+            ostantitle,
+            0 AS amalkard,
+            month_calc(10, 2, 7, bsc) AS barnameh,
+            month_calc(12, 2, 7, bsc) AS total_barnameh,
+            amaliat
+        FROM public.bsc
+        WHERE amaliat = 7
+        GROUP BY ostantitle, amaliat, bsc
+    )
+    -- section1
+    , section1_summary AS (
+        SELECT
+            ostantitle,
+            amalkard,
+            barnameh - amalkard AS dirkard,
+            total_barnameh - amalkard - (barnameh - amalkard) AS barnameh_diff,
+            amaliat
+        FROM bsc_summary
+    )
+    -- Calculate totals for section1
+    , section1_totals AS (
+        SELECT
+            'جمع کشوری' AS ostantitle,
+            SUM(amalkard) AS amalkard,
+            SUM(dirkard) AS dirkard,
+            SUM(barnameh_diff) AS barnameh_diff,
+            MAX(amaliat) AS amaliat
+        FROM section1_summary
+    )
+    -- Combine results
+    (SELECT * FROM section1_totals)
+    UNION ALL
+    (SELECT * FROM section1_summary ORDER BY ostantitle);`;
+  return await query(sql);
+};
+const getBSCTab8Data = async () => {
+  const sql = `WITH bsc_summary AS (
+        SELECT
+            ostantitle,
+            0 AS amalkard,
+            month_calc(10, 2, 8, bsc) AS barnameh,
+            month_calc(12, 2, 8, bsc) AS total_barnameh,
+            amaliat
+        FROM public.bsc
+        WHERE amaliat = 8
+        GROUP BY ostantitle, amaliat, bsc
+    )
+    -- section1
+    , section1_summary AS (
+        SELECT
+            ostantitle,
+            amalkard,
+            barnameh - amalkard AS dirkard,
+            total_barnameh - amalkard - (barnameh - amalkard) AS barnameh_diff,
+            amaliat
+        FROM bsc_summary
+    )
+    -- Calculate totals for section1
+    , section1_totals AS (
+        SELECT
+            'جمع کشوری' AS ostantitle,
+            SUM(amalkard) AS amalkard,
+            SUM(dirkard) AS dirkard,
+            SUM(barnameh_diff) AS barnameh_diff,
+            MAX(amaliat) AS amaliat
+        FROM section1_summary
+    )
+    -- Combine results
+    (SELECT * FROM section1_totals)
+    UNION ALL
+    (SELECT * FROM section1_summary ORDER BY ostantitle);`;
+  return await query(sql);
+};
+const getBSCTab9Data = async () => {
+  const sql = `WITH bsc_summary AS (
+        SELECT
+            ostantitle,
+            0 AS amalkard,
+            month_calc(10, 2, 9, bsc) AS barnameh,
+            month_calc(12, 2, 9, bsc) AS total_barnameh,
+            amaliat
+        FROM public.bsc
+        WHERE amaliat = 9
+        GROUP BY ostantitle, amaliat, bsc
+    )
+    -- section1
+    , section1_summary AS (
+        SELECT
+            ostantitle,
+            amalkard,
+            barnameh - amalkard AS dirkard,
+            total_barnameh - amalkard - (barnameh - amalkard) AS barnameh_diff,
+            amaliat
+        FROM bsc_summary
+    )
+    -- Calculate totals for section1
+    , section1_totals AS (
+        SELECT
+            'جمع کشوری' AS ostantitle,
+            SUM(amalkard) AS amalkard,
+            SUM(dirkard) AS dirkard,
+            SUM(barnameh_diff) AS barnameh_diff,
+            MAX(amaliat) AS amaliat
+        FROM section1_summary
+    )
+    -- Combine results
+    (SELECT * FROM section1_totals)
+    UNION ALL
+    (SELECT * FROM section1_summary ORDER BY ostantitle);`;
+  return await query(sql);
+};
+const getBSCTab10Data = async () => {
+  const sql = `WITH bsc_summary AS (
+    SELECT
+        b.ostantitle,
+        
+        -- محاسبه amalkard از locations1
+        (SELECT 
+            SUM(
+                CASE WHEN adam_paziresh THEN 1 ELSE 0 END +
+                CASE WHEN arseh_ayan THEN 1 ELSE 0 END +
+                CASE WHEN niazmande_eslah THEN 1 ELSE 0 END
+            )
+         FROM public.locations1 l
+         WHERE l.ostantitle = b.ostantitle
+        ) AS amalkard,
+
+        -- محاسبه barnameh از month_calc - بدون ستون bsc
+        month_calc(10, 2, b.amaliat) AS barnameh,
+
+        -- محاسبه total_barnameh
+        month_calc(12, 2, b.amaliat) AS total_barnameh,
+
+        b.amaliat
+    FROM public.bsc b
+    WHERE b.amaliat = 10
+    GROUP BY b.ostantitle, b.amaliat
+)
+
+-- section1
+, section1_summary AS (
+    SELECT
+        ostantitle,
+        amalkard,
+        barnameh - amalkard AS dirkard,
+        total_barnameh - amalkard - (barnameh - amalkard) AS barnameh_diff,
+        amaliat
+    FROM bsc_summary
+)
+
+-- Calculate totals for section1
+, section1_totals AS (
+    SELECT
+        'جمع کشوری' AS ostantitle,
+        SUM(amalkard) AS amalkard,
+        SUM(dirkard) AS dirkard,
+        SUM(barnameh_diff) AS barnameh_diff,
+        MAX(amaliat) AS amaliat
+    FROM section1_summary
+)
+
+-- Combine results
+(SELECT * FROM section1_totals)
+UNION ALL
+(SELECT * FROM section1_summary ORDER BY ostantitle);`;
+  return await query(sql);
+};
+const getBSCTab11Data = async () => {
+  const sql = `WITH bsc_summary AS (
+    SELECT
+        b.ostantitle,
+        
+        -- محاسبه amalkard از locations1 - با استفاده از tedad_geocode_makan
+        (SELECT 
+            SUM(NULLIF(tedad_geocode_makan, '')::integer)
+         FROM public.locations1 l
+         WHERE l.ostantitle = b.ostantitle
+        ) AS amalkard,
+
+        -- محاسبه barnameh از month_calc
+        month_calc(10, 2, b.amaliat) AS barnameh,
+
+        -- محاسبه total_barnameh
+        month_calc(12, 2, b.amaliat) AS total_barnameh,
+
+        b.amaliat
+    FROM public.bsc b
+    WHERE b.amaliat = 11
+    GROUP BY b.ostantitle, b.amaliat
+)
+
+-- section1
+, section1_summary AS (
+    SELECT
+        ostantitle,
+        amalkard,
+        barnameh - amalkard AS dirkard,
+        total_barnameh - amalkard - (barnameh - amalkard) AS barnameh_diff,
+        amaliat
+    FROM bsc_summary
+)
+
+-- Calculate totals for section1
+, section1_totals AS (
+    SELECT
+        'جمع کشوری' AS ostantitle,
+        SUM(amalkard) AS amalkard,
+        SUM(dirkard) AS dirkard,
+        SUM(barnameh_diff) AS barnameh_diff,
+        MAX(amaliat) AS amaliat
+    FROM section1_summary
+)
+
+-- Combine results
+(SELECT * FROM section1_totals)
+UNION ALL
+(SELECT * FROM section1_summary ORDER BY ostantitle);`;
+  return await query(sql);
+};
+const getBSCTab12Data = async () => {
+  const sql = `WITH bsc_summary AS (
+    SELECT
+        b.ostantitle,
+        
+        -- محاسبه amalkard از locations1
+        (SELECT 
+            SUM(
+                CASE WHEN ersal_setad THEN 1 ELSE 0 END
+            )
+         FROM public.locations1 l
+         WHERE l.ostantitle = b.ostantitle
+        ) AS amalkard,
+
+        -- محاسبه barnameh از month_calc - بدون ستون bsc
+        month_calc(10, 2, b.amaliat) AS barnameh,
+
+        -- محاسبه total_barnameh
+        month_calc(12, 2, b.amaliat) AS total_barnameh,
+
+        b.amaliat
+    FROM public.bsc b
+    WHERE b.amaliat = 10
+    GROUP BY b.ostantitle, b.amaliat
+)
+
+-- section1
+, section1_summary AS (
+    SELECT
+        ostantitle,
+        amalkard,
+        barnameh - amalkard AS dirkard,
+        total_barnameh - amalkard - (barnameh - amalkard) AS barnameh_diff,
+        amaliat
+    FROM bsc_summary
+)
+
+-- Calculate totals for section1
+, section1_totals AS (
+    SELECT
+        'جمع کشوری' AS ostantitle,
+        SUM(amalkard) AS amalkard,
+        SUM(dirkard) AS dirkard,
+        SUM(barnameh_diff) AS barnameh_diff,
+        MAX(amaliat) AS amaliat
+    FROM section1_summary
+)
+
+-- Combine results
+(SELECT * FROM section1_totals)
+UNION ALL
+(SELECT * FROM section1_summary ORDER BY ostantitle);`;
+  return await query(sql);
+};
+const getBSCTab13Data = async () => {
+  const sql = `WITH bsc_summary AS (
+    SELECT
+        b.ostantitle,
+        
+        -- محاسبه amalkard از locations1
+        (SELECT 
+            SUM(
+                CASE WHEN pdf THEN 1 ELSE 0 END
+            )
+         FROM public.locations1 l
+         WHERE l.ostantitle = b.ostantitle
+        ) AS amalkard,
+
+        -- محاسبه barnameh از month_calc - بدون ستون bsc
+        month_calc(10, 2, b.amaliat) AS barnameh,
+
+        -- محاسبه total_barnameh
+        month_calc(12, 2, b.amaliat) AS total_barnameh,
+
+        b.amaliat
+    FROM public.bsc b
+    WHERE b.amaliat = 10
+    GROUP BY b.ostantitle, b.amaliat
+)
+
+-- section1
+, section1_summary AS (
+    SELECT
+        ostantitle,
+        amalkard,
+        barnameh - amalkard AS dirkard,
+        total_barnameh - amalkard - (barnameh - amalkard) AS barnameh_diff,
+        amaliat
+    FROM bsc_summary
+)
+
+-- Calculate totals for section1
+, section1_totals AS (
+    SELECT
+        'جمع کشوری' AS ostantitle,
+        SUM(amalkard) AS amalkard,
+        SUM(dirkard) AS dirkard,
+        SUM(barnameh_diff) AS barnameh_diff,
+        MAX(amaliat) AS amaliat
+    FROM section1_summary
+)
+
+-- Combine results
+(SELECT * FROM section1_totals)
+UNION ALL
+(SELECT * FROM section1_summary ORDER BY ostantitle);`;
+  return await query(sql);
+};
+const getBSCTab14Data = async () => {
+  const sql = `WITH bsc_summary AS (
+        SELECT
+            ostantitle,
+            0 AS amalkard,
+            month_calc(10, 2, 14, bsc) AS barnameh,
+            month_calc(12, 2, 14, bsc) AS total_barnameh,
+            amaliat
+        FROM public.bsc
+        WHERE amaliat = 14
+        GROUP BY ostantitle, amaliat, bsc
+    )
+    -- section1
+    , section1_summary AS (
+        SELECT
+            ostantitle,
+            amalkard,
+            barnameh - amalkard AS dirkard,
+            total_barnameh - amalkard - (barnameh - amalkard) AS barnameh_diff,
+            amaliat
+        FROM bsc_summary
+    )
+    -- Calculate totals for section1
+    , section1_totals AS (
+        SELECT
+            'جمع کشوری' AS ostantitle,
+            SUM(amalkard) AS amalkard,
+            SUM(dirkard) AS dirkard,
+            SUM(barnameh_diff) AS barnameh_diff,
+            MAX(amaliat) AS amaliat
+        FROM section1_summary
+    )
+    -- Combine results
+    (SELECT * FROM section1_totals)
+    UNION ALL
+    (SELECT * FROM section1_summary ORDER BY ostantitle);`;
+  return await query(sql);
+};
+const getBSCTab15Data = async () => {
+  const sql = `WITH bsc_summary AS (
+        SELECT
+            ostantitle,
+            (SELECT 
+				SUM(NULLIF(maabar_binam, '')::integer)
+				FROM public.locations1 l
+				WHERE l.ostantitle = b.ostantitle
+			) AS amalkard,
+            month_calc(10, 2, 15, bsc) AS barnameh,
+            month_calc(12, 2, 15, bsc) AS total_barnameh,
+            amaliat
+        FROM public.bsc
+        WHERE amaliat = 15
+        GROUP BY ostantitle, amaliat, bsc
+    )
+    -- section1
+    , section1_summary AS (
+        SELECT
+            ostantitle,
+            amalkard,
+            barnameh - amalkard AS dirkard,
+            total_barnameh - amalkard - (barnameh - amalkard) AS barnameh_diff,
+            amaliat
+        FROM bsc_summary
+    )
+    -- Calculate totals for section1
+    , section1_totals AS (
+        SELECT
+            'جمع کشوری' AS ostantitle,
+            SUM(amalkard) AS amalkard,
+            SUM(dirkard) AS dirkard,
+            SUM(barnameh_diff) AS barnameh_diff,
+            MAX(amaliat) AS amaliat
+        FROM section1_summary
+    )
+    -- Combine results
+    (SELECT * FROM section1_totals)
+    UNION ALL
+    (SELECT * FROM section1_summary ORDER BY ostantitle);`;
+  return await query(sql);
+};
+const getBSCTab16Data = async () => {
+  const sql = `WITH bsc_summary AS (
+        SELECT
+            ostantitle,
+            (SELECT 
+				SUM(NULLIF(zero_pelak, '')::integer)
+				FROM public.locations1 l
+				WHERE l.ostantitle = b.ostantitle
+			) AS amalkard,
+            month_calc(10, 2, 16, bsc) AS barnameh,
+            month_calc(12, 2, 16, bsc) AS total_barnameh,
+            amaliat
+        FROM public.bsc
+        WHERE amaliat = 16
+        GROUP BY ostantitle, amaliat, bsc
+    )
+    -- section1
+    , section1_summary AS (
+        SELECT
+            ostantitle,
+            amalkard,
+            barnameh - amalkard AS dirkard,
+            total_barnameh - amalkard - (barnameh - amalkard) AS barnameh_diff,
+            amaliat
+        FROM bsc_summary
+    )
+    -- Calculate totals for section1
+    , section1_totals AS (
+        SELECT
+            'جمع کشوری' AS ostantitle,
+            SUM(amalkard) AS amalkard,
+            SUM(dirkard) AS dirkard,
+            SUM(barnameh_diff) AS barnameh_diff,
+            MAX(amaliat) AS amaliat
+        FROM section1_summary
+    )
+    -- Combine results
+    (SELECT * FROM section1_totals)
+    UNION ALL
+    (SELECT * FROM section1_summary ORDER BY ostantitle);`;
+  return await query(sql);
+};
+const getBSCTab17Data = async () => {
+  const sql = `WITH bsc_summary AS (
+    SELECT
+        b.ostantitle,
+        
+        -- محاسبه amalkard از locations1
+        (SELECT 
+            SUM(
+                CASE WHEN tolid_qr THEN 1 ELSE 0 END
+            )
+         FROM public.locations1 l
+         WHERE l.ostantitle = b.ostantitle
+        ) AS amalkard,
+
+        -- محاسبه barnameh از month_calc - بدون ستون bsc
+        month_calc(10, 2, b.amaliat) AS barnameh,
+
+        -- محاسبه total_barnameh
+        month_calc(12, 2, b.amaliat) AS total_barnameh,
+
+        b.amaliat
+    FROM public.bsc b
+    WHERE b.amaliat = 17
+    GROUP BY b.ostantitle, b.amaliat
+)
+
+-- section1
+, section1_summary AS (
+    SELECT
+        ostantitle,
+        amalkard,
+        barnameh - amalkard AS dirkard,
+        total_barnameh - amalkard - (barnameh - amalkard) AS barnameh_diff,
+        amaliat
+    FROM bsc_summary
+)
+
+-- Calculate totals for section1
+, section1_totals AS (
+    SELECT
+        'جمع کشوری' AS ostantitle,
+        SUM(amalkard) AS amalkard,
+        SUM(dirkard) AS dirkard,
+        SUM(barnameh_diff) AS barnameh_diff,
+        MAX(amaliat) AS amaliat
+    FROM section1_summary
+)
+
+-- Combine results
+(SELECT * FROM section1_totals)
+UNION ALL
+(SELECT * FROM section1_summary ORDER BY ostantitle);`;
+  return await query(sql);
+};
+const getBSCTab18Data = async () => {
+  const sql = `WITH bsc_summary AS (
+        SELECT
+            ostantitle,
+            month_calc(3, 1, 18, bsc) AS amalkard,
+            month_calc(10, 2, 18, bsc) AS barnameh,
+            month_calc(12, 2, 18, bsc) AS total_barnameh,
+            amaliat
+        FROM public.bsc
+        WHERE amaliat = 18
         GROUP BY ostantitle, amaliat, bsc
     )
     -- section1
@@ -1529,4 +2111,4 @@ const getDadehAmaeiUsers = async (role, permission) => {
     `;
     return await query(sql);
 };
-module.exports = { getMapStatusData, getCityLocationsData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getShahrData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData, getWeeklyData, getMonthlyData, getQuarterlyData, getBests, getProgressData, getOstanUsers, getDadehAmaeiUsers };
+module.exports = { getMapStatusData, getCityLocationsData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getShahrData, getZoneData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getBSCTab6Data, getBSCTab7Data, getBSCTab8Data, getBSCTab9Data, getBSCTab10Data, getBSCTab11Data, getBSCTab12Data, getBSCTab13Data, getBSCTab14Data, getBSCTab15Data, getBSCTab16Data, getBSCTab17Data, getBSCTab18Data, getPostalCodeRequest, updateRoostaData, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData, getWeeklyData, getMonthlyData, getQuarterlyData, getBests, getProgressData, getOstanUsers, getDadehAmaeiUsers };

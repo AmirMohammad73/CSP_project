@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const { getMapStatusData, getCityLocationsData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getShahrData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, updateRoostaData, getPostalCodeRequest, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData, getWeeklyData, getMonthlyData, getQuarterlyData, getBests, getProgressData, getOstanUsers, getDadehAmaeiUsers } = require('./api');
+const { getMapStatusData, getCityLocationsData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getShahrData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getBSCTab6Data, getBSCTab7Data, getBSCTab8Data, getBSCTab9Data, getBSCTab10Data, getBSCTab11Data, getBSCTab12Data, getBSCTab13Data, getBSCTab14Data, getBSCTab15Data, getBSCTab16Data, getBSCTab17Data, getBSCTab18Data, updateRoostaData, getPostalCodeRequest, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData, getWeeklyData, getMonthlyData, getQuarterlyData, getBests, getProgressData, getOstanUsers, getDadehAmaeiUsers } = require('./api');
 
 const JWT_SECRET = 'efd6401dca50843be8272263a61b1a97959fdfafb1f0bcedc6210269c7c84902';
 require('dotenv').config();
@@ -165,6 +165,148 @@ app.get('/api/bsc/tab5', authenticateToken, async (req, res) => {
   }
 });
 
+// Data endpoint
+app.get('/api/bsc/tab6', authenticateToken, async (req, res) => {
+  try {
+    const data = await getBSCTab6Data();
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/bsc/tab7', authenticateToken, async (req, res) => {
+  try {
+    const data = await getBSCTab7Data();
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/bsc/tab8', authenticateToken, async (req, res) => {
+  try {
+    const data = await getBSCTab8Data();
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/bsc/tab9', authenticateToken, async (req, res) => {
+  try {
+    const data = await getBSCTab9Data();
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/bsc/tab10', authenticateToken, async (req, res) => {
+  try {
+    const data = await getBSCTab10Data();
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/bsc/tab11', authenticateToken, async (req, res) => {
+  try {
+    const data = await getBSCTab11Data();
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/bsc/tab12', authenticateToken, async (req, res) => {
+  try {
+    const data = await getBSCTab12Data();
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/bsc/tab13', authenticateToken, async (req, res) => {
+  try {
+    const data = await getBSCTab13Data();
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/bsc/tab14', authenticateToken, async (req, res) => {
+  try {
+    const data = await getBSCTab14Data();
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/bsc/tab15', authenticateToken, async (req, res) => {
+  try {
+    const data = await getBSCTab15Data();
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/bsc/tab16', authenticateToken, async (req, res) => {
+  try {
+    const data = await getBSCTab16Data();
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/bsc/tab17', authenticateToken, async (req, res) => {
+  try {
+    const data = await getBSCTab17Data();
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Data endpoint
+app.get('/api/bsc/tab18', authenticateToken, async (req, res) => {
+  try {
+    const data = await getBSCTab18Data();
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 // Endpoint to handle the query with dynamic WHERE conditions
 app.post('/query', authenticateToken, async (req, res) => {
     try {

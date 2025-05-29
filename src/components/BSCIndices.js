@@ -10,11 +10,15 @@ export function useBSCIndices() {
     const SERVER_HOST = ipStore.SERVER_HOST;
 
     const tabs = ref([
-        "بهنگام سازی اطلاعات نشانی و ژئوکد نقاط شهری",
-        "تامین و تولید لایه معابر شهری",
-        "تعیین مختصات آبادی ها و تولید لایه گشت های روستایی",
-        "تکمیل فرآیند طبقه بندی اطلاعات کارگاهی (ISIC)",
-        "تامین نقشه پارسل بندی شده نقاط جغرافیایی",
+        "تامین آخرین نقشه به روز پارسل بندی شده",
+        "بهنگام سازی اطلاعات نشانی و ژئوکد اماکن ",
+        "تامین لایه محدوده و حریم روستاها",
+        "تعیین مختصات و ترسیم لایه گشت روستایی",
+        "تامین و تولید لایه معابر و اجرای فرآیند ژئوکد معابر",
+        "نام گذاری گذاری معابر بی نام",
+        "ساماندهی پلاک ساختمان های فاقد پلاک",
+        "نصب پلاک کدپستی ده رقمی (QR Code)",
+        "دریافت برخط تغییرات اطلاعات نشانی و ساخت و ساز",
     ]);
 
     const headers = ref([
@@ -49,15 +53,43 @@ export function useBSCIndices() {
             { text: "دیرکرد", value: "dirkard" },
             { text: "برنامه", value: "barnameh_diff" },
         ],
+        [
+            { text: "استان", value: "ostantitle" },
+            { text: "عملکرد", value: "amalkard" },
+            { text: "دیرکرد", value: "dirkard" },
+            { text: "برنامه", value: "barnameh_diff" },
+        ],
+        [
+            { text: "استان", value: "ostantitle" },
+            { text: "عملکرد", value: "amalkard" },
+            { text: "دیرکرد", value: "dirkard" },
+            { text: "برنامه", value: "barnameh_diff" },
+        ],
+        [
+            { text: "استان", value: "ostantitle" },
+            { text: "عملکرد", value: "amalkard" },
+            { text: "دیرکرد", value: "dirkard" },
+            { text: "برنامه", value: "barnameh_diff" },
+        ],
+        [
+            { text: "استان", value: "ostantitle" },
+            { text: "عملکرد", value: "amalkard" },
+            { text: "دیرکرد", value: "dirkard" },
+            { text: "برنامه", value: "barnameh_diff" },
+        ],
     ]);
 
     // Use SERVER_HOST to construct the endpoints
     const tabEndpoints = {
-        0: `${SERVER_HOST}/api/bsc/tab1`,
-        1: `${SERVER_HOST}/api/bsc/tab2`,
-        2: `${SERVER_HOST}/api/bsc/tab3`,
-        3: `${SERVER_HOST}/api/bsc/tab4`,
-        4: `${SERVER_HOST}/api/bsc/tab5`,
+        0: `${SERVER_HOST}/api/bsc/tab10`,
+        1: `${SERVER_HOST}/api/bsc/tab11`,
+        2: `${SERVER_HOST}/api/bsc/tab12`,
+        3: `${SERVER_HOST}/api/bsc/tab13`,
+        4: `${SERVER_HOST}/api/bsc/tab14`,
+        5: `${SERVER_HOST}/api/bsc/tab15`,
+        6: `${SERVER_HOST}/api/bsc/tab16`,
+        7: `${SERVER_HOST}/api/bsc/tab17`,
+        8: `${SERVER_HOST}/api/bsc/tab18`,
     };
 
     return {

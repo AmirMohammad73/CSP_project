@@ -102,14 +102,14 @@ export default {
     const AppStore = useAppStore();
 
     // Reactive references
-    const selectedOption = ref("پایش عملیات روستایی");
+    const selectedOption = ref("پایش نقاط شهری BSC");
     const options = ref([
-      "پایش عملیات روستایی",
-      "پایش عملیات شهری",
-      "BSC",
+      // "پایش عملیات روستایی",
+      "پایش نقاط شهری BSC",
+      "پایش نقاط روستایی BSC",
       "گزارش درخواستهای کد پستی",
       "شاخص اختصاصی GNAF",
-      "برنامه کارگروه تعامل پذیری"
+      // "برنامه کارگروه تعامل پذیری"
     ]);
     const activeTab = ref(0);
     const tableData = ref([]);
@@ -124,9 +124,9 @@ export default {
       switch (selectedOption.value) {
         case "پایش عملیات روستایی":
           return useRuralOperationsMonitoring();
-        case "پایش عملیات شهری":
+        case "پایش نقاط شهری BSC":
           return useUrbanOperationsMonitoring();
-        case "BSC":
+        case "پایش نقاط روستایی BSC":
           return useBSCIndices();
         case "گزارش درخواستهای کد پستی":
           return usePostalCodeRequest();
@@ -150,8 +150,9 @@ export default {
         chartOptions.value.colors = newVal ? ["#00E396"] : ["#008FFB"];
         chartKey.value++; // Force re-render
         document.documentElement.style.setProperty('--axis-label-color', newVal ? "white" : "black");
+        document.documentElement.style.setProperty('--tabs-background', newVal ? "#1E1E1E" : "#efefef");
       },
-      { immediate: true } // Ensure this runs during the initial setup
+      { immediate: true }
     );
 
 
@@ -281,9 +282,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
   padding: 16px;
-  /* برای ویژگی centered در v-tabs اصلی */
-  background-color: #efefef;
-  /* برای ویژگی dark در v-tabs اصلی */
+  background-color: var(--tabs-background);
 }
 
 .active-tab {
