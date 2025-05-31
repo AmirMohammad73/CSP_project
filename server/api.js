@@ -1498,7 +1498,10 @@ weekly_counts AS (
         DATE_TRUNC('week', v.change_date + INTERVAL '2 day') - INTERVAL '2 day' AS week_start,
         COUNT(*) FILTER (WHERE v.changed_columns @> ARRAY['amaliate_meydani']) AS amaliate_meydani_count,
         COUNT(*) FILTER (WHERE v.changed_columns @> ARRAY['dadeh_amaei']) AS dadeh_amaei_count,
-        COUNT(*) FILTER (WHERE v.changed_columns @> ARRAY['daryafte_naghsheh']) AS daryafte_naghsheh_count
+        COUNT(*) FILTER (WHERE v.changed_columns @> ARRAY['daryafte_naghsheh']) AS daryafte_naghsheh_count,
+        SUM(CASE WHEN v.changed_columns @> ARRAY['amaliate_meydani'] THEN l.tedad_makan::integer ELSE 0 END) AS sum_amaliyat_meydani_tedad_makan,
+        SUM(CASE WHEN v.changed_columns @> ARRAY['dadeh_amaei'] THEN l.tedad_makan::integer ELSE 0 END) AS sum_dadeh_amaei_tedad_makan,
+        SUM(CASE WHEN v.changed_columns @> ARRAY['daryafte_naghsheh'] THEN l.tedad_geosakhteman::integer ELSE 0 END) AS sum_daryafte_naghshe_tedad_geosakhteman
     FROM public.users_change_log_view v
     JOIN public.locations1 l ON v.pop_id::bigint = l.population_point_id
 	${whereClause}
@@ -1508,21 +1511,24 @@ lateral_counts AS (
     SELECT
         aw.week_start,
         'amaliate_meydani' AS operation,
-        COALESCE(wc.amaliate_meydani_count, 0) AS record_count
+        COALESCE(wc.amaliate_meydani_count, 0) AS record_count,
+        COALESCE(wc.sum_amaliyat_meydani_tedad_makan, 0) AS sum_of_rec
     FROM all_weeks aw
     LEFT JOIN weekly_counts wc ON aw.week_start = wc.week_start
     UNION ALL
     SELECT
         aw.week_start,
         'dadeh_amaei' AS operation,
-        COALESCE(wc.dadeh_amaei_count, 0) AS record_count
+        COALESCE(wc.dadeh_amaei_count, 0) AS record_count,
+        COALESCE(wc.sum_dadeh_amaei_tedad_makan, 0) AS sum_of_rec
     FROM all_weeks aw
     LEFT JOIN weekly_counts wc ON aw.week_start = wc.week_start
     UNION ALL
     SELECT
         aw.week_start,
         'daryafte_naghsheh' AS operation,
-        COALESCE(wc.daryafte_naghsheh_count, 0) AS record_count
+        COALESCE(wc.daryafte_naghsheh_count, 0) AS record_count,
+        COALESCE(wc.sum_daryafte_naghshe_tedad_geosakhteman, 0) AS sum_of_rec
     FROM all_weeks aw
     LEFT JOIN weekly_counts wc ON aw.week_start = wc.week_start
 )
@@ -1538,6 +1544,7 @@ SELECT
     ) AS week_label,
     record_count,
     operation,
+    sum_of_rec,
     week_start
 FROM lateral_counts
 ORDER BY week_start, operation;
@@ -1574,11 +1581,16 @@ const getMonthlyData = async (role, permission, username, ostan) => {
 monthly_counts AS (
   -- Aggregate the counts by each custom month
   SELECT
-    -- Align the change_log dates with the custom months starting from the 22nd
     am.month_start,
     COUNT(*) FILTER (WHERE ucl.changed_columns @> ARRAY['amaliate_meydani']) AS amaliate_meydani_count,
     COUNT(*) FILTER (WHERE ucl.changed_columns @> ARRAY['dadeh_amaei']) AS dadeh_amaei_count,
-    COUNT(*) FILTER (WHERE ucl.changed_columns @> ARRAY['daryafte_naghsheh']) AS daryafte_naghsheh_count
+    COUNT(*) FILTER (WHERE ucl.changed_columns @> ARRAY['daryafte_naghsheh']) AS daryafte_naghsheh_count,
+
+    -- محاسبه شرطی sum_of_rec
+    SUM(CASE WHEN ucl.changed_columns @> ARRAY['amaliate_meydani'] THEN l.tedad_makan::integer ELSE 0 END) AS sum_amaliyat_meydani_tedad_makan,
+    SUM(CASE WHEN ucl.changed_columns @> ARRAY['dadeh_amaei'] THEN l.tedad_makan::integer ELSE 0 END) AS sum_dadeh_amaei_tedad_makan,
+    SUM(CASE WHEN ucl.changed_columns @> ARRAY['daryafte_naghsheh'] THEN l.tedad_geosakhteman::integer ELSE 0 END) AS sum_daryafte_naghshe_tedad_geosakhteman
+
   FROM public.users_change_log_view ucl
   JOIN public.locations1 l ON ucl.pop_id::bigint = l.population_point_id
   JOIN all_months am ON ucl.change_date >= am.month_start AND ucl.change_date <= am.month_end
@@ -1590,35 +1602,47 @@ lateral_counts AS (
   SELECT
     am.month_start,
     'amaliate_meydani' AS operation,
-    COALESCE(mc.amaliate_meydani_count, 0) AS record_count
+    COALESCE(mc.amaliate_meydani_count, 0) AS record_count,
+    COALESCE(mc.sum_amaliyat_meydani_tedad_makan, 0) AS sum_of_rec
   FROM all_months am
   LEFT JOIN monthly_counts mc ON am.month_start = mc.month_start
   UNION ALL
   SELECT
     am.month_start,
     'dadeh_amaei' AS operation,
-    COALESCE(mc.dadeh_amaei_count, 0) AS record_count
+    COALESCE(mc.dadeh_amaei_count, 0) AS record_count,
+    COALESCE(mc.sum_dadeh_amaei_tedad_makan, 0) AS sum_of_rec
   FROM all_months am
   LEFT JOIN monthly_counts mc ON am.month_start = mc.month_start
   UNION ALL
   SELECT
     am.month_start,
     'daryafte_naghsheh' AS operation,
-    COALESCE(mc.daryafte_naghsheh_count, 0) AS record_count
+    COALESCE(mc.daryafte_naghsheh_count, 0) AS record_count,
+    COALESCE(mc.sum_daryafte_naghshe_tedad_geosakhteman, 0) AS sum_of_rec
   FROM all_months am
   LEFT JOIN monthly_counts mc ON am.month_start = mc.month_start
 )
 SELECT
-  CONCAT('ماه', ROW_NUMBER() OVER (PARTITION BY operation ORDER BY month_start),
+  CONCAT('ماه', month_number,
     CASE 
-      WHEN ROW_NUMBER() OVER (PARTITION BY operation ORDER BY month_start) = 1 THEN ' (شهریور1403)'
+      WHEN month_number = 1 THEN ' (شهریور1403)'
       ELSE ''
     END
   ) AS week_num,
   record_count,
-  operation
-FROM lateral_counts
-ORDER BY week_num, operation;`;
+  operation,
+  sum_of_rec
+FROM (
+  SELECT
+    ROW_NUMBER() OVER (PARTITION BY operation ORDER BY month_start) AS month_number,
+    month_start,
+    record_count,
+    operation,
+    sum_of_rec
+  FROM lateral_counts
+) numbered_months
+ORDER BY month_number, operation;`;
   return await query(sql);
 };
 const getQuarterlyData = async (role, permission, username, ostan) => {
@@ -1649,13 +1673,18 @@ const getQuarterlyData = async (role, permission, username, ostan) => {
   WHERE quarter_end < CURRENT_DATE
 ),
 quarterly_counts AS (
-  -- Aggregate the counts by each custom quarter
+  -- Aggregate the counts and conditional sums by each custom quarter
   SELECT
-    -- Align the change_log dates with the custom quarters
     aq.quarter_start,
     COUNT(*) FILTER (WHERE ucl.changed_columns @> ARRAY['amaliate_meydani']) AS amaliate_meydani_count,
     COUNT(*) FILTER (WHERE ucl.changed_columns @> ARRAY['dadeh_amaei']) AS dadeh_amaei_count,
-    COUNT(*) FILTER (WHERE ucl.changed_columns @> ARRAY['daryafte_naghsheh']) AS daryafte_naghsheh_count
+    COUNT(*) FILTER (WHERE ucl.changed_columns @> ARRAY['daryafte_naghsheh']) AS daryafte_naghsheh_count,
+
+    -- Conditional sums based on operation type
+    SUM(CASE WHEN ucl.changed_columns @> ARRAY['amaliate_meydani'] THEN l.tedad_makan::integer ELSE 0 END) AS sum_amaliyat_meydani_tedad_makan,
+    SUM(CASE WHEN ucl.changed_columns @> ARRAY['dadeh_amaei'] THEN l.tedad_makan::integer ELSE 0 END) AS sum_dadeh_amaei_tedad_makan,
+    SUM(CASE WHEN ucl.changed_columns @> ARRAY['daryafte_naghsheh'] THEN l.tedad_geosakhteman::integer ELSE 0 END) AS sum_daryafte_naghshe_tedad_geosakhteman
+
   FROM public.users_change_log_view ucl
   JOIN public.locations1 l ON ucl.pop_id::bigint = l.population_point_id
   JOIN all_quarters aq ON ucl.change_date >= aq.quarter_start AND ucl.change_date <= aq.quarter_end
@@ -1667,21 +1696,24 @@ lateral_counts AS (
   SELECT
     aq.quarter_start,
     'amaliate_meydani' AS operation,
-    COALESCE(qc.amaliate_meydani_count, 0) AS record_count
+    COALESCE(qc.amaliate_meydani_count, 0) AS record_count,
+    COALESCE(qc.sum_amaliyat_meydani_tedad_makan, 0) AS sum_of_rec
   FROM all_quarters aq
   LEFT JOIN quarterly_counts qc ON aq.quarter_start = qc.quarter_start
   UNION ALL
   SELECT
     aq.quarter_start,
     'dadeh_amaei' AS operation,
-    COALESCE(qc.dadeh_amaei_count, 0) AS record_count
+    COALESCE(qc.dadeh_amaei_count, 0) AS record_count,
+    COALESCE(qc.sum_dadeh_amaei_tedad_makan, 0) AS sum_of_rec
   FROM all_quarters aq
   LEFT JOIN quarterly_counts qc ON aq.quarter_start = qc.quarter_start
   UNION ALL
   SELECT
     aq.quarter_start,
     'daryafte_naghsheh' AS operation,
-    COALESCE(qc.daryafte_naghsheh_count, 0) AS record_count
+    COALESCE(qc.daryafte_naghsheh_count, 0) AS record_count,
+    COALESCE(qc.sum_daryafte_naghshe_tedad_geosakhteman, 0) AS sum_of_rec
   FROM all_quarters aq
   LEFT JOIN quarterly_counts qc ON aq.quarter_start = qc.quarter_start
 )
@@ -1693,7 +1725,8 @@ SELECT
     END
   ) AS week_num,
   record_count,
-  operation
+  operation,
+  sum_of_rec
 FROM lateral_counts
 ORDER BY week_num, operation;`;
   return await query(sql);

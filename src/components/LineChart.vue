@@ -96,6 +96,15 @@ export default {
                 x: {
                     formatter: (val) => val, // نمایش دقیق همان مقدار week_num
                 },
+                y: {
+                    formatter: function(value, { series, seriesIndex, dataPointIndex, w }) {
+                        const data = w.config.series[seriesIndex].data;
+                        const sumOfRec = w.globals.initialSeries[seriesIndex].sum_of_rec[dataPointIndex];
+                        const operationName = w.globals.initialSeries[seriesIndex].name;
+                        const recordLabel = operationName === "ژئوکد" ? "تعداد مکان" : "تعداد رکورد";
+                        return `تعداد روستا: ${value}\n${recordLabel}: ${sumOfRec}`;
+                    }
+                }
             },
             theme: {
                 mode: AppStore.isDarkTheme ? "dark" : "light",
@@ -202,9 +211,9 @@ export default {
 
         const formatData = (data) => {
             const seriesMap = {
-                amaliate_meydani: { name: "عملیات میدانی", data: [] },
-                dadeh_amaei: { name: "داده آمائی", data: [] },
-                daryafte_naghsheh: { name: "ژئوکد", data: [] },
+                amaliate_meydani: { name: "عملیات میدانی", data: [], sum_of_rec: [] },
+                dadeh_amaei: { name: "داده آمائی", data: [], sum_of_rec: [] },
+                daryafte_naghsheh: { name: "ژئوکد", data: [], sum_of_rec: [] },
             };
 
             const categories = [];
@@ -212,6 +221,7 @@ export default {
             data.forEach(item => {
                 if (seriesMap[item.operation]) {
                     seriesMap[item.operation].data.push(Number(item.record_count));
+                    seriesMap[item.operation].sum_of_rec.push(Number(item.sum_of_rec));
                 }
                 if (!categories.includes(item.week_num)) {
                     categories.push(item.week_num);
