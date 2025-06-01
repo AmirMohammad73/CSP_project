@@ -23,9 +23,11 @@
                             </v-list-item>
                         </template>
                     </v-select>
+
                     <v-card-actions class="mt-4">
                         <v-spacer></v-spacer>
-                        <v-btn color="success" class="text-white rounded-pill elevation-2" @click="exportToExcel">
+                        <v-btn color="success" class="text-white rounded-pill elevation-2" @click="exportToExcel"
+                            :loading="exporting">
                             <v-icon left>mdi-file-excel</v-icon>
                             Export to Excel
                         </v-btn>
@@ -40,8 +42,9 @@
 import { ref, onMounted } from 'vue'
 import * as XLSX from 'xlsx'
 import { useIPStore } from '../stores/app';
-import {useAuthStore} from '../stores/app';
+import { useAuthStore } from '../stores/app';
 import { useRouter } from 'vue-router';
+
 const items = ref([])
 const selectedItems = ref([])
 const loading = ref(false)
@@ -62,7 +65,7 @@ const fetchItems = async () => {
                 Authorization: `Bearer ${authStore.token}`,
             },
         });
-        if(!response.ok){
+        if (!response.ok) {
             authStore.logout();
             router.push('/');
         }
@@ -89,63 +92,78 @@ const exportToExcel = async () => {
         const ipStore = useIPStore();
         const SERVER_HOST = ipStore.SERVER_HOST;
         const authStore = useAuthStore();
-        const response = await fetch(`${SERVER_HOST}/query`, {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${authStore.token}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ selectedItems: selectedItems.value }),
-        })
 
-        const data = await response.json()
+        // Define all grouping levels
+        const groupingLevels = ['ostan', 'shahrestan', 'bakhsh', 'dehestan', 'roosta'];
+        const sheetNames = ['استان', 'شهرستان', 'بخش', 'دهستان', 'روستا'];
 
-        const transformedData = data.map(row => {
-            const newRow = { ...row }
-            for (const key in newRow) {
-                if (newRow[key] === true) {
-                    newRow[key] = '✔'
-                } else if (newRow[key] === false) {
-                    newRow[key] = ''
+        // Define column name mappings
+        const columnMappings = {
+            ostantitle: 'استان',
+            shahrestantitle: 'شهرستان',
+            zonetitle: 'بخش',
+            dehestantitle: 'دهستان',
+            locationname: 'نقطه جغرافیایی',
+            population_point_id: 'شناسه نقطه جمعیتی',
+            bonyad_maskan: 'بنیاد مسکن',
+            sayer_manabe: 'سایر منابع',
+            tarsim: 'ترسیم',
+            amaliate_meydani: 'عملیات میدانی',
+            dadeh_amaei: 'داده آمائی',
+            eslah_naghsheh: 'اصلاح و ارسال',
+            geocode: 'ژئوکد',
+            pdf: 'مختصات روستا',
+            ersal_setad: 'محدوده روستا',
+            tedad_geocode_makan: 'تعداد مکان ژئوکد',
+            tedad_makan_jadid: 'تعداد مکان',
+            tedad_sakhteman: 'تعداد ساختمان',
+            tedad_makan: 'تعداد رکورد',
+            tedad_geosakhteman: 'تعداد ساختمان ژئوکد',
+            tayid_va_bargozari: 'تائید و بارگذاری',
+            total_parcels: 'مجموع پارسلها'
+        };
+        
+        // Create a new workbook
+        const workbook = XLSX.utils.book_new();
+
+        // Fetch data for each level and create sheets
+        for (let i = 0; i < groupingLevels.length; i++) {
+            const response = await fetch(`${SERVER_HOST}/query`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${authStore.token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    selectedItems: selectedItems.value,
+                    groupingLevel: groupingLevels[i]
+                }),
+            });
+
+            const data = await response.json();
+
+            // Transform data: convert booleans to ✔ and rename columns
+            const transformedData = data.map(row => {
+                const newRow = {};
+                for (const [key, value] of Object.entries(row)) {
+                    // Get Persian column name or use original if not mapped
+                    const persianKey = columnMappings[key] || key;
+                    // Transform boolean values to ✔
+                    newRow[persianKey] = value === true ? '✔' : 
+                                       value === false ? '' : 
+                                       value;
                 }
-            }
-            return newRow
-        })
+                return newRow;
+            });
 
-        const worksheetData = [
-            [
-                'استان',
-                'شهرستان',
-                'بخش',
-                'دهستان',
-                'روستا',
-                'population_point_id',
-                'بنیاد مسکن',
-                'سایر منابع',
-                'ترسیم',
-                'عملیات میدانی',
-                'داده آمائی',
-                'اصلاح نقشه و ارسال',
-                'ژئوکد',
-                'مختصات روستا',
-                'محدوده روستا',
-                'تعداد مکان ژئوکد شده',
-                'تعداد مکان بهنگام شده',
-                'تعداد ساختمان',
-                'تعداد رکورد',
-                'تعداد ساختمان ژئوکد شده',
-                'تایید و بارگذاری',
-                'تعداد پارسلها',
-            ],
-            ...transformedData.map(row => Object.values(row)),
-        ]
+            // Create worksheet and add to workbook
+            const worksheet = XLSX.utils.json_to_sheet(transformedData);
+            XLSX.utils.book_append_sheet(workbook, worksheet, sheetNames[i]);
+        }
 
-        const worksheet = XLSX.utils.aoa_to_sheet(worksheetData)
-        const workbook = XLSX.utils.book_new()
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Selected Items')
-
-        const excelFileName = 'Selected_Items.xlsx'
-        XLSX.writeFile(workbook, excelFileName)
+        // Generate the Excel file
+        const excelFileName = `Report_${new Date().toISOString().split('T')[0]}.xlsx`;
+        XLSX.writeFile(workbook, excelFileName);
     } catch (err) {
         error.value = 'خطا در صادرات به اکسل'
         console.error('Error exporting to Excel:', err)

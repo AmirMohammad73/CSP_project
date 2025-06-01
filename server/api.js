@@ -207,82 +207,146 @@ const getProgressData = async () => {
   return await query(sql);
 };
 // Function to construct and execute the SQL query
-const getQueryData = async (selectedItems, role, permission) => {
+const getQueryData = async (selectedItems, role, permission, groupingLevel = 'roosta') => {
     let whereCondition = '';
-  if (role === '4' || role === '1') {
-    // Convert the permission array into a list of SQL conditions
-    const conditions = permission.map((region) => `'${region}'`).join(', ');
-    whereCondition = `AND ostantitle IN (${conditions})`;
-  }
-    // Add WHERE condition if selectedItems is provided
+
+    if (role === '4' || role === '1') {
+        const conditions = permission.map(region => `'${region}'`).join(', ');
+        whereCondition = `AND ostantitle IN (${conditions})`;
+    }
+
     if (selectedItems && selectedItems.length > 0) {
         const formattedItems = selectedItems.map(item => `'${item}'`).join(', ');
-		console.log(formattedItems);
         whereCondition = `AND ostantitle IN (${formattedItems})`;
     }
-    const sql = `SELECT 
-    ostantitle, 
-    shahrestantitle, 
-    zonetitle, 
-    dehestantitle, 
-    locationname, 
-    population_point_id, 
-    adam_paziresh AS bonyad_maskan, 
-    niazmande_eslah AS sayer_manabe,
-    arseh_ayan AS tarsim, 
-    amaliate_meydani, 
-    dadeh_amaei, 
-    eslah_naghsheh, 
-    daryafte_naghsheh AS geocode, 
-    pdf, 
-    ersal_setad,
-	SUM(CASE WHEN tedad_geocode_makan ~ '^[0-9]+$' AND amaliate_meydani = true THEN tedad_geocode_makan::INTEGER ELSE 0 END) AS tedad_geocode_makan,
-    SUM(CASE WHEN tedad_makan_jadid ~ '^[0-9]+$' AND amaliate_meydani THEN tedad_makan_jadid::INTEGER ELSE 0 END) AS tedad_makan_jadid,
-	SUM(CASE WHEN tedad_sakhteman ~ '^[0-9]+$' AND amaliate_meydani = true THEN tedad_sakhteman::INTEGER ELSE 0 END) AS tedad_sakhteman,
-	tedad_makan,
-	SUM(CASE WHEN tedad_geosakhteman ~ '^[0-9]+$' AND amaliate_meydani = true THEN tedad_geosakhteman::INTEGER ELSE 0 END) AS tedad_geosakhteman,
-    tayid_va_bargozari,
-    (COALESCE(NULLIF(tedad_parcel, '')::integer, 0) + COALESCE(NULLIF(tedad_parcel_tarsimi, '')::integer, 0)) AS total_parcels
-FROM 
-    public.locations1
-WHERE 
-    ((adam_paziresh = true
-    OR niazmande_eslah = true 
-    OR arseh_ayan = true) 
-    OR amaliate_meydani = true 
-    OR dadeh_amaei = true 
-    OR eslah_naghsheh = true 
-    OR daryafte_naghsheh = true
-    OR pdf = true 
-    OR ersal_setad = true)
-    ${whereCondition}
-GROUP BY
-    ostantitle, 
-    shahrestantitle, 
-    zonetitle, 
-    dehestantitle, 
-    locationname, 
-    population_point_id, 
-    adam_paziresh, 
-    niazmande_eslah,
-    arseh_ayan, 
-    amaliate_meydani, 
-    dadeh_amaei, 
-    eslah_naghsheh, 
-    daryafte_naghsheh, 
-    pdf, 
-    ersal_setad,
-	tedad_makan,
-    tayid_va_bargozari,
-    (COALESCE(NULLIF(tedad_parcel, '')::integer, 0) + COALESCE(NULLIF(tedad_parcel_tarsimi, '')::integer, 0))
-ORDER BY 
-    ostantitle, 
-    shahrestantitle, 
-    zonetitle, 
-    dehestantitle, 
-    locationname;`;
 
-    return await query(sql); // Execute the query and return the results
+    if (groupingLevel === 'roosta') {
+        const sql = `
+        SELECT 
+            ostantitle, 
+            shahrestantitle, 
+            zonetitle, 
+            dehestantitle, 
+            locationname, 
+            population_point_id, 
+            adam_paziresh AS bonyad_maskan, 
+            niazmande_eslah AS sayer_manabe,
+            arseh_ayan AS tarsim, 
+            amaliate_meydani, 
+            dadeh_amaei, 
+            eslah_naghsheh, 
+            daryafte_naghsheh AS geocode, 
+            pdf, 
+            ersal_setad,
+            SUM(CASE WHEN tedad_geocode_makan ~ '^[0-9]+$' AND amaliate_meydani = true THEN tedad_geocode_makan::INTEGER ELSE 0 END) AS tedad_geocode_makan,
+            SUM(CASE WHEN tedad_makan_jadid ~ '^[0-9]+$' AND amaliate_meydani THEN tedad_makan_jadid::INTEGER ELSE 0 END) AS tedad_makan_jadid,
+            SUM(CASE WHEN tedad_sakhteman ~ '^[0-9]+$' AND amaliate_meydani = true THEN tedad_sakhteman::INTEGER ELSE 0 END) AS tedad_sakhteman,
+            tedad_makan,
+            SUM(CASE WHEN tedad_geosakhteman ~ '^[0-9]+$' AND amaliate_meydani = true THEN tedad_geosakhteman::INTEGER ELSE 0 END) AS tedad_geosakhteman,
+            tayid_va_bargozari,
+            (COALESCE(NULLIF(tedad_parcel, '')::integer, 0) + COALESCE(NULLIF(tedad_parcel_tarsimi, '')::integer, 0)) AS total_parcels
+        FROM 
+            public.locations1
+        WHERE 
+            ((adam_paziresh = true
+            OR niazmande_eslah = true 
+            OR arseh_ayan = true) 
+            OR amaliate_meydani = true 
+            OR dadeh_amaei = true 
+            OR eslah_naghsheh = true 
+            OR daryafte_naghsheh = true
+            OR pdf = true 
+            OR ersal_setad = true)
+            ${whereCondition}
+        GROUP BY
+            ostantitle, 
+            shahrestantitle, 
+            zonetitle, 
+            dehestantitle, 
+            locationname, 
+            population_point_id, 
+            adam_paziresh, 
+            niazmande_eslah,
+            arseh_ayan, 
+            amaliate_meydani, 
+            dadeh_amaei, 
+            eslah_naghsheh, 
+            daryafte_naghsheh, 
+            pdf, 
+            ersal_setad,
+            tedad_makan,
+            tayid_va_bargozari,
+            (COALESCE(NULLIF(tedad_parcel, '')::integer, 0) + COALESCE(NULLIF(tedad_parcel_tarsimi, '')::integer, 0))
+        ORDER BY 
+            ostantitle, 
+            shahrestantitle, 
+            zonetitle, 
+            dehestantitle, 
+            locationname`;
+        return await query(sql);
+    }
+
+    // ... existing code for other grouping levels ...
+    let groupByColumns = '';
+    switch(groupingLevel) {
+        case 'ostan':
+            groupByColumns = 'ostantitle';
+            break;
+        case 'shahrestan':
+            groupByColumns = 'ostantitle, shahrestantitle';
+            break;
+        case 'bakhsh':
+            groupByColumns = 'ostantitle, shahrestantitle, zonetitle';
+            break;
+        case 'dehestan':
+            groupByColumns = 'ostantitle, shahrestantitle, zonetitle, dehestantitle';
+            break;
+    }
+
+    const sql = `
+    SELECT 
+        ${groupByColumns},
+        SUM(CASE WHEN adam_paziresh THEN 1 ELSE 0 END) AS bonyad_maskan,
+        SUM(CASE WHEN niazmande_eslah THEN 1 ELSE 0 END) AS sayer_manabe,
+        SUM(CASE WHEN arseh_ayan THEN 1 ELSE 0 END) AS tarsim,
+        SUM(CASE WHEN amaliate_meydani THEN 1 ELSE 0 END) AS amaliate_meydani,
+        SUM(CASE WHEN dadeh_amaei THEN 1 ELSE 0 END) AS dadeh_amaei,
+        SUM(CASE WHEN eslah_naghsheh THEN 1 ELSE 0 END) AS eslah_naghsheh,
+        SUM(CASE WHEN daryafte_naghsheh THEN 1 ELSE 0 END) AS geocode,
+        SUM(CASE WHEN pdf THEN 1 ELSE 0 END) AS pdf,
+        SUM(CASE WHEN ersal_setad THEN 1 ELSE 0 END) AS ersal_setad,
+        SUM(CASE WHEN tedad_geocode_makan ~ '^[0-9]+$' AND amaliate_meydani = true 
+            THEN tedad_geocode_makan::INTEGER ELSE 0 END) AS tedad_geocode_makan,
+        SUM(CASE WHEN tedad_makan_jadid ~ '^[0-9]+$' AND amaliate_meydani 
+            THEN tedad_makan_jadid::INTEGER ELSE 0 END) AS tedad_makan_jadid,
+        SUM(CASE WHEN tedad_sakhteman ~ '^[0-9]+$' AND amaliate_meydani = true 
+            THEN tedad_sakhteman::INTEGER ELSE 0 END) AS tedad_sakhteman,
+        SUM(CASE WHEN tedad_makan ~ '^[0-9]+$' 
+            THEN tedad_makan::INTEGER ELSE 0 END) AS tedad_makan,
+        SUM(CASE WHEN tedad_geosakhteman ~ '^[0-9]+$' AND amaliate_meydani = true 
+            THEN tedad_geosakhteman::INTEGER ELSE 0 END) AS tedad_geosakhteman,
+        SUM(CASE WHEN tayid_va_bargozari THEN 1 ELSE 0 END) AS tayid_va_bargozari,
+        SUM(COALESCE(NULLIF(tedad_parcel, '')::integer, 0) + 
+            COALESCE(NULLIF(tedad_parcel_tarsimi, '')::integer, 0)) AS total_parcels
+    FROM 
+        public.locations1
+    WHERE 
+        (adam_paziresh = true
+        OR niazmande_eslah = true 
+        OR arseh_ayan = true 
+        OR amaliate_meydani = true 
+        OR dadeh_amaei = true 
+        OR eslah_naghsheh = true 
+        OR daryafte_naghsheh = true 
+        OR pdf = true 
+        OR ersal_setad = true)
+        ${whereCondition}
+    GROUP BY 
+        ${groupByColumns}
+    ORDER BY 
+        ${groupByColumns}`;
+
+    return await query(sql);
 };
 const getNationalIDStatusData = async (role, permission) => {
   let whereClause = '';

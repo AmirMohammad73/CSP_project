@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const { getMapStatusData, getCityLocationsData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getShahrData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getBSCTab6Data, getBSCTab7Data, getBSCTab8Data, getBSCTab9Data, getBSCTab10Data, getBSCTab11Data, getBSCTab12Data, getBSCTab13Data, getBSCTab14Data, getBSCTab15Data, getBSCTab16Data, getBSCTab17Data, getBSCTab18Data, updateRoostaData, getPostalCodeRequest, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, SetTimestamp, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData, getWeeklyData, getMonthlyData, getQuarterlyData, getBests, getProgressData, getOstanUsers, getDadehAmaeiUsers } = require('./api');
+const { getMapStatusData, getCityLocationsData, getLocationsData, getUpdateStatusData, getGeocodeStatusData, getPlateStatusData, getNationalIDStatusData, getDetailedLocationsData, getShahrestanData, getZoneData, getShahrData, getDehestanData, getRoostaData, getOstanNames, getQueryData, getPieMap, getBSCTab1Data, getBSCTab2Data, getBSCTab3Data, getBSCTab4Data, getBSCTab5Data, getBSCTab6Data, getBSCTab7Data, getBSCTab8Data, getBSCTab9Data, getBSCTab10Data, getBSCTab11Data, getBSCTab12Data, getBSCTab13Data, getBSCTab14Data, getBSCTab15Data, getBSCTab16Data, getBSCTab17Data, getBSCTab18Data, updateRoostaData, getPostalCodeRequest, storeToken, generateToken, authenticateUser, authenticateToken, blacklistToken, getGnafIndexData, changePassword, getInteroperability, getNotifications, getUsernameById, getMapCount, getUpdateCount, getDadehCount, getGeoCount, getRadarData, getWeeklyData, getMonthlyData, getQuarterlyData, getBests, getProgressData, getOstanUsers, getDadehAmaeiUsers } = require('./api');
 
 const JWT_SECRET = 'efd6401dca50843be8272263a61b1a97959fdfafb1f0bcedc6210269c7c84902';
 require('dotenv').config();
@@ -309,15 +309,15 @@ app.get('/api/bsc/tab18', authenticateToken, async (req, res) => {
 });
 // Endpoint to handle the query with dynamic WHERE conditions
 app.post('/query', authenticateToken, async (req, res) => {
-    try {
-        const { selectedItems } = req.body;
-        const { role, permission } = req.user;
-        const data = await getQueryData(selectedItems, role, permission);
-        res.json(data);
-    } catch (err) {
-        console.error('API error:', err);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+  try {
+    const user = req.user;
+    const { selectedItems, groupingLevel } = req.body;
+    const data = await getQueryData(selectedItems, user.role, user.permission, groupingLevel);
+    res.json(data);
+  } catch (err) {
+    console.error('API error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 app.get('/api/locations/detailed', authenticateToken, async (req, res) => {
   try {
