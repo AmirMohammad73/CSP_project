@@ -1566,12 +1566,10 @@ const getMonthlyData = async (role, permission, username, ostan) => {
   }
 
   const sql = `WITH RECURSIVE all_months AS (
-  -- Define the first month starting 2024-08-22
   SELECT
     '2024-08-22'::date AS month_start,
     '2024-09-21'::date AS month_end
   UNION ALL
-  -- Recursively add months with a 1-month interval (starting the 22nd of each month)
   SELECT
     (month_start + INTERVAL '1 month')::date AS month_start,
     (month_end + INTERVAL '1 month')::date AS month_end
@@ -1579,14 +1577,12 @@ const getMonthlyData = async (role, permission, username, ostan) => {
   WHERE month_end < CURRENT_DATE
 ),
 monthly_counts AS (
-  -- Aggregate the counts by each custom month
   SELECT
     am.month_start,
     COUNT(*) FILTER (WHERE ucl.changed_columns @> ARRAY['amaliate_meydani']) AS amaliate_meydani_count,
     COUNT(*) FILTER (WHERE ucl.changed_columns @> ARRAY['dadeh_amaei']) AS dadeh_amaei_count,
     COUNT(*) FILTER (WHERE ucl.changed_columns @> ARRAY['daryafte_naghsheh']) AS daryafte_naghsheh_count,
 
-    -- محاسبه شرطی sum_of_rec
     SUM(CASE WHEN ucl.changed_columns @> ARRAY['amaliate_meydani'] THEN l.tedad_makan::integer ELSE 0 END) AS sum_amaliyat_meydani_tedad_makan,
     SUM(CASE WHEN ucl.changed_columns @> ARRAY['dadeh_amaei'] THEN l.tedad_makan::integer ELSE 0 END) AS sum_dadeh_amaei_tedad_makan,
     SUM(CASE WHEN ucl.changed_columns @> ARRAY['daryafte_naghsheh'] THEN l.tedad_geosakhteman::integer ELSE 0 END) AS sum_daryafte_naghshe_tedad_geosakhteman
@@ -1598,7 +1594,6 @@ monthly_counts AS (
   GROUP BY am.month_start
 ),
 lateral_counts AS (
-  -- Create separate rows for each operation type in each month
   SELECT
     am.month_start,
     'amaliate_meydani' AS operation,
@@ -1622,27 +1617,47 @@ lateral_counts AS (
     COALESCE(mc.sum_daryafte_naghshe_tedad_geosakhteman, 0) AS sum_of_rec
   FROM all_months am
   LEFT JOIN monthly_counts mc ON am.month_start = mc.month_start
+),
+
+persian_month_names AS (
+  SELECT
+    month_start,
+    record_count,
+    operation,
+    sum_of_rec,
+    EXTRACT(MONTH FROM month_start) AS gregorian_month,
+    EXTRACT(YEAR FROM month_start) AS gregorian_year,
+    CASE
+      WHEN EXTRACT(MONTH FROM month_start)::int < 3 THEN EXTRACT(YEAR FROM month_start)::int - 622
+      ELSE EXTRACT(YEAR FROM month_start)::int - 621
+    END AS persian_year
+  FROM lateral_counts
 )
+
 SELECT
-  CONCAT('ماه', month_number,
-    CASE 
-      WHEN month_number = 1 THEN ' (شهریور1403)'
-      ELSE ''
-    END
+  CONCAT(
+    CASE
+      WHEN gregorian_month = 8 THEN 'شهریور'
+      WHEN gregorian_month = 9 THEN 'مهر'
+      WHEN gregorian_month = 10 THEN 'آبان'
+      WHEN gregorian_month = 11 THEN 'آذر'
+      WHEN gregorian_month = 12 THEN 'دی'
+      WHEN gregorian_month = 1 THEN 'بهمن'
+      WHEN gregorian_month = 2 THEN 'اسفند'
+      WHEN gregorian_month = 3 THEN 'فروردین'
+      WHEN gregorian_month = 4 THEN 'اردیبهشت'
+      WHEN gregorian_month = 5 THEN 'خرداد'
+      WHEN gregorian_month = 6 THEN 'تیر'
+      WHEN gregorian_month = 7 THEN 'مرداد'
+    END,
+    ' ',
+    persian_year
   ) AS week_num,
   record_count,
   operation,
   sum_of_rec
-FROM (
-  SELECT
-    ROW_NUMBER() OVER (PARTITION BY operation ORDER BY month_start) AS month_number,
-    month_start,
-    record_count,
-    operation,
-    sum_of_rec
-  FROM lateral_counts
-) numbered_months
-ORDER BY month_number, operation;`;
+FROM persian_month_names
+ORDER BY month_start, operation;`;
   return await query(sql);
 };
 const getQuarterlyData = async (role, permission, username, ostan) => {
